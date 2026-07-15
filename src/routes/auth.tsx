@@ -90,30 +90,16 @@ function AuthPage() {
         />
 
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="grid size-11 place-items-center rounded-lg bg-white p-1.5 shadow-lg">
-              <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
+          <Link to="/" className="inline-flex">
+            <div className="grid size-32 place-items-center">
+              <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain lg:invert lg:brightness-0" />
             </div>
-            <span className="text-lg font-extrabold tracking-tight">CLEAR FLOWER</span>
           </Link>
 
           <div className="max-w-lg space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur">
-              <span className="size-1.5 rounded-full bg-emerald-400" />
-              Port Autonome de Dakar
-            </div>
             <blockquote className="text-3xl font-semibold leading-tight tracking-tight text-balance xl:text-4xl">
               « Nous avons réduit de 30 % le temps moyen de traitement de nos dossiers dès le premier mois. »
             </blockquote>
-            <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-full bg-white/10 text-sm font-bold">
-                MD
-              </div>
-              <div className="text-sm">
-                <div className="font-semibold">Directeur d'opérations</div>
-                <div className="text-primary-foreground/60">Commissionnaire agréé en douane</div>
-              </div>
-            </div>
 
             <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
               <Metric value="30 %" label="Temps gagné" />
@@ -139,11 +125,10 @@ function AuthPage() {
             ← Retour à l'accueil
           </Link>
 
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="grid size-10 place-items-center rounded-lg bg-primary p-1.5">
+          <div className="mb-8 flex items-center lg:hidden">
+            <div className="grid size-24 place-items-center">
               <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
             </div>
-            <span className="text-base font-extrabold tracking-tight">CLEAR FLOWER</span>
           </div>
 
           {/* Segmented control */}
