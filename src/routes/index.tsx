@@ -23,7 +23,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-white/80 backdrop-blur">
-        <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-4 sm:h-28 sm:px-8">
+        <div className="mx-auto flex h-24 w-full max-w-[1400px] items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
             <img
               src={logoAsset.url}
