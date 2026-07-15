@@ -64,13 +64,14 @@ function Dashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 p-6 md:p-8">
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Vue d'ensemble
         </div>
         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
           Tableau de bord opérations
         </h1>
       </div>
+
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {kpis.map((k, i) => (
