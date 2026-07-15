@@ -183,9 +183,10 @@ function Th({
 }) {
   return (
     <th
-      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground ${className}`}
+      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-label ${className}`}
     >
       {children}
     </th>
   );
 }
+
