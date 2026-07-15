@@ -91,9 +91,11 @@ function AuthPage() {
 
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
           <Link to="/" className="inline-flex">
-            <div className="grid size-32 place-items-center">
-              <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain lg:invert lg:brightness-0" />
-            </div>
+            <img
+              src={logoAsset.url}
+              alt="Clear Flower"
+              className="h-28 w-auto object-contain invert brightness-0"
+            />
           </Link>
 
           <div className="max-w-lg space-y-8">
