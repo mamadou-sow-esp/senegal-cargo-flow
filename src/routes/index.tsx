@@ -1,6 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Container, FileText, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  Cloud,
+  Container,
+  FileText,
+  FolderKanban,
+  GitBranch,
+  Headphones,
+  Lock,
+  ShieldCheck,
+} from "lucide-react";
 import logoAsset from "@/assets/clearflower-logo.png.asset.json";
+import heroPort from "@/assets/hero-port.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -9,10 +22,14 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-white/60 backdrop-blur">
+      <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain sm:h-24 md:h-28" />
+            <img
+              src={logoAsset.url}
+              alt="Clear Flower"
+              className="h-20 w-auto object-contain sm:h-24 md:h-28"
+            />
           </Link>
           <nav className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -32,34 +49,148 @@ function Landing() {
         </div>
       </header>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-16 sm:px-8 sm:pt-24">
-        <div className="max-w-4xl">
-          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tighter text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-            Le poste de commande des commissionnaires en douane sénégalais.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base text-muted-foreground text-pretty sm:text-lg">
-            Centralisez vos dossiers d'importation, suivez chaque conteneur du
-            connaissement au Bon à Enlever, et offrez à vos clients importateurs
-            une visibilité totale — sans appels ni WhatsApp.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/auth"
-              search={{ mode: "signup" }}
-              className="inline-flex items-center gap-2 rounded bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90"
+      <section className="relative w-full overflow-hidden bg-white">
+        <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
+          <div className="px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
+            <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter sm:text-5xl md:text-6xl">
+              Le poste de commande des{" "}
+              <span className="text-hero-blue">
+                commissionnaires en douane sénégalais
+              </span>
+              .
+            </h1>
+            <div className="mt-6 h-1 w-20 bg-hero-blue" />
+            <p className="mt-6 max-w-2xl text-base text-muted-foreground text-pretty sm:text-lg">
+              Centralisez vos dossiers d'importation, suivez chaque conteneur du
+              connaissement au Bon à Enlever, et offrez à vos clients importateurs
+              une visibilité totale — sans appels ni WhatsApp.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/auth"
+                search={{ mode: "signup" }}
+                className="inline-flex items-center gap-2 rounded bg-hero-blue px-5 py-3 text-sm font-bold uppercase tracking-wider text-white hover:opacity-90"
+              >
+                Démarrer 14 jours d'essai <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                to="/auth"
+                className="inline-flex items-center gap-2 rounded border border-border bg-white px-5 py-3 text-sm font-semibold hover:bg-muted"
+              >
+                Se connecter
+              </Link>
+            </div>
+
+            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
+              {[
+                {
+                  icon: FolderKanban,
+                  title: "Suivi des dossiers",
+                  body: "En temps réel",
+                },
+                {
+                  icon: FileText,
+                  title: "Gestion des documents",
+                  body: "Centralisée",
+                },
+                {
+                  icon: GitBranch,
+                  title: "Pipeline de dédouanement",
+                  body: "Structuré et efficace",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Transparence client",
+                  body: "À chaque étape",
+                },
+              ].map((f) => (
+                <div key={f.title} className="flex items-start gap-3">
+                  <f.icon className="mt-0.5 size-5 shrink-0 text-hero-blue" />
+                  <div>
+                    <div className="text-sm font-semibold leading-tight">
+                      {f.title}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {f.body}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative hidden min-h-[420px] lg:block">
+            <img
+              src={heroPort.url}
+              alt="Port avec conteneurs et grues"
+              className="absolute inset-0 h-full w-full object-cover"
+              width={1200}
+              height={800}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent lg:via-white/30" />
+            <svg
+              className="absolute inset-0 h-full w-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid slice"
+              aria-hidden="true"
             >
-              Démarrer 14 jours d'essai <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              to="/auth"
-              className="inline-flex items-center gap-2 rounded border border-border bg-white px-5 py-3 text-sm font-semibold hover:bg-muted"
-            >
-              Se connecter
-            </Link>
+              <circle
+                cx="50"
+                cy="50"
+                r="34"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="13"
+                strokeDasharray="160.22 53.41"
+                transform="rotate(-135 50 50)"
+                className="text-hero-blue"
+              />
+            </svg>
           </div>
         </div>
 
+        <div className="bg-hero-blue text-white">
+          <div className="mx-auto grid max-w-7xl gap-px bg-white/20 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: Award,
+                title: "Conçu pour les pros.",
+                body: "Pensé pour la performance.",
+              },
+              {
+                icon: Lock,
+                title: "Sécurisé.",
+                body: "Données protégées.",
+              },
+              {
+                icon: Cloud,
+                title: "Accessible partout.",
+                body: "Sur tous vos appareils.",
+              },
+              {
+                icon: Headphones,
+                title: "Support dédié.",
+                body: "À vos côtés à chaque étape.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-3 bg-hero-blue px-4 py-5 sm:px-6 sm:py-6"
+              >
+                <item.icon className="mt-0.5 size-5 shrink-0 text-white/90" />
+                <div>
+                  <div className="text-sm font-semibold leading-tight">
+                    {item.title}
+                  </div>
+                  <div className="mt-0.5 text-xs text-white/80">{item.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-8 sm:py-24">
         <div className="mt-20 grid gap-4 md:grid-cols-3">
           {[
             {
