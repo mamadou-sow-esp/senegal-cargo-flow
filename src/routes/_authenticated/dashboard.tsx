@@ -209,12 +209,12 @@ function Dashboard() {
 
           <div className="rounded border border-accent/20 bg-accent/5 p-4">
             <div className="text-[11px] font-bold uppercase tracking-widest text-accent">
-              Alerte IA
+              Assistance IA active
             </div>
             <p className="mt-1 text-xs leading-relaxed text-foreground/80">
-              L'analyse automatique des dossiers arrivera bientôt : détection
-              des documents manquants, prédiction des retards et score de
-              risque par dossier.
+              L'assistant ClearFlow IA est à votre disposition. Posez-lui vos
+              questions sur les procédures douanières, les taxes, les
+              documents requis ou le suivi d'un dossier.
             </p>
           </div>
         </aside>
