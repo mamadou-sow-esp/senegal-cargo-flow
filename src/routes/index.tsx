@@ -137,11 +137,11 @@ function Landing() {
               <circle
                 cx="50"
                 cy="50"
-                r="38"
+                r="34"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="15"
-                strokeDasharray="179.07 59.69"
+                strokeWidth="13"
+                strokeDasharray="160.22 53.41"
                 transform="rotate(-135 50 50)"
                 className="text-hero-blue"
               />
