@@ -6,7 +6,7 @@
 
 /*
  * Clear Flower — Bureaucratic Precision
- * Inter Light for body + numbers, Space Grotesk for labels/status,
+ * Inter Light for body + numbers, Sora Light for labels/status,
  * orange accent for critical alerts.
  */
 
@@ -25,7 +25,7 @@
   --font-mono:
     "Inter", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-label:
-    "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
 
 
@@ -148,6 +148,7 @@
 
 @utility font-label {
   font-family: var(--font-label);
+  font-weight: 300;
 }
 
 
