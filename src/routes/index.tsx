@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, FileText, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Container, FileText, ShieldCheck } from "lucide-react";
 import logoAsset from "@/assets/clearflower-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({

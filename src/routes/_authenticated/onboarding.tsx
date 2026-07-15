@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createCompanyAndAdmin } from "@/lib/onboarding.functions";
-import { Container } from "lucide-react";
+import logoAsset from "@/assets/clearflower-logo.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   component: Onboarding,
@@ -31,9 +31,7 @@ function Onboarding() {
   return (
     <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md flex-col justify-center px-6 py-12">
       <div className="mb-8 flex items-center gap-2.5">
-        <div className="grid size-9 place-items-center rounded bg-primary text-primary-foreground">
-          <Container className="size-4" />
-        </div>
+        <img src={logoAsset.url} alt="Clear Flower" className="size-10 object-contain" />
         <span className="text-lg font-extrabold tracking-tighter">
           CLEAR FLOWER
         </span>
