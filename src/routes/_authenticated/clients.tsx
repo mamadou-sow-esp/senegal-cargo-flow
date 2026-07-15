@@ -1,0 +1,221 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Plus, Search } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/clients")({
+  component: ClientsPage,
+});
+
+function ClientsPage() {
+  const qc = useQueryClient();
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    contact_name: "",
+    email: "",
+    phone: "",
+    ninea: "",
+    rccm: "",
+    address: "",
+  });
+
+  const { data } = useQuery({
+    queryKey: ["clients", q],
+    queryFn: async () => {
+      let query = supabase
+        .from("clients")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (q.trim()) query = query.ilike("name", `%${q}%`);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("company_id")
+        .eq("id", u.user!.id)
+        .single();
+      if (!prof?.company_id) throw new Error("Aucune entreprise");
+      const { error } = await supabase
+        .from("clients")
+        .insert({ ...form, company_id: prof.company_id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Client créé");
+      setForm({
+        name: "",
+        contact_name: "",
+        email: "",
+        phone: "",
+        ninea: "",
+        rccm: "",
+        address: "",
+      });
+      setOpen(false);
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erreur"),
+  });
+
+  return (
+    <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Contacts
+          </div>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+            Clients importateurs
+          </h1>
+        </div>
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
+        >
+          <Plus className="size-3.5" /> Nouveau client
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2 rounded border border-border bg-white p-3">
+        <Search className="size-3.5 text-muted-foreground" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Rechercher un client…"
+          className="w-full bg-transparent text-xs outline-none"
+        />
+      </div>
+
+      <div className="overflow-hidden rounded border border-border bg-white">
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="border-b border-border bg-muted/60">
+              <Th>Nom</Th>
+              <Th>Contact</Th>
+              <Th>Email</Th>
+              <Th>Téléphone</Th>
+              <Th>NINEA</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border text-sm">
+            {(data ?? []).map((c) => (
+              <tr key={c.id} className="hover:bg-primary/5">
+                <td className="px-4 py-3 font-medium">{c.name}</td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {c.contact_name || "—"}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {c.email || "—"}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {c.phone || "—"}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {c.ninea || "—"}
+                </td>
+              </tr>
+            ))}
+            {(data ?? []).length === 0 && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-4 py-12 text-center text-xs text-muted-foreground"
+                >
+                  Aucun client. Créez votre premier client importateur.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded border border-border bg-white p-6">
+            <h2 className="text-lg font-extrabold tracking-tight">
+              Nouveau client
+            </h2>
+            <form
+              className="mt-4 space-y-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!form.name.trim()) return;
+                create.mutate();
+              }}
+            >
+              <F label="Raison sociale *" required value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} />
+              <F label="Contact" value={form.contact_name} onChange={(v) => setForm((f) => ({ ...f, contact_name: v }))} />
+              <F label="Email" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
+              <F label="Téléphone" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+              <F label="NINEA" value={form.ninea} onChange={(v) => setForm((f) => ({ ...f, ninea: v }))} />
+              <F label="RCCM" value={form.rccm} onChange={(v) => setForm((f) => ({ ...f, rccm: v }))} />
+              <F label="Adresse" value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded border border-border bg-white px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                >
+                  Annuler
+                </button>
+                <button
+                  disabled={create.isPending}
+                  className="rounded bg-primary px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-60"
+                >
+                  {create.isPending ? "…" : "Créer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+      {children}
+    </th>
+  );
+}
+function F({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded border border-input bg-white px-3 py-1.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+      />
+    </label>
+  );
+}
