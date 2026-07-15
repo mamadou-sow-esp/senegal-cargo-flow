@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
   head: () => ({
-    meta: [{ title: "Connexion — ClearFlow" }],
+    meta: [{ title: "Connexion — Clear Flower" }],
   }),
 });
 
@@ -75,7 +75,7 @@ function AuthPage() {
             <Container className="size-4" />
           </div>
           <span className="text-lg font-extrabold tracking-tighter">
-            CLEARFLOW
+            CLEAR FLOWER
           </span>
         </Link>
         <div>
@@ -105,7 +105,7 @@ function AuthPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"
-              ? "Démarrez votre essai ClearFlow en 30 secondes."
+              ? "Démarrez votre essai Clear Flower en 30 secondes."
               : "Connectez-vous à votre espace transitaire."}
           </p>
 

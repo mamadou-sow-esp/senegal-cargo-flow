@@ -15,7 +15,7 @@ function Landing() {
               <Container className="size-4" />
             </div>
             <span className="text-lg font-extrabold tracking-tighter">
-              CLEARFLOW
+              CLEAR FLOWER
             </span>
           </div>
           <nav className="flex items-center gap-3">
@@ -134,7 +134,7 @@ function Landing() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-6xl px-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} ClearFlow — Dakar, Sénégal.
+          © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
         </div>
       </footer>
     </div>

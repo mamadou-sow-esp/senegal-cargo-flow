@@ -20,7 +20,7 @@ export function AiAssistant() {
     {
       role: "assistant",
       content:
-        "Bonjour 👋 Je suis ClearFlow AI, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure ou un calcul de taxes.",
+        "Bonjour 👋 Je suis Clear Flower AI, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure ou un calcul de taxes.",
     },
   ]);
   const chat = useServerFn(chatWithAi);
@@ -57,11 +57,11 @@ export function AiAssistant() {
     <>
       <button
         onClick={() => setOpen(true)}
-        title="ClearFlow AI"
+        title="Clear Flower AI"
         className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-xs font-medium uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90"
       >
         <Sparkles className="size-3.5" />
-        ClearFlow AI
+        Clear Flower AI
       </button>
 
       {open && (
@@ -78,7 +78,7 @@ export function AiAssistant() {
                   <Sparkles className="size-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">ClearFlow AI</div>
+                  <div className="text-sm font-medium">Clear Flower AI</div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                     Assistant dédouanement
                   </div>

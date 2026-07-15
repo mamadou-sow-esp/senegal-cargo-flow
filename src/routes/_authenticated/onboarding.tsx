@@ -22,7 +22,7 @@ function Onboarding() {
       fn({ data: { companyName, fullName } }),
     onSuccess: async () => {
       await qc.invalidateQueries();
-      toast.success("Espace ClearFlow prêt.");
+      toast.success("Espace Clear Flower prêt.");
       navigate({ to: "/dashboard" });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erreur"),
@@ -35,7 +35,7 @@ function Onboarding() {
           <Container className="size-4" />
         </div>
         <span className="text-lg font-extrabold tracking-tighter">
-          CLEARFLOW
+          CLEAR FLOWER
         </span>
       </div>
       <h1 className="text-2xl font-extrabold tracking-tight">

@@ -11,7 +11,7 @@ const InputSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(30),
 });
 
-const SYSTEM_PROMPT = `Tu es « ClearFlow AI », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal.
+const SYSTEM_PROMPT = `Tu es « Clear Flower AI », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal.
 
 Ton rôle :
 - Aider les transitaires à gérer leurs dossiers de dédouanement à l'importation.

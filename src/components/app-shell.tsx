@@ -79,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="min-w-0">
             <div className="text-sm font-extrabold tracking-tighter">
-              CLEARFLOW
+              CLEAR FLOWER
             </div>
             <div className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">
               {companyName ?? "—"}
@@ -144,7 +144,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Container className="size-3.5" />
               </div>
               <span className="text-sm font-extrabold tracking-tighter">
-                CLEARFLOW
+                CLEAR FLOWER
               </span>
             </Link>
             <div className="hidden items-center gap-3 rounded border border-border bg-muted/50 px-3 py-1.5 md:flex">
