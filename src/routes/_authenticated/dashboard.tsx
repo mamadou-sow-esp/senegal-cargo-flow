@@ -265,7 +265,7 @@ function SummaryTile({
         >
           <Icon className="size-4" />
         </div>
-        <span className="text-xs font-medium">{label}</span>
+        <span className="font-label text-xs font-medium">{label}</span>
       </div>
       <span
         className={`font-mono text-lg font-extrabold tabular-nums ${accent ? "text-accent" : ""}`}
