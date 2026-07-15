@@ -196,7 +196,7 @@ function Dashboard() {
 
         <aside className="animate-in-up space-y-6 lg:col-span-3">
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <h3 className="font-label text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Résumé
             </h3>
             <SummaryTile icon={FolderKanban} label="Dossiers actifs" value={active.length} />
@@ -211,9 +211,10 @@ function Dashboard() {
           </div>
 
           <div className="rounded border border-accent/20 bg-accent/5 p-4">
-            <div className="text-[11px] font-bold uppercase tracking-widest text-accent">
+            <div className="font-label text-[11px] font-bold uppercase tracking-widest text-accent">
               Assistance IA active
             </div>
+
             <p className="mt-1 text-xs leading-relaxed text-foreground/80">
               L'assistant ClearFlow IA est à votre disposition. Posez-lui vos
               questions sur les procédures douanières, les taxes, les
