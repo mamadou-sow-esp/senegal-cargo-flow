@@ -83,7 +83,7 @@ function Dashboard() {
             style={{ animationDelay: `${i * 40}ms` }}
           >
             <div
-              className={`text-[10px] font-bold uppercase tracking-widest ${
+              className={`font-label text-[10px] font-bold uppercase tracking-widest ${
                 k.accent ? "text-accent" : "text-muted-foreground"
               }`}
             >
@@ -92,7 +92,8 @@ function Dashboard() {
             <div className="mt-2 font-mono text-3xl font-extrabold tabular-nums">
               {k.value}
             </div>
-            <div className="mt-1 text-[10px] text-muted-foreground">{k.hint}</div>
+            <div className="font-label mt-1 text-[10px] text-muted-foreground">{k.hint}</div>
+
           </div>
         ))}
       </section>
