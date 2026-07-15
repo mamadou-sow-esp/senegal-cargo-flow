@@ -10,24 +10,21 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-white/60 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <img src={logoAsset.url} alt="Clear Flower" className="size-9 object-contain" />
-            <span className="text-lg font-extrabold tracking-tighter">
-              CLEAR FLOWER
-            </span>
-          </div>
-          <nav className="flex items-center gap-3">
+        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
+          <Link to="/" className="flex items-center">
+            <img src={logoAsset.url} alt="Clear Flower" className="h-12 w-auto object-contain sm:h-14" />
+          </Link>
+          <nav className="flex items-center gap-2 sm:gap-4">
             <Link
               to="/auth"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="hidden text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-block"
             >
               Se connecter
             </Link>
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90 sm:px-4"
             >
               Essai gratuit <ArrowRight className="size-3.5" />
             </Link>
@@ -35,16 +32,16 @@ function Landing() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 pt-24 pb-16">
-        <div className="max-w-3xl">
+      <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-16 sm:px-8 sm:pt-24">
+        <div className="max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded border border-accent/30 bg-accent/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
             <span className="size-1.5 rounded-full bg-accent" />
-            SaaS B2B — Dédouanement au Sénégal
+            Plateforme dédiée au dédouanement sénégalais
           </div>
-          <h1 className="text-5xl font-extrabold leading-[1.05] tracking-tighter text-balance md:text-6xl">
+          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tighter text-balance sm:text-5xl md:text-6xl lg:text-7xl">
             Le poste de commande des commissionnaires en douane sénégalais.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted-foreground text-pretty">
+          <p className="mt-6 max-w-2xl text-base text-muted-foreground text-pretty sm:text-lg">
             Centralisez vos dossiers d'importation, suivez chaque conteneur du
             connaissement au Bon à Enlever, et offrez à vos clients importateurs
             une visibilité totale — sans appels ni WhatsApp.
@@ -65,6 +62,7 @@ function Landing() {
             </Link>
           </div>
         </div>
+
 
         <div className="mt-20 grid gap-4 md:grid-cols-3">
           {[
@@ -132,7 +130,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-6xl px-6 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-7xl px-6 text-xs text-muted-foreground">
           © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
         </div>
       </footer>
