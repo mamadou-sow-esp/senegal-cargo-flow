@@ -107,8 +107,15 @@ function Landing() {
               width={1200}
               height={1400}
             />
-            <div className="absolute inset-0 bg-gradient-to-tr from-hero-blue/40 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-hero-blue/50 via-hero-blue/10 to-transparent" />
+            <img
+              src={logoAsset.url}
+              alt="Clear Flower"
+              className="absolute inset-0 m-auto h-3/5 w-auto object-contain opacity-95 drop-shadow-2xl invert brightness-0"
+              style={{ filter: "invert(1) brightness(2) drop-shadow(0 20px 40px rgba(0,0,0,0.4))" }}
+            />
           </div>
+
         </div>
 
 
