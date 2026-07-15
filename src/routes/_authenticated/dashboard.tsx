@@ -216,7 +216,7 @@ function Dashboard() {
             </div>
 
             <p className="mt-1 text-xs leading-relaxed text-foreground/80">
-              L'assistant ClearFlow IA est à votre disposition. Posez-lui vos
+              L'assistant Clear Flower IA est à votre disposition. Posez-lui vos
               questions sur les procédures douanières, les taxes, les
               documents requis ou le suivi d'un dossier.
             </p>

@@ -86,14 +86,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           title:
-            "ClearFlow — Gestion du dédouanement pour transitaires au Sénégal",
+            "Clear Flower — Gestion du dédouanement pour transitaires au Sénégal",
         },
         {
           name: "description",
           content:
-            "ClearFlow est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
+            "Clear Flower est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
         },
-        { property: "og:title", content: "ClearFlow" },
+        { property: "og:title", content: "Clear Flower" },
         {
           property: "og:description",
           content:

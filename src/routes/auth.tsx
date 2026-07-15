@@ -4,7 +4,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { Container } from "lucide-react";
+import logoAsset from "@/assets/clearflower-logo.png.asset.json";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
   head: () => ({
-    meta: [{ title: "Connexion — ClearFlow" }],
+    meta: [{ title: "Connexion — Clear Flower" }],
   }),
 });
 
@@ -71,11 +71,11 @@ function AuthPage() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="grid size-8 place-items-center rounded bg-white/10">
-            <Container className="size-4" />
+          <div className="grid size-9 place-items-center rounded bg-white p-1">
+            <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
           </div>
           <span className="text-lg font-extrabold tracking-tighter">
-            CLEARFLOW
+            CLEAR FLOWER
           </span>
         </Link>
         <div>
@@ -105,7 +105,7 @@ function AuthPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"
-              ? "Démarrez votre essai ClearFlow en 30 secondes."
+              ? "Démarrez votre essai Clear Flower en 30 secondes."
               : "Connectez-vous à votre espace transitaire."}
           </p>
 
