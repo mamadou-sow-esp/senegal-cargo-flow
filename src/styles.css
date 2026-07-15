@@ -148,7 +148,7 @@
 
 @utility font-label {
   font-family: var(--font-label);
-  font-weight: 300;
+  font-weight: 300 !important;
 }
 
 
