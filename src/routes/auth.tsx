@@ -128,9 +128,7 @@ function AuthPage() {
           </Link>
 
           <div className="mb-8 flex items-center lg:hidden">
-            <div className="grid size-24 place-items-center">
-              <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
-            </div>
+            <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain" />
           </div>
 
           {/* Segmented control */}
