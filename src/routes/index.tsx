@@ -10,9 +10,9 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-white/60 backdrop-blur">
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
+        <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset.url} alt="Clear Flower" className="h-12 w-auto object-contain sm:h-14" />
+            <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain sm:h-24 md:h-28" />
           </Link>
           <nav className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -34,10 +34,6 @@ function Landing() {
 
       <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-16 sm:px-8 sm:pt-24">
         <div className="max-w-4xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded border border-accent/30 bg-accent/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
-            <span className="size-1.5 rounded-full bg-accent" />
-            Plateforme dédiée au dédouanement sénégalais
-          </div>
           <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tighter text-balance sm:text-5xl md:text-6xl lg:text-7xl">
             Le poste de commande des commissionnaires en douane sénégalais.
           </h1>
