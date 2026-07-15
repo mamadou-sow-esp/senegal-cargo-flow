@@ -9,13 +9,13 @@ import {
   BarChart3,
   Bell,
   LogOut,
-  Container,
   Search,
   Plus,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
+import logoAsset from "@/assets/clearflower-logo.png.asset.json";
 
 
 const NAV = [
@@ -74,9 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
         <Link to="/dashboard" className="flex items-center gap-2.5 p-5">
-          <div className="grid size-8 place-items-center rounded bg-primary text-primary-foreground">
-            <Container className="size-4" />
-          </div>
+          <img src={logoAsset.url} alt="Clear Flower" className="size-9 shrink-0 object-contain" />
           <div className="min-w-0">
             <div className="text-sm font-extrabold tracking-tighter">
               CLEAR FLOWER
@@ -140,9 +138,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               to="/dashboard"
               className="flex items-center gap-2 lg:hidden"
             >
-              <div className="grid size-7 place-items-center rounded bg-primary text-primary-foreground">
-                <Container className="size-3.5" />
-              </div>
+              <img src={logoAsset.url} alt="Clear Flower" className="size-7 object-contain" />
               <span className="text-sm font-extrabold tracking-tighter">
                 CLEAR FLOWER
               </span>

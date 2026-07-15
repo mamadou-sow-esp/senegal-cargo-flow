@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Container, FileText, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, ShieldCheck } from "lucide-react";
+import logoAsset from "@/assets/clearflower-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -11,9 +12,7 @@ function Landing() {
       <header className="border-b border-border bg-white/60 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
-            <div className="grid size-8 place-items-center rounded bg-primary text-primary-foreground">
-              <Container className="size-4" />
-            </div>
+            <img src={logoAsset.url} alt="Clear Flower" className="size-9 object-contain" />
             <span className="text-lg font-extrabold tracking-tighter">
               CLEAR FLOWER
             </span>
