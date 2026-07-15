@@ -48,9 +48,10 @@ function DossiersList() {
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Opérations
           </div>
+
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
             Dossiers d'importation
           </h1>
@@ -136,20 +137,21 @@ function DossiersList() {
                         }}
                       />
                     </div>
-                    <span className="text-[11px] font-semibold text-muted-foreground">
+                    <span className="font-label text-[11px] font-semibold text-muted-foreground">
                       {STATUS_ORDER.indexOf(s.status as ShipmentStatus) + 1}/12
                     </span>
                   </div>
-                  <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <div className="font-label mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
                     {STATUS_LABEL[s.status as ShipmentStatus]}
                   </div>
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority as never)}`}
+                    className={`font-label rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority as never)}`}
                   >
                     {s.priority}
                   </span>
+
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
                   {s.arrival_date
@@ -181,9 +183,10 @@ function Th({
 }) {
   return (
     <th
-      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground ${className}`}
+      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-label ${className}`}
     >
       {children}
     </th>
   );
 }
+

@@ -6,7 +6,8 @@
 
 /*
  * ClearFlow — Bureaucratic Precision
- * Inter Light everywhere (body + numbers), orange accent for critical alerts.
+ * Inter Light for body + numbers, Space Grotesk for labels/status,
+ * orange accent for critical alerts.
  */
 
 @theme inline {
@@ -23,6 +24,10 @@
     "Helvetica Neue", Arial, sans-serif;
   --font-mono:
     "Inter", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-label:
+    "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
 
 
   --color-background: var(--background);
@@ -140,6 +145,11 @@
 @utility animate-in-up {
   animation: cf-slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+@utility font-label {
+  font-family: var(--font-label);
+}
+
 
 @layer base {
   * {

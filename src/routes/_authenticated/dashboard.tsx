@@ -64,13 +64,14 @@ function Dashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-8 p-6 md:p-8">
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Vue d'ensemble
         </div>
         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
           Tableau de bord opérations
         </h1>
       </div>
+
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {kpis.map((k, i) => (
@@ -82,7 +83,7 @@ function Dashboard() {
             style={{ animationDelay: `${i * 40}ms` }}
           >
             <div
-              className={`text-[10px] font-bold uppercase tracking-widest ${
+              className={`font-label text-[10px] font-bold uppercase tracking-widest ${
                 k.accent ? "text-accent" : "text-muted-foreground"
               }`}
             >
@@ -91,7 +92,8 @@ function Dashboard() {
             <div className="mt-2 font-mono text-3xl font-extrabold tabular-nums">
               {k.value}
             </div>
-            <div className="mt-1 text-[10px] text-muted-foreground">{k.hint}</div>
+            <div className="font-label mt-1 text-[10px] text-muted-foreground">{k.hint}</div>
+
           </div>
         ))}
       </section>
@@ -165,20 +167,21 @@ function Dashboard() {
                               style={{ width: `${statusProgress(s.status)}%` }}
                             />
                           </div>
-                          <span className="text-[11px] font-semibold text-muted-foreground">
+                          <span className="font-label text-[11px] font-semibold text-muted-foreground">
                             {STATUS_ORDER.indexOf(s.status) + 1}/12
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <div className="font-label mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
                           {STATUS_LABEL[s.status]}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority)}`}
+                          className={`font-label rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority)}`}
                         >
                           {s.priority}
                         </span>
+
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
                         {new Date(s.created_at).toLocaleDateString("fr-FR")}
@@ -193,7 +196,7 @@ function Dashboard() {
 
         <aside className="animate-in-up space-y-6 lg:col-span-3">
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <h3 className="font-label text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Résumé
             </h3>
             <SummaryTile icon={FolderKanban} label="Dossiers actifs" value={active.length} />
@@ -208,9 +211,10 @@ function Dashboard() {
           </div>
 
           <div className="rounded border border-accent/20 bg-accent/5 p-4">
-            <div className="text-[11px] font-bold uppercase tracking-widest text-accent">
+            <div className="font-label text-[11px] font-bold uppercase tracking-widest text-accent">
               Assistance IA active
             </div>
+
             <p className="mt-1 text-xs leading-relaxed text-foreground/80">
               L'assistant ClearFlow IA est à votre disposition. Posez-lui vos
               questions sur les procédures douanières, les taxes, les
@@ -232,12 +236,13 @@ function Th({
 }) {
   return (
     <th
-      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground ${className}`}
+      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-label ${className}`}
     >
       {children}
     </th>
   );
 }
+
 
 function SummaryTile({
   icon: Icon,
@@ -260,7 +265,7 @@ function SummaryTile({
         >
           <Icon className="size-4" />
         </div>
-        <span className="text-xs font-medium">{label}</span>
+        <span className="font-label text-xs font-medium">{label}</span>
       </div>
       <span
         className={`font-mono text-lg font-extrabold tabular-nums ${accent ? "text-accent" : ""}`}
