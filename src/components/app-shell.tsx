@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AiAssistant } from "@/components/ai-assistant";
+
 
 const NAV = [
   { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
@@ -171,6 +173,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1">{children}</main>
       </div>
+      <AiAssistant />
     </div>
+
   );
 }
