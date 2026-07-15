@@ -113,7 +113,8 @@ function Landing() {
 
 
         <div className="bg-hero-blue text-white">
-          <div className="mx-auto grid max-w-7xl gap-px bg-white/20 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-[1400px] gap-px bg-white/20 sm:grid-cols-2 lg:grid-cols-4">
+
             {[
               {
                 icon: Award,
