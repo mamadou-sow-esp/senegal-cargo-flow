@@ -48,9 +48,10 @@ function DossiersList() {
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Opérations
           </div>
+
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
             Dossiers d'importation
           </h1>
