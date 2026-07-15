@@ -167,20 +167,21 @@ function Dashboard() {
                               style={{ width: `${statusProgress(s.status)}%` }}
                             />
                           </div>
-                          <span className="text-[11px] font-semibold text-muted-foreground">
+                          <span className="font-label text-[11px] font-semibold text-muted-foreground">
                             {STATUS_ORDER.indexOf(s.status) + 1}/12
                           </span>
                         </div>
-                        <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <div className="font-label mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
                           {STATUS_LABEL[s.status]}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority)}`}
+                          className={`font-label rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority)}`}
                         >
                           {s.priority}
                         </span>
+
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
                         {new Date(s.created_at).toLocaleDateString("fr-FR")}
