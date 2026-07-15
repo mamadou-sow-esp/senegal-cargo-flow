@@ -221,7 +221,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-7xl px-6 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-[1400px] px-6 text-xs text-muted-foreground">
           © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
         </div>
       </footer>
