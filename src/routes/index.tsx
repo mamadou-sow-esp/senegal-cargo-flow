@@ -10,9 +10,9 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-white/60 backdrop-blur">
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
+        <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset.url} alt="Clear Flower" className="h-16 w-auto object-contain sm:h-20 md:h-24" />
+            <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain sm:h-24 md:h-28" />
           </Link>
           <nav className="flex items-center gap-2 sm:gap-4">
             <Link
