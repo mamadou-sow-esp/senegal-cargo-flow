@@ -23,7 +23,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-white/80 backdrop-blur">
-        <div className="mx-auto flex h-24 w-full max-w-7xl items-center justify-between px-4 sm:h-28 sm:px-8">
+        <div className="mx-auto flex h-24 w-full max-w-[1400px] items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
             <img
               src={logoAsset.url}
@@ -50,9 +50,9 @@ function Landing() {
       </header>
 
       <section className="relative w-full overflow-hidden bg-white">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
-          <div className="px-4 py-14 sm:px-8 sm:py-20 lg:py-24">
-            <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter sm:text-5xl md:text-6xl">
+        <div className="mx-auto grid w-full max-w-[1400px] items-center gap-8 px-4 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:py-20 xl:gap-16">
+          <div className="min-w-0">
+            <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
               Le poste de commande des{" "}
               <span className="text-hero-blue">
                 commissionnaires en douane sénégalais
@@ -60,7 +60,7 @@ function Landing() {
               .
             </h1>
             <div className="mt-6 h-1 w-20 bg-hero-blue" />
-            <p className="mt-6 max-w-2xl text-base text-muted-foreground text-pretty sm:text-lg">
+            <p className="mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg">
               Centralisez vos dossiers d'importation, suivez chaque conteneur du
               connaissement au Bon à Enlever, et offrez à vos clients importateurs
               une visibilité totale — sans appels ni WhatsApp.
@@ -83,74 +83,38 @@ function Landing() {
 
             <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
               {[
-                {
-                  icon: FolderKanban,
-                  title: "Suivi des dossiers",
-                  body: "En temps réel",
-                },
-                {
-                  icon: FileText,
-                  title: "Gestion des documents",
-                  body: "Centralisée",
-                },
-                {
-                  icon: GitBranch,
-                  title: "Pipeline de dédouanement",
-                  body: "Structuré et efficace",
-                },
-                {
-                  icon: ShieldCheck,
-                  title: "Transparence client",
-                  body: "À chaque étape",
-                },
+                { icon: FolderKanban, title: "Suivi des dossiers", body: "En temps réel" },
+                { icon: FileText, title: "Gestion des documents", body: "Centralisée" },
+                { icon: GitBranch, title: "Pipeline de dédouanement", body: "Structuré et efficace" },
+                { icon: ShieldCheck, title: "Transparence client", body: "À chaque étape" },
               ].map((f) => (
                 <div key={f.title} className="flex items-start gap-3">
                   <f.icon className="mt-0.5 size-5 shrink-0 text-hero-blue" />
-                  <div>
-                    <div className="text-sm font-semibold leading-tight">
-                      {f.title}
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {f.body}
-                    </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold leading-tight">{f.title}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{f.body}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative hidden min-h-[420px] lg:block">
+          <div className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-lg lg:block xl:aspect-[5/6]">
             <img
               src={heroPort.url}
               alt="Port avec conteneurs et grues"
               className="absolute inset-0 h-full w-full object-cover"
               width={1200}
-              height={800}
+              height={1400}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent lg:via-white/30" />
-            <svg
-              className="absolute inset-0 h-full w-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid slice"
-              aria-hidden="true"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="34"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="13"
-                strokeDasharray="160.22 53.41"
-                transform="rotate(-135 50 50)"
-                className="text-hero-blue"
-              />
-            </svg>
+            <div className="absolute inset-0 bg-gradient-to-tr from-hero-blue/40 via-transparent to-transparent" />
           </div>
         </div>
 
+
         <div className="bg-hero-blue text-white">
-          <div className="mx-auto grid max-w-7xl gap-px bg-white/20 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-[1400px] gap-px bg-white/20 sm:grid-cols-2 lg:grid-cols-4">
+
             {[
               {
                 icon: Award,
@@ -190,7 +154,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-8 sm:py-24">
+      <section className="mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-8 sm:py-24">
         <div className="mt-20 grid gap-4 md:grid-cols-3">
           {[
             {
@@ -257,7 +221,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-7xl px-6 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-[1400px] px-6 text-xs text-muted-foreground">
           © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
         </div>
       </footer>
