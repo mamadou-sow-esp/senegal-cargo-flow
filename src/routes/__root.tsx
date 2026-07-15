@@ -93,14 +93,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content:
             "Clear Flower est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
         },
-        { property: "og:title", content: "Clear Flower" },
+        { property: "og:title", content: "Clear Flower — Gestion du dédouanement pour transitaires au Sénégal" },
         {
           property: "og:description",
           content:
-            "Centralisez vos dossiers d'importation, réduisez les délais et offrez à vos clients un suivi transparent.",
+            "Clear Flower est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: "Clear Flower — Gestion du dédouanement pour transitaires au Sénégal" },
+        { name: "twitter:description", content: "Clear Flower est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs." },
+        { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
+        { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
       ],
       links: [
         { rel: "stylesheet", href: appCss },
