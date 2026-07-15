@@ -91,7 +91,7 @@ function AuthPage() {
 
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
           <Link to="/" className="inline-flex">
-            <div className="grid size-24 place-items-center">
+            <div className="grid size-32 place-items-center">
               <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
             </div>
           </Link>
@@ -126,7 +126,7 @@ function AuthPage() {
           </Link>
 
           <div className="mb-8 flex items-center lg:hidden">
-            <div className="grid size-16 place-items-center">
+            <div className="grid size-24 place-items-center">
               <img src={logoAsset.url} alt="Clear Flower" className="size-full object-contain" />
             </div>
           </div>
