@@ -73,15 +73,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
-        <Link to="/dashboard" className="flex items-center gap-2.5 p-5">
-          <img src={logoAsset.url} alt="Clear Flower" className="size-9 shrink-0 object-contain" />
-          <div className="min-w-0">
-            <div className="text-sm font-extrabold tracking-tighter">
-              CLEAR FLOWER
-            </div>
-            <div className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">
-              {companyName ?? "—"}
-            </div>
+        <Link to="/dashboard" className="flex flex-col items-center gap-1 p-4">
+          <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain" />
+          <div className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">
+            {companyName ?? "—"}
           </div>
         </Link>
 
@@ -136,12 +131,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3">
             <Link
               to="/dashboard"
-              className="flex items-center gap-2 lg:hidden"
+              className="flex items-center lg:hidden"
             >
-              <img src={logoAsset.url} alt="Clear Flower" className="size-7 object-contain" />
-              <span className="text-sm font-extrabold tracking-tighter">
-                CLEAR FLOWER
-              </span>
+              <img src={logoAsset.url} alt="Clear Flower" className="h-10 w-auto object-contain" />
             </Link>
             <div className="hidden items-center gap-3 rounded border border-border bg-muted/50 px-3 py-1.5 md:flex">
               <Search className="size-3.5 text-muted-foreground" />
