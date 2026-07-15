@@ -12,7 +12,7 @@ function Landing() {
       <header className="border-b border-border bg-white/60 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset.url} alt="Clear Flower" className="h-12 w-auto object-contain sm:h-14" />
+            <img src={logoAsset.url} alt="Clear Flower" className="h-16 w-auto object-contain sm:h-20 md:h-24" />
           </Link>
           <nav className="flex items-center gap-2 sm:gap-4">
             <Link
