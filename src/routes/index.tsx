@@ -154,7 +154,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-8 sm:py-24">
+      <section className="mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-8 sm:py-24">
         <div className="mt-20 grid gap-4 md:grid-cols-3">
           {[
             {
