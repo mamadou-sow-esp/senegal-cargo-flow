@@ -2,10 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { FolderKanban, FileText, GitBranch, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
-import logoAsset from "@/assets/clearflower-logo.png.asset.json";
-import heroPort from "@/assets/hero-port.png.asset.json";
+import logoAsset from "@/assets/logo.png";
+import heroPort from "@/assets/banner.png";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -19,6 +19,13 @@ export const Route = createFileRoute("/auth")({
   }),
 });
 
+const FEATURES = [
+  { icon: FolderKanban, title: "Suivi des dossiers", body: "En temps réel" },
+  { icon: FileText, title: "Gestion des documents", body: "Centralisée" },
+  { icon: GitBranch, title: "Pipeline de dédouanement", body: "Structuré et efficace" },
+  { icon: ShieldCheck, title: "Transparence client", body: "À chaque étape" },
+];
+
 function AuthPage() {
   const { mode: initialMode } = Route.useSearch();
   const navigate = useNavigate();
@@ -27,32 +34,51 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
-  const handleGoogle = async () => {
-    const res = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+  const isEmailValid = (v: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+  const emailRedirect = () => `${window.location.origin}/dashboard`;
+
+  const handleResend = async () => {
+    if (!sentTo) return;
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: sentTo,
+      options: { emailRedirectTo: emailRedirect() },
     });
-    if (res.error) toast.error(res.error.message ?? "Erreur Google");
-    if (res.redirected) return;
-    navigate({ to: "/dashboard" });
+    if (error) toast.error(error.message);
+    else toast.success("Email renvoyé.");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isEmailValid(email)) {
+      setEmailError("Format d'email invalide (ex. : nom@cabinet.sn).");
+      return;
+    }
+    setEmailError(null);
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: emailRedirect(),
             data: { full_name: fullName },
           },
         });
         if (error) throw error;
-        toast.success("Compte créé. Configurez votre entreprise.");
-        navigate({ to: "/onboarding" });
+        if (!data.session) {
+          // Confirmation par email requise : pas encore de session.
+          setSentTo(email);
+        } else {
+          // Confirmation désactivée : connexion immédiate.
+          navigate({ to: "/onboarding" });
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -71,17 +97,17 @@ function AuthPage() {
   const isSignup = mode === "signup";
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[1.2fr_1fr]">
-      {/* Visual side */}
-      <aside className="relative hidden overflow-hidden bg-primary text-primary-foreground lg:block">
+    <div className="grid min-h-screen bg-background lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[1.2fr_1fr]">
+      {/* Panneau visuel — même identité bleue que la homepage */}
+      <aside className="relative hidden overflow-hidden bg-hero-blue text-white lg:block">
         <img
-          src={heroPort.url}
+          src={heroPort}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-hero-blue via-hero-blue/95 to-hero-blue/70" />
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
               "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
@@ -90,35 +116,42 @@ function AuthPage() {
         />
 
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
-          <Link to="/" className="inline-flex w-fit rounded-lg bg-white p-3">
+          <Link to="/" className="inline-flex w-fit items-center">
             <img
-              src={logoAsset.url}
+              src={logoAsset}
               alt="Clear Flower"
-              className="h-20 w-auto object-contain"
+              className="h-24 w-auto object-contain brightness-0 invert"
             />
           </Link>
 
-          <div className="max-w-lg space-y-8">
-            <blockquote className="text-3xl font-semibold leading-tight tracking-tight text-balance xl:text-4xl">
-              « Nous avons réduit de 30 % le temps moyen de traitement de nos dossiers dès le premier mois. »
-            </blockquote>
+          <div className="max-w-lg">
+            <h2 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter xl:text-5xl">
+              Le poste de commande de vos dossiers de dédouanement.
+            </h2>
+            <div className="mt-6 h-1 w-16 bg-white/80" />
 
-            <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
-              <Metric value="30 %" label="Temps gagné" />
-              <Metric value="24/7" label="Suivi dossiers" />
-              <Metric value="100 %" label="Conforme GAINDE" />
+            <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-7 border-t border-white/15 pt-8">
+              {FEATURES.map((f) => (
+                <div key={f.title} className="flex items-start gap-3">
+                  <f.icon className="mt-0.5 size-5 shrink-0 text-white/90" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold leading-tight">{f.title}</div>
+                    <div className="mt-0.5 text-xs text-white/75">{f.body}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-primary-foreground/50">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/50">
             <span>Dakar · Sénégal</span>
             <span>© {new Date().getFullYear()} Clear Flower</span>
           </div>
         </div>
       </aside>
 
-      {/* Form side */}
-      <main className="flex items-center justify-center bg-background px-6 py-10 sm:px-10">
+      {/* Panneau formulaire */}
+      <main className="flex items-center justify-center px-6 py-10 sm:px-10">
         <div className="w-full max-w-md">
           <Link
             to="/"
@@ -128,11 +161,49 @@ function AuthPage() {
           </Link>
 
           <div className="mb-8 flex items-center lg:hidden">
-            <img src={logoAsset.url} alt="Clear Flower" className="h-20 w-auto object-contain" />
+            <img src={logoAsset} alt="Clear Flower" className="h-16 w-auto object-contain" />
           </div>
 
-          {/* Segmented control */}
-          <div className="mb-8 grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/40 p-1">
+          {sentTo ? (
+            <div className="animate-in-up">
+              <div className="flex size-12 items-center justify-center rounded bg-hero-blue/10 text-hero-blue">
+                <Mail className="size-6" />
+              </div>
+              <h1 className="mt-6 text-3xl font-extrabold tracking-tighter sm:text-4xl">
+                Vérifiez votre boîte mail
+              </h1>
+              <div className="mt-4 h-1 w-16 bg-hero-blue" />
+              <p className="mt-4 text-sm text-muted-foreground">
+                Nous avons envoyé un lien de confirmation à{" "}
+                <strong className="text-foreground">{sentTo}</strong>. Cliquez dessus
+                pour activer votre compte — vous serez ensuite redirigé vers votre
+                espace.
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Pensez à vérifier vos spams si vous ne le voyez pas.
+              </p>
+              <button
+                type="button"
+                onClick={handleResend}
+                className="mt-8 w-full rounded border border-border bg-white py-3 text-sm font-semibold transition hover:bg-muted"
+              >
+                Renvoyer l'email
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSentTo(null);
+                  setMode("signin");
+                }}
+                className="mt-3 w-full text-center text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                ← Revenir à la connexion
+              </button>
+            </div>
+          ) : (
+          <>
+          {/* Onglets */}
+          <div className="mb-8 grid grid-cols-2 gap-1 rounded border border-border bg-muted/40 p-1">
             <SegButton active={!isSignup} onClick={() => setMode("signin")}>
               Se connecter
             </SegButton>
@@ -141,27 +212,17 @@ function AuthPage() {
             </SegButton>
           </div>
 
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tighter sm:text-4xl">
             {isSignup ? "Créez votre espace" : "Bon retour parmi nous"}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <div className="mt-4 h-1 w-16 bg-hero-blue" />
+          <p className="mt-4 text-sm text-muted-foreground">
             {isSignup
               ? "Configurez votre cabinet en moins de 2 minutes."
               : "Reprenez le suivi de vos dossiers de dédouanement."}
           </p>
 
-          <button
-            onClick={handleGoogle}
-            className="mt-8 flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-white px-4 py-3 text-sm font-semibold shadow-sm transition hover:border-foreground/30 hover:shadow"
-          >
-            <GoogleIcon /> Continuer avec Google
-          </button>
-
-          <div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            <div className="h-px flex-1 bg-border" /> ou par email <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
             {isSignup && (
               <Field
                 label="Nom complet"
@@ -176,9 +237,13 @@ function AuthPage() {
               label="Email professionnel"
               type="email"
               value={email}
-              onChange={setEmail}
+              onChange={(v) => {
+                setEmail(v);
+                if (emailError) setEmailError(null);
+              }}
               placeholder="vous@cabinet.sn"
               required
+              error={emailError ?? undefined}
             />
             <Field
               label="Mot de passe"
@@ -204,7 +269,7 @@ function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-lg bg-primary py-3 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-60"
+              className="mt-2 w-full rounded bg-hero-blue py-3 text-sm font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-60"
             >
               {loading ? "Chargement…" : isSignup ? "Créer mon compte" : "Se connecter"}
             </button>
@@ -212,28 +277,25 @@ function AuthPage() {
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             En continuant, vous acceptez nos{" "}
-            <a href="#" className="font-semibold text-foreground underline underline-offset-4">
+            <Link
+              to="/conditions"
+              className="font-semibold text-foreground underline underline-offset-4"
+            >
               conditions
-            </a>{" "}
+            </Link>{" "}
             et notre{" "}
-            <a href="#" className="font-semibold text-foreground underline underline-offset-4">
+            <Link
+              to="/confidentialite"
+              className="font-semibold text-foreground underline underline-offset-4"
+            >
               politique de confidentialité
-            </a>
+            </Link>
             .
           </p>
+          </>
+          )}
         </div>
       </main>
-    </div>
-  );
-}
-
-function Metric({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <div className="text-2xl font-extrabold tracking-tight">{value}</div>
-      <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground/60">
-        {label}
-      </div>
     </div>
   );
 }
@@ -251,7 +313,7 @@ function SegButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-md px-3 py-2 text-xs font-bold uppercase tracking-wider transition ${
+      className={`rounded px-3 py-2 text-xs font-bold uppercase tracking-wider transition ${
         active
           ? "bg-white text-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground"
@@ -270,6 +332,7 @@ function Field(props: {
   required?: boolean;
   minLength?: number;
   placeholder?: string;
+  error?: string;
 }) {
   return (
     <label className="block">
@@ -283,19 +346,18 @@ function Field(props: {
         required={props.required}
         minLength={props.minLength}
         placeholder={props.placeholder}
-        className="w-full rounded-lg border border-input bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-ring/40"
+        aria-invalid={props.error ? true : undefined}
+        className={`w-full rounded border bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted-foreground/50 focus:ring-2 ${
+          props.error
+            ? "border-destructive focus:border-destructive focus:ring-destructive/25"
+            : "border-input focus:border-hero-blue focus:ring-hero-blue/25"
+        }`}
       />
+      {props.error && (
+        <span className="mt-1.5 block text-xs font-medium text-destructive">
+          {props.error}
+        </span>
+      )}
     </label>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.75h3.57c2.08-1.92 3.28-4.74 3.28-8.07z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.75c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.12c-.22-.66-.35-1.36-.35-2.12s.13-1.46.35-2.12V7.04H2.18C1.43 8.52 1 10.2 1 12s.43 3.48 1.18 4.96l3.66-2.84z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.04l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z" />
-    </svg>
   );
 }

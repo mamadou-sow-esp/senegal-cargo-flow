@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowRight,
   Award,
@@ -10,47 +11,113 @@ import {
   GitBranch,
   Headphones,
   Lock,
+  Menu,
   ShieldCheck,
+  X,
 } from "lucide-react";
-import logoAsset from "@/assets/clearflower-logo.png.asset.json";
-import heroPort from "@/assets/hero-port.png.asset.json";
+import logoAsset from "@/assets/logo.png";
+import heroPort from "@/assets/banner.png";
+import kebaLogo from "@/assets/keba-foundation.png";
 
 export const Route = createFileRoute("/")({
   component: Landing,
 });
 
 function Landing() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-24 w-full max-w-[1400px] items-center justify-between px-4 sm:h-28 sm:px-8">
           <Link to="/" className="flex items-center">
             <img
-              src={logoAsset.url}
+              src={logoAsset}
               alt="Clear Flower"
               className="h-20 w-auto object-contain sm:h-24 md:h-28"
             />
           </Link>
-          <nav className="flex items-center gap-2 sm:gap-4">
+
+          {/* Nav desktop */}
+          <nav className="hidden items-center gap-4 sm:flex">
             <Link
               to="/auth"
-              className="hidden text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-block"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
             >
               Se connecter
             </Link>
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90 sm:px-4"
+              className="inline-flex items-center gap-1.5 rounded bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90"
             >
               Essai gratuit <ArrowRight className="size-3.5" />
             </Link>
           </nav>
+
+          {/* Bouton hamburger (mobile) */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Menu"
+            aria-expanded={mobileOpen}
+            className="inline-flex items-center justify-center rounded p-2 text-foreground hover:bg-black/5 sm:hidden"
+          >
+            {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
         </div>
+
+        {/* Panneau mobile déroulant */}
+        {mobileOpen && (
+          <nav className="border-t border-border bg-white px-4 py-4 sm:hidden">
+            <div className="mx-auto flex max-w-[1400px] flex-col gap-2">
+              <Link
+                to="/auth"
+                onClick={() => setMobileOpen(false)}
+                className="rounded px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Se connecter
+              </Link>
+              <Link
+                to="/auth"
+                search={{ mode: "signup" }}
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex items-center justify-center gap-1.5 rounded bg-primary px-4 py-3 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:opacity-90"
+              >
+                Essai gratuit <ArrowRight className="size-3.5" />
+              </Link>
+              <div className="mt-1 flex items-center gap-4 border-t border-border pt-3 text-xs text-muted-foreground">
+                <Link
+                  to="/conditions"
+                  onClick={() => setMobileOpen(false)}
+                  className="hover:text-foreground"
+                >
+                  Conditions
+                </Link>
+                <Link
+                  to="/confidentialite"
+                  onClick={() => setMobileOpen(false)}
+                  className="hover:text-foreground"
+                >
+                  Confidentialité
+                </Link>
+              </div>
+            </div>
+          </nav>
+        )}
       </header>
 
+      {/* Bannière horizontale pleine largeur, juste sous la nav */}
+      <div className="w-full bg-white">
+        <img
+          src={heroPort}
+          alt="Port avec conteneurs et grues"
+          className="block h-auto w-full"
+        />
+      </div>
+
       <section className="relative w-full overflow-hidden bg-white">
-        <div className="mx-auto grid w-full max-w-[1400px] items-center gap-8 px-4 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:py-20 xl:gap-16">
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-12 sm:px-8 sm:py-16 lg:py-20">
           <div className="min-w-0">
             <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
               Le poste de commande des{" "}
@@ -98,19 +165,6 @@ function Landing() {
               ))}
             </div>
           </div>
-
-          <div className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-lg lg:block xl:aspect-[5/6]">
-            <img
-              src={heroPort.url}
-              alt="Port avec conteneurs et grues"
-              className="absolute inset-0 h-full w-full object-cover"
-              width={1200}
-              height={1400}
-            />
-            <div className="absolute inset-0 bg-gradient-to-tr from-hero-blue/30 via-transparent to-transparent" />
-
-          </div>
-
         </div>
 
 
@@ -222,9 +276,101 @@ function Landing() {
         </ul>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-[1400px] px-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
+      <footer className="bg-primary text-primary-foreground">
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-14 sm:px-8">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Marque */}
+            <div>
+              <img
+                src={logoAsset}
+                alt="Clear Flower"
+                className="h-16 w-auto object-contain brightness-0 invert"
+              />
+              <p className="mt-4 max-w-xs text-sm text-primary-foreground/70">
+                Le poste de commande des commissionnaires en douane sénégalais.
+              </p>
+            </div>
+
+            {/* Navigation */}
+            <div>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary-foreground/50">
+                Navigation
+              </h3>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <Link to="/" className="text-primary-foreground/80 hover:text-white">
+                    Accueil
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/auth" className="text-primary-foreground/80 hover:text-white">
+                    Se connecter
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/auth"
+                    search={{ mode: "signup" }}
+                    className="text-primary-foreground/80 hover:text-white"
+                  >
+                    Essai gratuit
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Légal */}
+            <div>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary-foreground/50">
+                Légal
+              </h3>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <Link
+                    to="/conditions"
+                    className="text-primary-foreground/80 hover:text-white"
+                  >
+                    Conditions d'utilisation
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/confidentialite"
+                    className="text-primary-foreground/80 hover:text-white"
+                  >
+                    Politique de confidentialité
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact — à compléter */}
+            <div>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary-foreground/50">
+                Contact
+              </h3>
+              <ul className="mt-4 space-y-2.5 text-sm text-primary-foreground/80">
+                <li>[email de contact]</li>
+                <li>[téléphone]</li>
+                <li>Dakar, Sénégal</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Barre du bas */}
+          <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
+            <span className="text-xs text-primary-foreground/60">
+              © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
+            </span>
+            <div className="flex items-center gap-2.5 text-xs text-primary-foreground/60">
+              <span>Un projet de</span>
+              <img
+                src={kebaLogo}
+                alt="Keba Foundation"
+                className="h-8 w-auto object-contain sm:h-9"
+              />
+            </div>
+          </div>
         </div>
       </footer>
     </div>

@@ -9,7 +9,7 @@ const schema = z.object({
 
 export const createCompanyAndAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => schema.parse(data))
+  .validator((data) => schema.parse(data))
   .handler(async ({ data, context }) => {
     const { userId, supabase } = context;
 

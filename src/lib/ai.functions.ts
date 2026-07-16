@@ -21,48 +21,126 @@ Ton rôle :
 
 Style : sobre, précis, orienté action. Utilise des listes courtes quand utile.`;
 
+// Convertit une durée ("30", "2.5s", "7m30s", "1h2m") en secondes.
+function parseDurationToSeconds(v: string | null): number | null {
+  if (!v) return null;
+  const s = v.trim();
+  if (/^\d+(\.\d+)?$/.test(s)) return Math.ceil(parseFloat(s));
+  const re = /(\d+(?:\.\d+)?)\s*(h|m|s)/g;
+  let total = 0;
+  let found = false;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) {
+    found = true;
+    const n = parseFloat(m[1]);
+    total += m[2] === "h" ? n * 3600 : m[2] === "m" ? n * 60 : n;
+  }
+  return found ? Math.ceil(total) : null;
+}
+
+// Formate un nombre de secondes en français lisible.
+function humanWait(sec: number): string {
+  if (sec <= 60) return `${sec} seconde${sec > 1 ? "s" : ""}`;
+  if (sec < 3600) {
+    const min = Math.ceil(sec / 60);
+    return `${min} minute${min > 1 ? "s" : ""}`;
+  }
+  const h = Math.floor(sec / 3600);
+  const min = Math.round((sec % 3600) / 60);
+  return min ? `${h} h ${min} min` : `${h} heure${h > 1 ? "s" : ""}`;
+}
+
 export const chatWithAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .validator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey)
+      throw new Error(
+        "L'assistant n'est pas encore configuré. Contactez l'administrateur.",
+      );
 
-    const res = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
+    // Groq — endpoint compatible OpenAI, réellement gratuit (sans carte).
+    const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+    let res: Response;
+    try {
+      res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             ...data.messages,
           ],
         }),
-      },
-    );
+      });
+    } catch (e) {
+      console.error("[Groq] erreur réseau", e);
+      throw new Error(
+        "Impossible de joindre l'assistant pour le moment. Vérifiez votre connexion et réessayez.",
+      );
+    }
 
     if (!res.ok) {
       const body = await res.text();
-      if (res.status === 429)
+      console.error(`[Groq] ${res.status} ${res.statusText} — ${body}`);
+
+      // Quota / limite de débit atteint : on indique le temps d'attente.
+      if (res.status === 429) {
+        const waitSec =
+          parseDurationToSeconds(res.headers.get("retry-after")) ??
+          parseDurationToSeconds(res.headers.get("x-ratelimit-reset-tokens")) ??
+          parseDurationToSeconds(res.headers.get("x-ratelimit-reset-requests"));
+        const quand = waitSec
+          ? ` Réessayez dans ${humanWait(waitSec)}.`
+          : " Réessayez dans quelques minutes.";
+        const cause =
+          waitSec != null && waitSec > 15 * 60
+            ? "La limite quotidienne de l'assistant est atteinte."
+            : "L'assistant reçoit trop de demandes en ce moment.";
+        throw new Error(`${cause}${quand}`);
+      }
+
+      // Clé invalide / expirée : problème de configuration, pas de l'utilisateur.
+      if (res.status === 401 || res.status === 403)
         throw new Error(
-          "Trop de requêtes vers l'IA. Réessayez dans un instant.",
+          "L'assistant est momentanément indisponible (problème de configuration). Merci de réessayer plus tard.",
         );
-      if (res.status === 402)
+
+      // Requête trop volumineuse.
+      if (res.status === 400 || res.status === 413)
         throw new Error(
-          "Crédits IA épuisés. Rechargez le workspace pour continuer.",
+          "Votre message est trop long pour l'assistant. Raccourcissez-le et réessayez.",
         );
-      throw new Error(`Erreur IA (${res.status}): ${body.slice(0, 300)}`);
+
+      // Panne côté fournisseur.
+      if (res.status >= 500)
+        throw new Error(
+          "L'assistant est temporairement indisponible. Réessayez dans quelques instants.",
+        );
+
+      throw new Error(
+        "Une erreur est survenue avec l'assistant. Réessayez dans un instant.",
+      );
     }
 
-    const json = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
+    let json: { choices?: { message?: { content?: string } }[] };
+    try {
+      json = (await res.json()) as typeof json;
+    } catch {
+      throw new Error(
+        "Réponse inattendue de l'assistant. Réessayez dans un instant.",
+      );
+    }
     const reply = json.choices?.[0]?.message?.content?.trim();
-    if (!reply) throw new Error("Réponse IA vide.");
+    if (!reply)
+      throw new Error(
+        "L'assistant n'a pas pu générer de réponse. Reformulez votre question.",
+      );
     return { reply };
   });

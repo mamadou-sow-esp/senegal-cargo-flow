@@ -66,7 +66,7 @@ export const listEmployees = createServerFn({ method: "GET" })
 
 export const inviteEmployee = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         email: z.string().trim().email(),
@@ -123,7 +123,7 @@ export const inviteEmployee = createServerFn({ method: "POST" })
 
 export const updateEmployeeRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ userId: z.string().uuid(), role: roleEnum }).parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -150,7 +150,7 @@ export const updateEmployeeRole = createServerFn({ method: "POST" })
 
 export const removeEmployee = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ userId: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
