@@ -7,13 +7,53 @@ import {
   STATUS_ORDER,
   priorityTone,
   statusProgress,
+  statusTone,
   type ShipmentStatus,
 } from "@/lib/status";
-import { Plus, Search } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Ship,
+  Package,
+  FileText,
+  CalendarDays,
+  ArrowUpRight,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dossiers/")({
   component: DossiersList,
 });
+
+// Palette par état d'avancement du dossier.
+const TONE: Record<
+  ReturnType<typeof statusTone>,
+  { accent: string; bar: string; track: string; pill: string }
+> = {
+  done: {
+    accent: "bg-emerald-500",
+    bar: "bg-emerald-500",
+    track: "bg-emerald-100",
+    pill: "bg-emerald-100 text-emerald-700",
+  },
+  progress: {
+    accent: "bg-blue-500",
+    bar: "bg-blue-500",
+    track: "bg-blue-100",
+    pill: "bg-blue-100 text-blue-700",
+  },
+  blocked: {
+    accent: "bg-amber-500",
+    bar: "bg-amber-500",
+    track: "bg-amber-100",
+    pill: "bg-amber-100 text-amber-700",
+  },
+  neutral: {
+    accent: "bg-slate-400",
+    bar: "bg-slate-400",
+    track: "bg-slate-100",
+    pill: "bg-slate-100 text-slate-600",
+  },
+};
 
 function DossiersList() {
   const [q, setQ] = useState("");
@@ -44,34 +84,37 @@ function DossiersList() {
     },
   });
 
+  const rows = data ?? [];
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+      {/* En-tête */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="font-label text-[10px] font-bold uppercase tracking-widest text-hero-blue">
             Opérations
           </div>
-
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tighter">
             Dossiers d'importation
           </h1>
         </div>
         <Link
           to="/dossiers/new"
-          className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-hero-blue px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 transition hover:opacity-90"
         >
           <Plus className="size-3.5" /> Nouveau dossier
         </Link>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 rounded border border-border bg-white p-3">
-        <div className="flex flex-1 items-center gap-2 rounded border border-border bg-muted/50 px-3 py-1.5">
-          <Search className="size-3.5 text-muted-foreground" />
+      {/* Recherche + filtre */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-white px-3.5 py-2.5 shadow-sm">
+          <Search className="size-4 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Rechercher BL, conteneur, navire, référence…"
-            className="w-full bg-transparent text-xs outline-none"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
           />
         </div>
         <select
@@ -79,7 +122,7 @@ function DossiersList() {
           onChange={(e) =>
             setStatusFilter(e.target.value as ShipmentStatus | "all")
           }
-          className="rounded border border-border bg-white px-2 py-1.5 text-xs"
+          className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm shadow-sm"
         >
           <option value="all">Toutes les étapes</option>
           {STATUS_ORDER.map((s) => (
@@ -90,103 +133,107 @@ function DossiersList() {
         </select>
       </div>
 
-      <div className="overflow-hidden rounded border border-border bg-white">
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="border-b border-border bg-muted/60">
-              <Th>Référence</Th>
-              <Th>Client</Th>
-              <Th>Navire / BL</Th>
-              <Th>Étape</Th>
-              <Th>Priorité</Th>
-              <Th className="text-right">Arrivée</Th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border text-sm">
-            {(data ?? []).map((s) => (
-              <tr
+      {/* Grille de cartes */}
+      {rows.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-white py-16 text-center text-sm text-muted-foreground">
+          Aucun dossier trouvé.
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {rows.map((s) => {
+            const status = s.status as ShipmentStatus;
+            const tone = TONE[statusTone(status)];
+            const step = STATUS_ORDER.indexOf(status) + 1;
+            return (
+              <Link
                 key={s.id}
-                className="group cursor-pointer transition-colors hover:bg-primary/5"
+                to="/dossiers/$id"
+                params={{ id: s.id }}
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                <td className="px-4 py-3">
-                  <Link to="/dossiers/$id" params={{ id: s.id }}>
-                    <div className="font-mono text-xs font-semibold text-primary">
-                      {s.reference}
+                <span className={`absolute inset-y-0 left-0 w-1 ${tone.accent}`} />
+                <div className="flex flex-col gap-2.5 p-4 pl-5">
+                  {/* Réf + client + priorité */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-mono text-sm font-bold tracking-tight">
+                        {s.reference}
+                      </div>
+                      <div className="mt-0.5 truncate text-sm font-semibold text-foreground/90">
+                        {s.clients?.name || "—"}
+                      </div>
                     </div>
-                    <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                      {s.container_number || "—"}
-                    </div>
-                  </Link>
-                </td>
-                <td className="px-4 py-3 font-medium">
-                  {s.clients?.name || "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="text-xs">{s.vessel_name || "—"}</div>
-                  <div className="font-mono text-[10px] text-muted-foreground">
-                    {s.bl_number || "—"}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full bg-primary"
-                        style={{
-                          width: `${statusProgress(s.status as ShipmentStatus)}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="font-label text-[11px] font-semibold text-muted-foreground">
-                      {STATUS_ORDER.indexOf(s.status as ShipmentStatus) + 1}/12
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${priorityTone(
+                        s.priority as never,
+                      )}`}
+                    >
+                      {s.priority}
                     </span>
                   </div>
-                  <div className="font-label mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                    {STATUS_LABEL[s.status as ShipmentStatus]}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`font-label rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority as never)}`}
-                  >
-                    {s.priority}
-                  </span>
 
-                </td>
-                <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
-                  {s.arrival_date
-                    ? new Date(s.arrival_date).toLocaleDateString("fr-FR")
-                    : "—"}
-                </td>
-              </tr>
-            ))}
-            {(data ?? []).length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-xs text-muted-foreground">
-                  Aucun dossier trouvé.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                  {/* Infos transport */}
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2 text-foreground/80">
+                      <Ship className="size-3.5 shrink-0 text-foreground/40" />
+                      <span className="truncate">{s.vessel_name || "—"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <FileText className="size-3.5 shrink-0 text-foreground/40" />
+                      <span className="truncate font-mono">
+                        {s.bl_number || "—"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Package className="size-3.5 shrink-0 text-foreground/40" />
+                      <span className="truncate font-mono">
+                        {s.container_number || "—"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progression */}
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <span
+                        className={`truncate rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tone.pill}`}
+                      >
+                        {STATUS_LABEL[status]}
+                      </span>
+                      <span className="shrink-0 font-mono text-[11px] font-semibold text-muted-foreground">
+                        {step}/12
+                      </span>
+                    </div>
+                    <div
+                      className={`h-2 w-full overflow-hidden rounded-full ${tone.track}`}
+                    >
+                      <div
+                        className={`h-full rounded-full ${tone.bar} transition-all`}
+                        style={{ width: `${statusProgress(status)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Pied de carte */}
+                  <div className="flex items-center justify-between border-t border-border pt-2.5">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <CalendarDays className="size-3.5" />
+                      <span>
+                        {s.arrival_date
+                          ? new Date(s.arrival_date).toLocaleDateString("fr-FR")
+                          : "—"}
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-hero-blue opacity-0 transition group-hover:opacity-100">
+                      Ouvrir <ArrowUpRight className="size-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
-
-function Th({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <th
-      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-label ${className}`}
-    >
-      {children}
-    </th>
-  );
-}
-

@@ -8,7 +8,7 @@ import {
   statusProgress,
   type ShipmentStatus,
 } from "@/lib/status";
-import { ArrowUpRight, CircleAlert, Clock, FolderKanban, PackageCheck } from "lucide-react";
+import { ArrowUpRight, Clock, FolderKanban, PackageCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -48,7 +48,6 @@ function Dashboard() {
     (s) => !["cloture", "marchandise_sortie"].includes(s.status),
   );
   const done = all.filter((s) => s.status === "cloture");
-  const blocked = all.filter((s) => s.status === "documents_attente");
   const waiting = all.filter((s) =>
     ["cree", "documents_attente", "declaration_preparee"].includes(s.status),
   );
@@ -57,8 +56,6 @@ function Dashboard() {
     { label: "Actifs", value: active.length, hint: "En traitement" },
     { label: "Terminés", value: done.length, hint: "Historique" },
     { label: "En attente", value: waiting.length, hint: "Étape initiale" },
-    { label: "Bloqués", value: blocked.length, hint: "Action requise", accent: true },
-    { label: "Délai moyen", value: "—", hint: "À venir" },
   ];
 
   return (
@@ -73,7 +70,7 @@ function Dashboard() {
       </div>
 
 
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {kpis.map((k, i) => (
           <div
             key={k.label}
@@ -202,12 +199,6 @@ function Dashboard() {
             <SummaryTile icon={FolderKanban} label="Dossiers actifs" value={active.length} />
             <SummaryTile icon={PackageCheck} label="Clôturés" value={done.length} />
             <SummaryTile icon={Clock} label="En attente" value={waiting.length} />
-            <SummaryTile
-              icon={CircleAlert}
-              label="Bloqués"
-              value={blocked.length}
-              accent
-            />
           </div>
 
           <div className="rounded border border-accent/20 bg-accent/5 p-4">

@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft } from "lucide-react";
+import { extractDossier } from "@/lib/ai.functions";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dossiers/new")({
   component: NewDossier,
@@ -43,6 +45,65 @@ function NewDossier() {
 
   const set = (k: keyof typeof form, v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  // ── Pré-remplissage IA depuis un bloc de texte ──
+  const extract = useServerFn(extractDossier);
+  const [rawText, setRawText] = useState("");
+  const [extracting, setExtracting] = useState(false);
+
+  const handleExtract = async () => {
+    const text = rawText.trim();
+    if (!text || extracting) return;
+    setExtracting(true);
+    try {
+      const { fields } = await extract({ data: { text } });
+
+      // Tente d'associer le client par son nom.
+      let matchedId = "";
+      if (fields.client_name && clients?.length) {
+        const target = fields.client_name.toLowerCase();
+        const found = clients.find(
+          (c) =>
+            c.name.toLowerCase().includes(target) ||
+            target.includes(c.name.toLowerCase()),
+        );
+        if (found) matchedId = found.id;
+      }
+
+      setForm((f) => ({
+        ...f,
+        reference: fields.reference || f.reference,
+        vessel_name: fields.vessel_name || f.vessel_name,
+        shipping_company: fields.shipping_company || f.shipping_company,
+        bl_number: fields.bl_number || f.bl_number,
+        container_number: fields.container_number || f.container_number,
+        origin_country: fields.origin_country || f.origin_country,
+        origin_port: fields.origin_port || f.origin_port,
+        arrival_date: fields.arrival_date || f.arrival_date,
+        goods_description: fields.goods_description || f.goods_description,
+        goods_value:
+          fields.goods_value != null
+            ? String(fields.goods_value)
+            : f.goods_value,
+        customs_regime: fields.customs_regime || f.customs_regime,
+        priority: fields.priority || f.priority,
+        notes: fields.notes || f.notes,
+        client_id: matchedId || f.client_id,
+      }));
+
+      if (fields.client_name && !matchedId) {
+        toast.success(
+          `Champs pré-remplis. Client « ${fields.client_name} » introuvable — sélectionne-le manuellement.`,
+        );
+      } else {
+        toast.success("Champs pré-remplis. Vérifie puis crée le dossier.");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur d'extraction");
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -103,6 +164,40 @@ function NewDossier() {
         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
           Nouveau dossier
         </h1>
+      </div>
+
+      {/* Pré-remplissage IA */}
+      <div className="rounded border border-hero-blue/30 bg-hero-blue/5 p-5">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-4 text-hero-blue" />
+          <h2 className="text-sm font-bold">Pré-remplir avec l'IA</h2>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Colle un email, un connaissement (BL) ou un message contenant les infos
+          du dossier. L'IA extrait les champs — tu vérifies avant d'enregistrer.
+        </p>
+        <textarea
+          rows={5}
+          value={rawText}
+          onChange={(e) => setRawText(e.target.value)}
+          placeholder="Ex : Bonjour, merci d'ouvrir un dossier pour le client Teranga Électro. Navire CMA CGM Dakar, BL CMDUSH8812340, conteneur CMAU5567012, 600 climatiseurs split en provenance de Ningbo (Chine), arrivée le 28/07/2026, valeur 27 300 000 FCFA."
+          className="mt-3 w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25"
+        />
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={handleExtract}
+            disabled={extracting || !rawText.trim()}
+            className="inline-flex items-center gap-2 rounded bg-hero-blue px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {extracting ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="size-3.5" />
+            )}
+            {extracting ? "Analyse…" : "Analyser et pré-remplir"}
+          </button>
+        </div>
       </div>
 
       <form

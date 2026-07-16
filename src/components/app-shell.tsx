@@ -7,6 +7,7 @@ import {
   UserCog,
   FileText,
   BarChart3,
+  Calculator,
   LogOut,
   Search,
   Plus,
@@ -25,6 +26,7 @@ const NAV = [
   { to: "/clients", label: "Clients", icon: Users },
   { to: "/employes", label: "Employés", icon: UserCog },
   { to: "/documents", label: "Documents", icon: FileText },
+  { to: "/calculateur", label: "Calculateur", icon: Calculator },
   { to: "/statistiques", label: "Statistiques", icon: BarChart3 },
 ] as const;
 

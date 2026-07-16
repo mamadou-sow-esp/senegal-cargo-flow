@@ -20,6 +20,7 @@ import { Route as AuthenticatedEmployesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedClientsRouteImport } from './routes/_authenticated/clients'
+import { Route as AuthenticatedCalculateurRouteImport } from './routes/_authenticated/calculateur'
 import { Route as AuthenticatedDossiersIndexRouteImport } from './routes/_authenticated/dossiers/index'
 import { Route as AuthenticatedDossiersNewRouteImport } from './routes/_authenticated/dossiers/new'
 import { Route as AuthenticatedDossiersIdRouteImport } from './routes/_authenticated/dossiers/$id'
@@ -79,6 +80,12 @@ const AuthenticatedClientsRoute = AuthenticatedClientsRouteImport.update({
   path: '/clients',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalculateurRoute =
+  AuthenticatedCalculateurRouteImport.update({
+    id: '/calculateur',
+    path: '/calculateur',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDossiersIndexRoute =
   AuthenticatedDossiersIndexRouteImport.update({
     id: '/dossiers/',
@@ -102,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/calculateur': typeof AuthenticatedCalculateurRoute
   '/clients': typeof AuthenticatedClientsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
@@ -117,6 +125,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/calculateur': typeof AuthenticatedCalculateurRoute
   '/clients': typeof AuthenticatedClientsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/_authenticated/calculateur': typeof AuthenticatedCalculateurRoute
   '/_authenticated/clients': typeof AuthenticatedClientsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/conditions'
     | '/confidentialite'
+    | '/calculateur'
     | '/clients'
     | '/dashboard'
     | '/documents'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/conditions'
     | '/confidentialite'
+    | '/calculateur'
     | '/clients'
     | '/dashboard'
     | '/documents'
@@ -182,6 +194,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/conditions'
     | '/confidentialite'
+    | '/_authenticated/calculateur'
     | '/_authenticated/clients'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calculateur': {
+      id: '/_authenticated/calculateur'
+      path: '/calculateur'
+      fullPath: '/calculateur'
+      preLoaderRoute: typeof AuthenticatedCalculateurRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dossiers/': {
       id: '/_authenticated/dossiers/'
       path: '/dossiers'
@@ -305,6 +325,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalculateurRoute: typeof AuthenticatedCalculateurRoute
   AuthenticatedClientsRoute: typeof AuthenticatedClientsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
@@ -317,6 +338,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalculateurRoute: AuthenticatedCalculateurRoute,
   AuthenticatedClientsRoute: AuthenticatedClientsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
