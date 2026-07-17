@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/logo.png";
+import logoAsset from "@/assets/oruslogonobackground.png";
 
 export const Route = createFileRoute("/confidentialite")({
   component: ConfidentialitePage,
   head: () => ({
-    meta: [{ title: "Politique de confidentialité — Clear Flower" }],
+    meta: [{ title: "Politique de confidentialité — ORUS TRANSIT" }],
   }),
 });
 
@@ -16,7 +16,7 @@ function ConfidentialitePage() {
       <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-[1000px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset} alt="Clear Flower" className="h-14 w-auto object-contain" />
+            <img src={logoAsset} alt="ORUS TRANSIT" className="h-14 w-auto object-contain" />
           </Link>
           <Link
             to="/"
@@ -42,7 +42,7 @@ function ConfidentialitePage() {
         <div className="mt-10 space-y-10 text-sm leading-relaxed text-foreground/90">
           <Section n="1" title="Introduction">
             <p>
-              La présente politique décrit la manière dont <strong>Clear Flower</strong>
+              La présente politique décrit la manière dont <strong>ORUS TRANSIT</strong>
               {" "}(« nous ») collecte, utilise, conserve et protège les données à
               caractère personnel dans le cadre de sa plateforme de gestion du
               dédouanement destinée aux commissionnaires en douane au Sénégal. Elle
@@ -59,14 +59,14 @@ function ConfidentialitePage() {
 
           <Section n="2" title="Responsable du traitement">
             <p>
-              Le responsable du traitement est Clear Flower, [raison sociale],
+              Le responsable du traitement est ORUS TRANSIT, [raison sociale],
               [adresse], Dakar, Sénégal. Pour toute question relative à vos données,
               vous pouvez nous écrire à <strong>[email de contact]</strong>.
             </p>
             <p>
               Lorsqu'un cabinet de commission en douane utilise le Service pour gérer
               les données de ses propres clients importateurs, ce cabinet agit comme
-              responsable du traitement de ces données, Clear Flower intervenant alors
+              responsable du traitement de ces données, ORUS TRANSIT intervenant alors
               en qualité de sous-traitant au sens de la loi.
             </p>
           </Section>
@@ -210,7 +210,7 @@ function ConfidentialitePage() {
           <Section n="12" title="Contact">
             <p>
               Pour toute question relative à cette politique ou à vos données
-              personnelles : <strong>[email de contact]</strong> — Clear Flower,
+              personnelles : <strong>[email de contact]</strong> — ORUS TRANSIT,
               [raison sociale], [adresse], Dakar, Sénégal.
             </p>
           </Section>
@@ -225,7 +225,7 @@ function ConfidentialitePage() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT — Dakar, Sénégal.
         </div>
       </footer>
     </div>

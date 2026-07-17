@@ -11,7 +11,7 @@ const InputSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(30),
 });
 
-const SYSTEM_PROMPT = `Tu es « Clear Flower AI », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal.
+const SYSTEM_PROMPT = `Tu es « ORUS TRANSIT AI », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal.
 
 Ton rôle :
 - Aider les transitaires à gérer leurs dossiers de dédouanement à l'importation.
@@ -157,7 +157,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, avec exa
   "vessel_name": string,          // nom du navire
   "shipping_company": string,     // compagnie maritime (MSC, Maersk, CMA CGM...)
   "bl_number": string,            // numéro de connaissement (BL)
-  "container_number": string,     // numéro de conteneur (format type ABCU1234567)
+  "container_number": string,     // numéro de conteneur (type ABCU1234567) OU, pour un véhicule sans conteneur, le numéro de châssis
   "origin_country": string,       // pays d'origine
   "origin_port": string,          // port d'origine / de chargement
   "arrival_date": string,         // date d'arrivée au format AAAA-MM-JJ, sinon ""
@@ -167,7 +167,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, avec exa
   "client_name": string,          // nom de l'importateur/client si mentionné, sinon ""
   "notes": string                 // toute autre info utile
 }
-Règles STRICTES : n'invente jamais une valeur. Mets "" (ou null pour goods_value) si l'information est absente du texte. Convertis les dates au format AAAA-MM-JJ. Convertis les montants en nombre (ex : "18 500 000 FCFA" -> 18500000).`;
+Règles STRICTES : n'invente jamais une valeur. Mets "" (ou null pour goods_value) si l'information est absente du texte. Convertis les dates au format AAAA-MM-JJ. Convertis les montants en nombre (ex : "18 500 000 FCFA" -> 18500000). Pour un véhicule, mets le numéro de châssis dans container_number. Reporte le numéro BESC/BSC dans notes s'il est présent.`;
 
 export const extractDossier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

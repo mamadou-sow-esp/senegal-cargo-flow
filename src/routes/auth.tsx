@@ -4,7 +4,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { FolderKanban, FileText, GitBranch, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/logo.png";
+import logoAsset from "@/assets/oruslogonobackground.png";
+import logoOnDark from "@/assets/oruslogo.png";
 import heroPort from "@/assets/banner.png";
 
 const searchSchema = z.object({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
   head: () => ({
-    meta: [{ title: "Connexion — Clear Flower" }],
+    meta: [{ title: "Connexion — ORUS TRANSIT" }],
   }),
 });
 
@@ -80,12 +81,21 @@ function AuthPage() {
           navigate({ to: "/onboarding" });
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: signIn, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        navigate({ to: "/dashboard" });
+        // Un importateur invité est dirigé vers son portail client.
+        const uid = signIn.user?.id;
+        const { data: client } = uid
+          ? await supabase
+              .from("clients")
+              .select("id")
+              .eq("user_id", uid)
+              .maybeSingle()
+          : { data: null };
+        navigate({ to: client ? "/portail" : "/dashboard" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
@@ -118,9 +128,9 @@ function AuthPage() {
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
           <Link to="/" className="inline-flex w-fit items-center">
             <img
-              src={logoAsset}
-              alt="Clear Flower"
-              className="h-24 w-auto object-contain brightness-0 invert"
+              src={logoOnDark}
+              alt="ORUS TRANSIT"
+              className="h-24 w-auto rounded-xl object-contain"
             />
           </Link>
 
@@ -145,7 +155,7 @@ function AuthPage() {
 
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/50">
             <span>Dakar · Sénégal</span>
-            <span>© {new Date().getFullYear()} Clear Flower</span>
+            <span>© {new Date().getFullYear()} ORUS TRANSIT</span>
           </div>
         </div>
       </aside>
@@ -161,7 +171,7 @@ function AuthPage() {
           </Link>
 
           <div className="mb-8 flex items-center lg:hidden">
-            <img src={logoAsset} alt="Clear Flower" className="h-16 w-auto object-contain" />
+            <img src={logoAsset} alt="ORUS TRANSIT" className="h-16 w-auto object-contain" />
           </div>
 
           {sentTo ? (

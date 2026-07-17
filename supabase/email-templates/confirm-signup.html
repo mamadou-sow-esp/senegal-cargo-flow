@@ -1,9 +1,10 @@
 <!--
-  Clear Flower — Template d'email « Confirmation d'inscription »
-  À coller dans : Supabase → Authentication → Email Templates → « Confirm signup »
-  Sujet suggéré : Confirmez votre compte Clear Flower
-  Variable Supabase utilisée : {{ .ConfirmationURL }}
+  ORUS TRANSIT - Template "Confirmation d'inscription"
+  A coller dans : Supabase - Authentication - Email Templates - "Confirm signup"
+  Sujet suggere : Confirmez votre compte ORUS TRANSIT
+  Variable : {{ .ConfirmationURL }} - accents en entites HTML.
 -->
+<meta charset="utf-8">
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
        style="background-color:#f4f6fb;margin:0;padding:32px 0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
   <tr>
@@ -11,16 +12,14 @@
       <table width="480" cellpadding="0" cellspacing="0" role="presentation"
              style="width:480px;max-width:92%;background-color:#ffffff;border:1px solid #e6e9f0;border-radius:8px;overflow:hidden;">
 
-        <!-- En-tête marque -->
         <tr>
           <td style="background-color:#141a2b;padding:24px 32px;">
             <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#ffffff;">
-              CLEAR <span style="color:#2f6bed;">FLOWER</span>
+              O<span style="color:#33a8ff;">RUS</span> TRANSIT
             </span>
           </td>
         </tr>
 
-        <!-- Corps -->
         <tr>
           <td style="padding:36px 32px 8px 32px;">
             <h1 style="margin:0;font-size:22px;font-weight:800;color:#141a2b;letter-spacing:-0.4px;">
@@ -28,14 +27,14 @@
             </h1>
             <div style="height:4px;width:48px;background-color:#2f6bed;margin:14px 0 0 0;border-radius:2px;"></div>
             <p style="margin:22px 0 0 0;font-size:15px;line-height:1.6;color:#4a5162;">
-              Bienvenue sur <strong>Clear Flower</strong>, le poste de commande des
-              commissionnaires en douane. Pour activer votre compte et accéder à votre
-              espace, confirmez votre adresse e-mail en cliquant sur le bouton ci-dessous.
+              Bienvenue sur <strong>ORUS TRANSIT</strong>, le poste de commande des
+              commissionnaires en douane. Pour activer votre compte et acc&eacute;der
+              &agrave; votre espace, confirmez votre adresse e-mail en cliquant sur le
+              bouton ci-dessous.
             </p>
           </td>
         </tr>
 
-        <!-- Bouton -->
         <tr>
           <td style="padding:28px 32px 8px 32px;">
             <table cellpadding="0" cellspacing="0" role="presentation">
@@ -52,7 +51,6 @@
           </td>
         </tr>
 
-        <!-- Lien de secours -->
         <tr>
           <td style="padding:20px 32px 32px 32px;">
             <p style="margin:0;font-size:12px;line-height:1.6;color:#8b91a1;">
@@ -60,17 +58,17 @@
               <a href="{{ .ConfirmationURL }}" style="color:#2f6bed;word-break:break-all;">{{ .ConfirmationURL }}</a>
             </p>
             <p style="margin:18px 0 0 0;font-size:12px;line-height:1.6;color:#8b91a1;">
-              Vous n'avez pas créé de compte Clear Flower ? Ignorez simplement cet e-mail.
+              Vous n&rsquo;avez pas cr&eacute;&eacute; de compte ORUS TRANSIT ? Ignorez
+              simplement cet e-mail.
             </p>
           </td>
         </tr>
 
-        <!-- Pied de page -->
         <tr>
           <td style="background-color:#f4f6fb;padding:20px 32px;border-top:1px solid #e6e9f0;">
             <p style="margin:0;font-size:11px;color:#9aa0af;">
-              © 2026 Clear Flower — Dakar, Sénégal.<br>
-              Gestion du dédouanement pour transitaires.
+              &copy; 2026 ORUS TRANSIT &mdash; Dakar, S&eacute;n&eacute;gal.<br>
+              Gestion du d&eacute;douanement pour transitaires.
             </p>
           </td>
         </tr>

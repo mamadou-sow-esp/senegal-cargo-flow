@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Clear Flower — Bureaucratic Precision
+ * ORUS TRANSIT — Bureaucratic Precision
  * Inter Light for body + numbers, Sora Light for labels/status,
  * orange accent for critical alerts.
  */
@@ -104,33 +104,34 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.02 260);
-  --foreground: oklch(0.96 0.008 250);
-  --card: oklch(0.2 0.03 260);
-  --card-foreground: oklch(0.96 0.008 250);
-  --popover: oklch(0.2 0.03 260);
-  --popover-foreground: oklch(0.96 0.008 250);
-  --primary: oklch(0.96 0.008 250);
-  --primary-foreground: oklch(0.22 0.04 260);
-  --secondary: oklch(0.26 0.03 260);
-  --secondary-foreground: oklch(0.96 0.008 250);
-  --muted: oklch(0.26 0.03 260);
-  --muted-foreground: oklch(0.7 0.02 260);
+  /* Noir profond & doux (façon Vercel / Resend) — bordures quasi invisibles */
+  --background: oklch(0.115 0 0);
+  --foreground: oklch(0.955 0 0);
+  --card: oklch(0.15 0 0);
+  --card-foreground: oklch(0.955 0 0);
+  --popover: oklch(0.155 0 0);
+  --popover-foreground: oklch(0.955 0 0);
+  --primary: oklch(0.955 0 0);
+  --primary-foreground: oklch(0.13 0 0);
+  --secondary: oklch(0.19 0 0);
+  --secondary-foreground: oklch(0.955 0 0);
+  --muted: oklch(0.185 0 0);
+  --muted-foreground: oklch(0.62 0 0);
   --accent: oklch(0.7 0.19 45);
-  --accent-foreground: oklch(0.16 0.02 260);
-  --destructive: oklch(0.65 0.22 27);
+  --accent-foreground: oklch(0.13 0 0);
+  --destructive: oklch(0.62 0.2 27);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 0.08);
-  --input: oklch(1 0 0 / 0.12);
-  --ring: oklch(0.7 0.19 45 / 0.4);
-  --sidebar: oklch(0.2 0.03 260);
-  --sidebar-foreground: oklch(0.96 0.008 250);
-  --sidebar-primary: oklch(0.96 0.008 250);
-  --sidebar-primary-foreground: oklch(0.22 0.04 260);
-  --sidebar-accent: oklch(0.26 0.03 260);
-  --sidebar-accent-foreground: oklch(0.96 0.008 250);
-  --sidebar-border: oklch(1 0 0 / 0.08);
-  --sidebar-ring: oklch(0.7 0.19 45 / 0.4);
+  --border: oklch(1 0 0 / 0.07);
+  --input: oklch(1 0 0 / 0.1);
+  --ring: oklch(0.7 0.19 45 / 0.35);
+  --sidebar: oklch(0.135 0 0);
+  --sidebar-foreground: oklch(0.955 0 0);
+  --sidebar-primary: oklch(0.955 0 0);
+  --sidebar-primary-foreground: oklch(0.13 0 0);
+  --sidebar-accent: oklch(0.19 0 0);
+  --sidebar-accent-foreground: oklch(0.955 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.06);
+  --sidebar-ring: oklch(0.7 0.19 45 / 0.35);
 }
 
 @keyframes cf-slide-in {
@@ -174,4 +175,50 @@
     font-variant-numeric: tabular-nums;
   }
 
+}
+
+/* ── Dark mode : les surfaces blanches suivent le thème sombre ────────── */
+/* (évite d'avoir à remplacer chaque bg-white par bg-card dans les pages) */
+.dark .bg-white {
+  background-color: var(--card);
+}
+.dark .bg-white\/80 {
+  background-color: oklch(0.15 0 0 / 0.72);
+}
+.dark .bg-white\/90 {
+  background-color: oklch(0.15 0 0 / 0.85);
+}
+.dark .bg-muted\/30,
+.dark .bg-muted\/40,
+.dark .bg-muted\/50,
+.dark .bg-muted\/60 {
+  background-color: color-mix(in oklch, var(--muted) 55%, transparent);
+}
+
+/* Halo doux en arrière-plan (profondeur subtile, neutre) */
+.dark body {
+  background-image:
+    radial-gradient(
+      1100px 620px at 100% -10%,
+      oklch(1 0 0 / 0.035),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 520px at -5% 108%,
+      oklch(1 0 0 / 0.025),
+      transparent 55%
+    );
+  background-attachment: fixed;
+}
+
+/* Cartes plus « soft » : très léger dégradé + ombre profonde diffuse */
+.dark .rounded-2xl.bg-white,
+.dark .rounded-2xl.border {
+  background-image: linear-gradient(
+    to bottom,
+    oklch(1 0 0 / 0.015),
+    transparent 40%
+  );
+  box-shadow: 0 1px 0 0 oklch(1 0 0 / 0.04) inset,
+    0 8px 24px -12px oklch(0 0 0 / 0.6);
 }

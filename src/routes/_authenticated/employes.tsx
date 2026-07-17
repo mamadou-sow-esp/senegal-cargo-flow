@@ -95,16 +95,19 @@ function EmployeesPage() {
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
             Ressources humaines
           </div>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+          <h1
+            className="mt-1 text-3xl font-extrabold tracking-tight"
+            style={{ fontFamily: "var(--font-label)" }}
+          >
             Employés
           </h1>
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-hero-blue px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 hover:opacity-90"
         >
           <Plus className="size-3.5" /> Inviter un employé
         </button>
@@ -116,7 +119,7 @@ function EmployeesPage() {
         <Stat label="Employés" value={employees} />
       </div>
 
-      <div className="flex items-center gap-2 rounded border border-border bg-white p-3">
+      <div className="flex items-center gap-2 rounded-xl border border-border bg-white px-3.5 py-2.5 shadow-sm">
         <Search className="size-3.5 text-muted-foreground" />
         <input
           value={q}
@@ -126,7 +129,7 @@ function EmployeesPage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded border border-border bg-white">
+      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-muted/60">
@@ -218,7 +221,7 @@ function EmployeesPage() {
 
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded border border-border bg-white p-6">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
             <div className="flex items-center gap-2">
               <UserRound className="size-4 text-muted-foreground" />
               <h2 className="text-lg font-extrabold tracking-tight">

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getPlan } from "@/lib/plans";
 
 const roleEnum = z.enum(["company_admin", "employee", "client"]);
 
@@ -26,6 +27,19 @@ async function requireAdminContext(userId: string) {
     (r) => r.role === "company_admin" || r.role === "super_admin",
   );
   return { supabaseAdmin, companyId: profile.company_id, isAdmin };
+}
+
+/** Renvoie la formule active d'un cabinet. */
+async function companyPlan(
+  supabaseAdmin: { from: (t: string) => any },
+  companyId: string,
+) {
+  const { data } = await supabaseAdmin
+    .from("companies")
+    .select("subscription_plan")
+    .eq("id", companyId)
+    .maybeSingle();
+  return getPlan((data as { subscription_plan?: string } | null)?.subscription_plan);
 }
 
 export const listEmployees = createServerFn({ method: "GET" })
@@ -91,6 +105,31 @@ export const inviteEmployee = createServerFn({ method: "POST" })
       (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
     )?.id;
 
+    // Limite d'utilisateurs selon la formule (on ne compte pas un membre déjà présent).
+    const plan = await companyPlan(supabaseAdmin, companyId);
+    if (plan.maxUsers !== null) {
+      const alreadyMember =
+        !!userId &&
+        !!(
+          await supabaseAdmin
+            .from("profiles")
+            .select("id")
+            .eq("id", userId)
+            .eq("company_id", companyId)
+            .maybeSingle()
+        ).data;
+      if (!alreadyMember) {
+        const { count } = await supabaseAdmin
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("company_id", companyId);
+        if ((count ?? 0) >= plan.maxUsers)
+          throw new Error(
+            `Votre formule ${plan.name} est limitée à ${plan.maxUsers} utilisateur${plan.maxUsers > 1 ? "s" : ""}. Passez à une formule supérieure pour ajouter des membres.`,
+          );
+      }
+    }
+
     if (!userId) {
       const { data: created, error: cErr } =
         await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
@@ -119,6 +158,74 @@ export const inviteEmployee = createServerFn({ method: "POST" })
     if (rErr) throw new Error(rErr.message);
 
     return { ok: true, userId };
+  });
+
+// Invite un client importateur à accéder à son portail.
+export const inviteClient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data) =>
+    z
+      .object({
+        clientId: z.string().uuid(),
+        email: z.string().trim().email(),
+        fullName: z.string().trim().max(120).optional().or(z.literal("")),
+        redirectTo: z.string().url(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin, companyId, isAdmin } = await requireAdminContext(
+      context.userId,
+    );
+    if (!isAdmin) throw new Error("Accès refusé");
+
+    const plan = await companyPlan(supabaseAdmin, companyId);
+    if (!plan.clientPortal)
+      throw new Error(
+        `Le portail client n'est pas inclus dans la formule ${plan.name}. Passez à la formule Cabinet pour inviter vos clients.`,
+      );
+
+    const { data: client } = await supabaseAdmin
+      .from("clients")
+      .select("id, company_id, name")
+      .eq("id", data.clientId)
+      .maybeSingle();
+    if (!client || client.company_id !== companyId)
+      throw new Error("Client introuvable");
+
+    const { data: existing, error: listErr } =
+      await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    if (listErr) throw new Error(listErr.message);
+    let userId = existing.users.find(
+      (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
+    )?.id;
+
+    if (!userId) {
+      const { data: created, error: cErr } =
+        await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+          redirectTo: data.redirectTo,
+          data: { full_name: data.fullName || client.name, role: "client" },
+        });
+      if (cErr || !created.user)
+        throw new Error(cErr?.message || "Invitation échouée");
+      userId = created.user.id;
+    }
+
+    // Profil sans company_id (le client n'est pas un membre du cabinet).
+    await supabaseAdmin.from("profiles").upsert({
+      id: userId,
+      full_name: data.fullName || client.name,
+      email: data.email,
+    });
+
+    // Lie la fiche client au compte.
+    const { error: linkErr } = await supabaseAdmin
+      .from("clients")
+      .update({ user_id: userId })
+      .eq("id", data.clientId);
+    if (linkErr) throw new Error(linkErr.message);
+
+    return { ok: true };
   });
 
 export const updateEmployeeRole = createServerFn({ method: "POST" })

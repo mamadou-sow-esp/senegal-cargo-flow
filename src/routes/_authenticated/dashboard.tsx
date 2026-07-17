@@ -6,13 +6,28 @@ import {
   STATUS_ORDER,
   priorityTone,
   statusProgress,
+  statusTone,
   type ShipmentStatus,
 } from "@/lib/status";
-import { ArrowUpRight, Clock, FolderKanban, PackageCheck } from "lucide-react";
+import {
+  FolderKanban,
+  PackageCheck,
+  Clock,
+  AlertTriangle,
+  ArrowUpRight,
+  Plus,
+  Calculator,
+  Users,
+  Sparkles,
+  Ship,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
+
+// Sora pour les titres et chiffres (police d'affichage moderne).
+const sora = { fontFamily: "var(--font-label)" } as const;
 
 type ShipmentRow = {
   id: string;
@@ -24,6 +39,80 @@ type ShipmentRow = {
   priority: "basse" | "standard" | "haute" | "critique";
   created_at: string;
   clients: { name: string } | null;
+};
+
+const TONE: Record<
+  ReturnType<typeof statusTone>,
+  { text: string; bar: string; soft: string; chip: string }
+> = {
+  done: {
+    text: "text-emerald-600",
+    bar: "bg-emerald-500",
+    soft: "bg-emerald-100",
+    chip: "bg-emerald-100 text-emerald-700",
+  },
+  progress: {
+    text: "text-blue-600",
+    bar: "bg-blue-500",
+    soft: "bg-blue-100",
+    chip: "bg-blue-100 text-blue-700",
+  },
+  blocked: {
+    text: "text-amber-600",
+    bar: "bg-amber-500",
+    soft: "bg-amber-100",
+    chip: "bg-amber-100 text-amber-700",
+  },
+  neutral: {
+    text: "text-slate-500",
+    bar: "bg-slate-400",
+    soft: "bg-slate-100",
+    chip: "bg-slate-100 text-slate-600",
+  },
+};
+
+const PHASES: {
+  label: string;
+  tone: ReturnType<typeof statusTone>;
+  statuses: ShipmentStatus[];
+}[] = [
+  {
+    label: "Préparation",
+    tone: "neutral",
+    statuses: [
+      "cree",
+      "documents_attente",
+      "documents_complets",
+      "declaration_preparee",
+    ],
+  },
+  {
+    label: "Déclaration & contrôle",
+    tone: "progress",
+    statuses: [
+      "declaration_deposee",
+      "attente_validation",
+      "controle_documentaire",
+      "controle_physique",
+    ],
+  },
+  {
+    label: "Paiement & enlèvement",
+    tone: "blocked",
+    statuses: ["paiement_droits", "bon_a_enlever"],
+  },
+  {
+    label: "Sortie & clôture",
+    tone: "done",
+    statuses: ["marchandise_sortie", "cloture"],
+  },
+];
+
+const PRIO: Record<string, { dot: string; label: string }> = {
+  critique: { dot: "bg-red-500", label: "Critique" },
+  haute: { dot: "bg-orange-500", label: "Haute" },
+  standard: { dot: "bg-blue-500", label: "Standard" },
+  basse: { dot: "bg-slate-400", label: "Basse" },
 };
 
 function Dashboard() {
@@ -43,241 +132,415 @@ function Dashboard() {
     },
   });
 
+  const { data: clientCount } = useQuery({
+    queryKey: ["clients-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("clients")
+        .select("id", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
   const all = shipments ?? [];
   const active = all.filter(
     (s) => !["cloture", "marchandise_sortie"].includes(s.status),
   );
-  const done = all.filter((s) => s.status === "cloture");
-  const waiting = all.filter((s) =>
-    ["cree", "documents_attente", "declaration_preparee"].includes(s.status),
+  const done = all.filter((s) =>
+    ["cloture", "marchandise_sortie"].includes(s.status),
+  );
+  const waitingDocs = all.filter((s) => s.status === "documents_attente");
+  const highPrio = active.filter(
+    (s) => s.priority === "haute" || s.priority === "critique",
   );
 
-  const kpis = [
-    { label: "Actifs", value: active.length, hint: "En traitement" },
-    { label: "Terminés", value: done.length, hint: "Historique" },
-    { label: "En attente", value: waiting.length, hint: "Étape initiale" },
-  ];
+  const prioCounts = {
+    critique: all.filter((s) => s.priority === "critique").length,
+    haute: all.filter((s) => s.priority === "haute").length,
+    standard: all.filter((s) => s.priority === "standard").length,
+    basse: all.filter((s) => s.priority === "basse").length,
+  };
+  const prioMax = Math.max(1, ...Object.values(prioCounts));
+
+  const phaseCounts = PHASES.map((p) => ({
+    ...p,
+    count: all.filter((s) => p.statuses.includes(s.status)).length,
+  }));
+  const phaseTotal = Math.max(1, all.length);
+
+  const today = new Date().toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 p-6 md:p-8">
-      <div>
-        <div className="font-label text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Vue d'ensemble
+    <div className="mx-auto w-full max-w-7xl space-y-6 p-5 md:p-8">
+      {/* En-tête */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
+            Vue d'ensemble
+          </div>
+          <h1
+            className="mt-1 text-3xl font-extrabold tracking-tight"
+            style={sora}
+          >
+            Tableau de bord
+          </h1>
+          <p className="mt-1 text-sm capitalize text-muted-foreground">
+            {today}
+          </p>
         </div>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
-          Tableau de bord opérations
-        </h1>
+        <Link
+          to="/dossiers/new"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-hero-blue px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 transition hover:opacity-90"
+        >
+          <Plus className="size-3.5" /> Nouveau dossier
+        </Link>
       </div>
 
-
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {kpis.map((k, i) => (
-          <div
-            key={k.label}
-            className={`animate-in-up rounded border border-border bg-white p-5 ${
-              k.accent ? "border-l-4 border-l-accent" : ""
-            }`}
-            style={{ animationDelay: `${i * 40}ms` }}
-          >
-            <div
-              className={`font-label text-[10px] font-bold uppercase tracking-widest ${
-                k.accent ? "text-accent" : "text-muted-foreground"
-              }`}
-            >
-              {k.label}
-            </div>
-            <div className="mt-2 font-mono text-3xl font-extrabold tabular-nums">
-              {k.value}
-            </div>
-            <div className="font-label mt-1 text-[10px] text-muted-foreground">{k.hint}</div>
-
-          </div>
-        ))}
+      {/* KPI */}
+      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          icon={FolderKanban}
+          value={active.length}
+          label="Dossiers actifs"
+          hint="En cours de traitement"
+          tone="progress"
+        />
+        <StatCard
+          icon={PackageCheck}
+          value={done.length}
+          label="Clôturés"
+          hint="Sortis / archivés"
+          tone="done"
+        />
+        <StatCard
+          icon={Clock}
+          value={waitingDocs.length}
+          label="Docs en attente"
+          hint="Pièces manquantes"
+          tone="blocked"
+        />
+        <StatCard
+          icon={AlertTriangle}
+          value={highPrio.length}
+          label="Priorité élevée"
+          hint="Haute ou critique"
+          tone="neutral"
+        />
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-12">
-        <section className="animate-in-up space-y-4 lg:col-span-9">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-extrabold tracking-tight">
-              Dossiers récents
-            </h2>
-            <Link
-              to="/dossiers"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
-            >
-              Tout voir <ArrowUpRight className="size-3" />
-            </Link>
-          </div>
-
-          <div className="overflow-hidden rounded border border-border bg-white">
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Colonne principale */}
+        <div className="space-y-4 lg:col-span-2">
+          {/* Dossiers récents */}
+          <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-bold tracking-tight" style={sora}>
+                Dossiers récents
+              </h2>
+              <Link
+                to="/dossiers"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-hero-blue hover:underline"
+              >
+                Tout voir <ArrowUpRight className="size-3.5" />
+              </Link>
+            </div>
             {all.length === 0 ? (
               <EmptyDossiers />
             ) : (
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr className="border-b border-border bg-muted/60">
-                    <Th>N° / Conteneur</Th>
-                    <Th>Client</Th>
-                    <Th>Étape</Th>
-                    <Th>Priorité</Th>
-                    <Th className="text-right">Créé</Th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border text-sm">
-                  {all.slice(0, 8).map((s) => (
-                    <tr
-                      key={s.id}
-                      className={`group transition-colors hover:bg-primary/5 ${
-                        s.status === "documents_attente"
-                          ? "border-l-2 border-l-accent"
-                          : ""
-                      }`}
-                    >
-                      <td className="px-4 py-3">
-                        <Link
-                          to="/dossiers/$id"
-                          params={{ id: s.id }}
-                          className="block"
-                        >
-                          <div className="font-mono text-xs font-semibold text-primary">
-                            {s.reference}
-                          </div>
-                          <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                            {s.container_number || s.bl_number || "—"}
-                          </div>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 font-medium">
-                        {s.clients?.name || "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className={`h-full ${
-                                s.status === "documents_attente"
-                                  ? "bg-accent"
-                                  : s.status === "cloture"
-                                    ? "bg-emerald-500"
-                                    : "bg-primary"
-                              }`}
-                              style={{ width: `${statusProgress(s.status)}%` }}
-                            />
-                          </div>
-                          <span className="font-label text-[11px] font-semibold text-muted-foreground">
-                            {STATUS_ORDER.indexOf(s.status) + 1}/12
-                          </span>
-                        </div>
-                        <div className="font-label mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                          {STATUS_LABEL[s.status]}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`font-label rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(s.priority)}`}
-                        >
-                          {s.priority}
-                        </span>
-
-                      </td>
-                      <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
-                        {new Date(s.created_at).toLocaleDateString("fr-FR")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="space-y-0.5">
+                {all.slice(0, 6).map((s) => (
+                  <RecentRow key={s.id} s={s} />
+                ))}
+              </div>
             )}
           </div>
-        </section>
 
-        <aside className="animate-in-up space-y-6 lg:col-span-3">
-          <div className="space-y-3">
-            <h3 className="font-label text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Résumé
-            </h3>
-            <SummaryTile icon={FolderKanban} label="Dossiers actifs" value={active.length} />
-            <SummaryTile icon={PackageCheck} label="Clôturés" value={done.length} />
-            <SummaryTile icon={Clock} label="En attente" value={waiting.length} />
-          </div>
-
-          <div className="rounded border border-accent/20 bg-accent/5 p-4">
-            <div className="font-label text-[11px] font-bold uppercase tracking-widest text-accent">
-              Assistance IA active
+          {/* Répartition par étape */}
+          <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-bold tracking-tight" style={sora}>
+                Répartition par étape
+              </h2>
+              <Link
+                to="/statistiques"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-hero-blue hover:underline"
+              >
+                Statistiques <ArrowUpRight className="size-3.5" />
+              </Link>
             </div>
-
-            <p className="mt-1 text-xs leading-relaxed text-foreground/80">
-              L'assistant Clear Flower IA est à votre disposition. Posez-lui vos
-              questions sur les procédures douanières, les taxes, les
-              documents requis ou le suivi d'un dossier.
-            </p>
+            <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
+              {phaseCounts.map((p) =>
+                p.count > 0 ? (
+                  <div
+                    key={p.label}
+                    className={TONE[p.tone].bar}
+                    style={{ width: `${(p.count / phaseTotal) * 100}%` }}
+                    title={`${p.label} : ${p.count}`}
+                  />
+                ) : null,
+              )}
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {phaseCounts.map((p) => (
+                <div key={p.label} className="flex items-center gap-2.5">
+                  <span
+                    className={`size-2.5 shrink-0 rounded-full ${TONE[p.tone].bar}`}
+                  />
+                  <span className="flex-1 text-xs text-muted-foreground">
+                    {p.label}
+                  </span>
+                  <span
+                    className="text-sm font-bold tabular-nums"
+                    style={sora}
+                  >
+                    {p.count}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        </aside>
+        </div>
+
+        {/* Colonne latérale */}
+        <div className="space-y-4">
+          {/* Alertes */}
+          <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            <h2 className="mb-3 text-base font-bold tracking-tight" style={sora}>
+              Alertes
+            </h2>
+            {waitingDocs.length === 0 && highPrio.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Aucune alerte. Tout est à jour.
+              </p>
+            ) : (
+              <div className="space-y-1.5">
+                {waitingDocs.slice(0, 3).map((s) => (
+                  <AlertRow
+                    key={s.id}
+                    id={s.id}
+                    ref_={s.reference}
+                    label="Documents en attente"
+                    tone="blocked"
+                  />
+                ))}
+                {highPrio.slice(0, 3).map((s) => (
+                  <AlertRow
+                    key={s.id}
+                    id={s.id}
+                    ref_={s.reference}
+                    label={`Priorité ${s.priority}`}
+                    tone="neutral"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Priorités */}
+          <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            <h2 className="mb-4 text-base font-bold tracking-tight" style={sora}>
+              Priorités
+            </h2>
+            <div className="space-y-3">
+              {(
+                ["critique", "haute", "standard", "basse"] as const
+              ).map((k) => (
+                <div key={k} className="flex items-center gap-2.5">
+                  <span className={`size-2.5 rounded-full ${PRIO[k].dot}`} />
+                  <span className="w-16 text-xs text-muted-foreground">
+                    {PRIO[k].label}
+                  </span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={`h-full ${PRIO[k].dot}`}
+                      style={{ width: `${(prioCounts[k] / prioMax) * 100}%` }}
+                    />
+                  </div>
+                  <span className="w-6 text-right text-xs font-bold tabular-nums">
+                    {prioCounts[k]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Aperçu rapide */}
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStat icon={Users} label="Clients" value={clientCount ?? 0} />
+            <MiniStat icon={Ship} label="Dossiers" value={all.length} />
+          </div>
+
+          {/* Assistant IA */}
+          <div className="rounded-2xl border border-hero-blue/20 bg-gradient-to-br from-hero-blue/10 to-hero-blue/5 p-5">
+            <div className="flex items-center gap-2 text-hero-blue">
+              <Sparkles className="size-4" />
+              <div
+                className="text-xs font-bold uppercase tracking-widest"
+                style={sora}
+              >
+                Assistant IA
+              </div>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-foreground/80">
+              ORUS TRANSIT AI répond à vos questions sur les procédures, les
+              taxes, les documents et le suivi de dossiers — en bas à droite de
+              l'écran.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/calculateur"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold shadow-sm hover:bg-muted"
+              >
+                <Calculator className="size-3.5 text-hero-blue" /> Calculateur
+              </Link>
+              <Link
+                to="/clients"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold shadow-sm hover:bg-muted"
+              >
+                <Users className="size-3.5 text-hero-blue" /> Clients
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function Th({
-  children,
-  className = "",
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+  hint,
+  tone,
 }: {
-  children: React.ReactNode;
-  className?: string;
+  icon: typeof FolderKanban;
+  value: number;
+  label: string;
+  hint: string;
+  tone: ReturnType<typeof statusTone>;
 }) {
+  const t = TONE[tone];
   return (
-    <th
-      className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-label ${className}`}
-    >
-      {children}
-    </th>
+    <div className="rounded-2xl border border-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <Icon className={`size-5 ${t.text}`} />
+      <div
+        className="mt-4 text-3xl font-extrabold tracking-tight tabular-nums"
+        style={sora}
+      >
+        {value}
+      </div>
+      <div className="mt-0.5 text-sm font-semibold">{label}</div>
+      <div className="text-[11px] text-muted-foreground">{hint}</div>
+    </div>
   );
 }
 
+function RecentRow({ s }: { s: ShipmentRow }) {
+  const t = TONE[statusTone(s.status)];
+  return (
+    <Link
+      to="/dossiers/$id"
+      params={{ id: s.id }}
+      className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-muted/50"
+    >
+      <span className={`size-2.5 shrink-0 rounded-full ${t.bar}`} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-bold">{s.reference}</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${priorityTone(
+              s.priority,
+            )}`}
+          >
+            {s.priority}
+          </span>
+        </div>
+        <div className="truncate text-xs text-muted-foreground">
+          {s.clients?.name || "—"} ·{" "}
+          {s.container_number || s.bl_number || "—"}
+        </div>
+      </div>
+      <div className="hidden w-32 shrink-0 sm:block">
+        <div className={`h-1.5 overflow-hidden rounded-full ${t.soft}`}>
+          <div
+            className={`h-full ${t.bar}`}
+            style={{ width: `${statusProgress(s.status)}%` }}
+          />
+        </div>
+        <div className="mt-1 truncate text-[9px] uppercase tracking-wide text-muted-foreground">
+          {STATUS_LABEL[s.status]}
+        </div>
+      </div>
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
+    </Link>
+  );
+}
 
-function SummaryTile({
+function AlertRow({
+  id,
+  ref_,
+  label,
+  tone,
+}: {
+  id: string;
+  ref_: string;
+  label: string;
+  tone: ReturnType<typeof statusTone>;
+}) {
+  const t = TONE[tone];
+  return (
+    <Link
+      to="/dossiers/$id"
+      params={{ id }}
+      className="flex items-center gap-2.5 rounded-xl border border-border px-3 py-2 transition hover:bg-muted/50"
+    >
+      <span className={`size-2 shrink-0 rounded-full ${t.bar}`} />
+      <span className="font-mono text-xs font-bold">{ref_}</span>
+      <span className={`ml-auto text-[10px] font-semibold ${t.text}`}>
+        {label}
+      </span>
+    </Link>
+  );
+}
+
+function MiniStat({
   icon: Icon,
   label,
   value,
-  accent,
 }: {
   icon: typeof FolderKanban;
   label: string;
   value: number;
-  accent?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between rounded border border-border bg-white p-3">
-      <div className="flex items-center gap-2.5">
-        <div
-          className={`grid size-8 place-items-center rounded ${
-            accent ? "bg-accent/10 text-accent" : "bg-muted text-foreground"
-          }`}
-        >
-          <Icon className="size-4" />
-        </div>
-        <span className="font-label text-xs font-medium">{label}</span>
-      </div>
-      <span
-        className={`font-mono text-lg font-extrabold tabular-nums ${accent ? "text-accent" : ""}`}
-      >
+    <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
+      <Icon className="size-4 text-muted-foreground" />
+      <div className="mt-2 text-2xl font-extrabold tabular-nums" style={sora}>
         {value}
-      </span>
+      </div>
+      <div className="text-[11px] text-muted-foreground">{label}</div>
     </div>
   );
 }
 
 function EmptyDossiers() {
   return (
-    <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
-      <FolderKanban className="size-8 text-muted-foreground" />
+    <div className="flex flex-col items-center gap-3 px-8 py-12 text-center">
+      <div className="grid size-12 place-items-center rounded-2xl bg-muted">
+        <FolderKanban className="size-6 text-muted-foreground" />
+      </div>
       <div className="text-sm font-semibold">Aucun dossier pour l'instant</div>
       <p className="max-w-sm text-xs text-muted-foreground">
         Créez votre premier dossier d'importation pour démarrer le suivi.
       </p>
       <Link
         to="/dossiers/new"
-        className="mt-2 rounded bg-primary px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
+        className="mt-1 rounded-xl bg-hero-blue px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90"
       >
         Créer un dossier
       </Link>

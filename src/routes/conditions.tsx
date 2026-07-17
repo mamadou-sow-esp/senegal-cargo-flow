@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/logo.png";
+import logoAsset from "@/assets/oruslogonobackground.png";
 
 export const Route = createFileRoute("/conditions")({
   component: ConditionsPage,
   head: () => ({
-    meta: [{ title: "Conditions d'utilisation — Clear Flower" }],
+    meta: [{ title: "Conditions d'utilisation — ORUS TRANSIT" }],
   }),
 });
 
@@ -16,7 +16,7 @@ function ConditionsPage() {
       <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-[1000px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">
-            <img src={logoAsset} alt="Clear Flower" className="h-14 w-auto object-contain" />
+            <img src={logoAsset} alt="ORUS TRANSIT" className="h-14 w-auto object-contain" />
           </Link>
           <Link
             to="/"
@@ -43,7 +43,7 @@ function ConditionsPage() {
           <Section n="1" title="Objet">
             <p>
               Les présentes Conditions Générales d'Utilisation (« CGU ») régissent
-              l'accès et l'utilisation de la plateforme <strong>Clear Flower</strong>
+              l'accès et l'utilisation de la plateforme <strong>ORUS TRANSIT</strong>
               {" "}(le « Service »), un logiciel en ligne (SaaS) destiné aux
               commissionnaires en douane et transitaires exerçant au Sénégal. Le
               Service permet notamment la centralisation des dossiers d'importation,
@@ -58,7 +58,7 @@ function ConditionsPage() {
 
           <Section n="2" title="Définitions">
             <p>
-              <strong>Éditeur</strong> : Clear Flower, éditeur du Service (ci-après
+              <strong>Éditeur</strong> : ORUS TRANSIT, éditeur du Service (ci-après
               « nous »). <strong>Utilisateur</strong> : toute personne disposant d'un
               compte (administrateur de cabinet, employé, ou client importateur).
               <strong> Cabinet</strong> : l'entreprise de commission en douane
@@ -220,7 +220,7 @@ function ConditionsPage() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT — Dakar, Sénégal.
         </div>
       </footer>
     </div>

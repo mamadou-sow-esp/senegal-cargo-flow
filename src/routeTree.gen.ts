@@ -9,11 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TarifsRouteImport } from './routes/tarifs'
+import { Route as PortailRouteImport } from './routes/portail'
+import { Route as InvitationRouteImport } from './routes/invitation'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConditionsRouteImport } from './routes/conditions'
+import { Route as ChoixFormuleRouteImport } from './routes/choix-formule'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortailIndexRouteImport } from './routes/portail.index'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedEmployesRouteImport } from './routes/_authenticated/employes'
@@ -21,10 +26,28 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedClientsRouteImport } from './routes/_authenticated/clients'
 import { Route as AuthenticatedCalculateurRouteImport } from './routes/_authenticated/calculateur'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAbonnementRouteImport } from './routes/_authenticated/abonnement'
 import { Route as AuthenticatedDossiersIndexRouteImport } from './routes/_authenticated/dossiers/index'
+import { Route as PortailDossierIdRouteImport } from './routes/portail.dossier.$id'
 import { Route as AuthenticatedDossiersNewRouteImport } from './routes/_authenticated/dossiers/new'
 import { Route as AuthenticatedDossiersIdRouteImport } from './routes/_authenticated/dossiers/$id'
 
+const TarifsRoute = TarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortailRoute = PortailRouteImport.update({
+  id: '/portail',
+  path: '/portail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationRoute = InvitationRouteImport.update({
+  id: '/invitation',
+  path: '/invitation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   id: '/confidentialite',
   path: '/confidentialite',
@@ -33,6 +56,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ConditionsRoute = ConditionsRouteImport.update({
   id: '/conditions',
   path: '/conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChoixFormuleRoute = ChoixFormuleRouteImport.update({
+  id: '/choix-formule',
+  path: '/choix-formule',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -48,6 +76,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PortailIndexRoute = PortailIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortailRoute,
 } as any)
 const AuthenticatedStatistiquesRoute =
   AuthenticatedStatistiquesRouteImport.update({
@@ -86,12 +119,27 @@ const AuthenticatedCalculateurRoute =
     path: '/calculateur',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAbonnementRoute = AuthenticatedAbonnementRouteImport.update({
+  id: '/abonnement',
+  path: '/abonnement',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDossiersIndexRoute =
   AuthenticatedDossiersIndexRouteImport.update({
     id: '/dossiers/',
     path: '/dossiers/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const PortailDossierIdRoute = PortailDossierIdRouteImport.update({
+  id: '/dossier/$id',
+  path: '/dossier/$id',
+  getParentRoute: () => PortailRoute,
+} as any)
 const AuthenticatedDossiersNewRoute =
   AuthenticatedDossiersNewRouteImport.update({
     id: '/dossiers/new',
@@ -107,8 +155,14 @@ const AuthenticatedDossiersIdRoute = AuthenticatedDossiersIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/choix-formule': typeof ChoixFormuleRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/invitation': typeof InvitationRoute
+  '/portail': typeof PortailRouteWithChildren
+  '/tarifs': typeof TarifsRoute
+  '/abonnement': typeof AuthenticatedAbonnementRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/calculateur': typeof AuthenticatedCalculateurRoute
   '/clients': typeof AuthenticatedClientsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -116,15 +170,22 @@ export interface FileRoutesByFullPath {
   '/employes': typeof AuthenticatedEmployesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/portail/': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/dossiers/': typeof AuthenticatedDossiersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/choix-formule': typeof ChoixFormuleRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/invitation': typeof InvitationRoute
+  '/tarifs': typeof TarifsRoute
+  '/abonnement': typeof AuthenticatedAbonnementRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/calculateur': typeof AuthenticatedCalculateurRoute
   '/clients': typeof AuthenticatedClientsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -132,8 +193,10 @@ export interface FileRoutesByTo {
   '/employes': typeof AuthenticatedEmployesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/portail': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/dossiers': typeof AuthenticatedDossiersIndexRoute
 }
 export interface FileRoutesById {
@@ -141,8 +204,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/choix-formule': typeof ChoixFormuleRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/invitation': typeof InvitationRoute
+  '/portail': typeof PortailRouteWithChildren
+  '/tarifs': typeof TarifsRoute
+  '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calculateur': typeof AuthenticatedCalculateurRoute
   '/_authenticated/clients': typeof AuthenticatedClientsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -150,8 +219,10 @@ export interface FileRoutesById {
   '/_authenticated/employes': typeof AuthenticatedEmployesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/portail/': typeof PortailIndexRoute
   '/_authenticated/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/_authenticated/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/_authenticated/dossiers/': typeof AuthenticatedDossiersIndexRoute
 }
 export interface FileRouteTypes {
@@ -159,8 +230,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/choix-formule'
     | '/conditions'
     | '/confidentialite'
+    | '/invitation'
+    | '/portail'
+    | '/tarifs'
+    | '/abonnement'
+    | '/admin'
     | '/calculateur'
     | '/clients'
     | '/dashboard'
@@ -168,15 +245,22 @@ export interface FileRouteTypes {
     | '/employes'
     | '/onboarding'
     | '/statistiques'
+    | '/portail/'
     | '/dossiers/$id'
     | '/dossiers/new'
+    | '/portail/dossier/$id'
     | '/dossiers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/choix-formule'
     | '/conditions'
     | '/confidentialite'
+    | '/invitation'
+    | '/tarifs'
+    | '/abonnement'
+    | '/admin'
     | '/calculateur'
     | '/clients'
     | '/dashboard'
@@ -184,16 +268,24 @@ export interface FileRouteTypes {
     | '/employes'
     | '/onboarding'
     | '/statistiques'
+    | '/portail'
     | '/dossiers/$id'
     | '/dossiers/new'
+    | '/portail/dossier/$id'
     | '/dossiers'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/choix-formule'
     | '/conditions'
     | '/confidentialite'
+    | '/invitation'
+    | '/portail'
+    | '/tarifs'
+    | '/_authenticated/abonnement'
+    | '/_authenticated/admin'
     | '/_authenticated/calculateur'
     | '/_authenticated/clients'
     | '/_authenticated/dashboard'
@@ -201,8 +293,10 @@ export interface FileRouteTypes {
     | '/_authenticated/employes'
     | '/_authenticated/onboarding'
     | '/_authenticated/statistiques'
+    | '/portail/'
     | '/_authenticated/dossiers/$id'
     | '/_authenticated/dossiers/new'
+    | '/portail/dossier/$id'
     | '/_authenticated/dossiers/'
   fileRoutesById: FileRoutesById
 }
@@ -210,12 +304,37 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ChoixFormuleRoute: typeof ChoixFormuleRoute
   ConditionsRoute: typeof ConditionsRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
+  InvitationRoute: typeof InvitationRoute
+  PortailRoute: typeof PortailRouteWithChildren
+  TarifsRoute: typeof TarifsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tarifs': {
+      id: '/tarifs'
+      path: '/tarifs'
+      fullPath: '/tarifs'
+      preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portail': {
+      id: '/portail'
+      path: '/portail'
+      fullPath: '/portail'
+      preLoaderRoute: typeof PortailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitation': {
+      id: '/invitation'
+      path: '/invitation'
+      fullPath: '/invitation'
+      preLoaderRoute: typeof InvitationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/confidentialite': {
       id: '/confidentialite'
       path: '/confidentialite'
@@ -228,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/conditions'
       fullPath: '/conditions'
       preLoaderRoute: typeof ConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/choix-formule': {
+      id: '/choix-formule'
+      path: '/choix-formule'
+      fullPath: '/choix-formule'
+      preLoaderRoute: typeof ChoixFormuleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -250,6 +376,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/portail/': {
+      id: '/portail/'
+      path: '/'
+      fullPath: '/portail/'
+      preLoaderRoute: typeof PortailIndexRouteImport
+      parentRoute: typeof PortailRoute
     }
     '/_authenticated/statistiques': {
       id: '/_authenticated/statistiques'
@@ -300,12 +433,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalculateurRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/abonnement': {
+      id: '/_authenticated/abonnement'
+      path: '/abonnement'
+      fullPath: '/abonnement'
+      preLoaderRoute: typeof AuthenticatedAbonnementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dossiers/': {
       id: '/_authenticated/dossiers/'
       path: '/dossiers'
       fullPath: '/dossiers/'
       preLoaderRoute: typeof AuthenticatedDossiersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/portail/dossier/$id': {
+      id: '/portail/dossier/$id'
+      path: '/dossier/$id'
+      fullPath: '/portail/dossier/$id'
+      preLoaderRoute: typeof PortailDossierIdRouteImport
+      parentRoute: typeof PortailRoute
     }
     '/_authenticated/dossiers/new': {
       id: '/_authenticated/dossiers/new'
@@ -325,6 +479,8 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAbonnementRoute: typeof AuthenticatedAbonnementRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCalculateurRoute: typeof AuthenticatedCalculateurRoute
   AuthenticatedClientsRoute: typeof AuthenticatedClientsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -338,6 +494,8 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAbonnementRoute: AuthenticatedAbonnementRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCalculateurRoute: AuthenticatedCalculateurRoute,
   AuthenticatedClientsRoute: AuthenticatedClientsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -353,12 +511,29 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface PortailRouteChildren {
+  PortailIndexRoute: typeof PortailIndexRoute
+  PortailDossierIdRoute: typeof PortailDossierIdRoute
+}
+
+const PortailRouteChildren: PortailRouteChildren = {
+  PortailIndexRoute: PortailIndexRoute,
+  PortailDossierIdRoute: PortailDossierIdRoute,
+}
+
+const PortailRouteWithChildren =
+  PortailRoute._addFileChildren(PortailRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ChoixFormuleRoute: ChoixFormuleRoute,
   ConditionsRoute: ConditionsRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
+  InvitationRoute: InvitationRoute,
+  PortailRoute: PortailRouteWithChildren,
+  TarifsRoute: TarifsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

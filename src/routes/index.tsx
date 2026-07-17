@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import logoAsset from "@/assets/logo.png";
+import logoAsset from "@/assets/oruslogonobackground.png";
+import logoOnDark from "@/assets/oruslogo.png";
 import heroPort from "@/assets/banner.png";
 import kebaLogo from "@/assets/keba-foundation.png";
 
@@ -33,13 +34,19 @@ function Landing() {
           <Link to="/" className="flex items-center">
             <img
               src={logoAsset}
-              alt="Clear Flower"
+              alt="ORUS TRANSIT"
               className="h-20 w-auto object-contain sm:h-24 md:h-28"
             />
           </Link>
 
           {/* Nav desktop */}
           <nav className="hidden items-center gap-4 sm:flex">
+            <Link
+              to="/tarifs"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Tarifs
+            </Link>
             <Link
               to="/auth"
               className="text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -71,6 +78,13 @@ function Landing() {
         {mobileOpen && (
           <nav className="border-t border-border bg-white px-4 py-4 sm:hidden">
             <div className="mx-auto flex max-w-[1400px] flex-col gap-2">
+              <Link
+                to="/tarifs"
+                onClick={() => setMobileOpen(false)}
+                className="rounded px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Tarifs
+              </Link>
               <Link
                 to="/auth"
                 onClick={() => setMobileOpen(false)}
@@ -282,9 +296,9 @@ function Landing() {
             {/* Marque */}
             <div>
               <img
-                src={logoAsset}
-                alt="Clear Flower"
-                className="h-16 w-auto object-contain brightness-0 invert"
+                src={logoOnDark}
+                alt="ORUS TRANSIT"
+                className="h-16 w-auto rounded-lg object-contain"
               />
               <p className="mt-4 max-w-xs text-sm text-primary-foreground/70">
                 Le poste de commande des commissionnaires en douane sénégalais.
@@ -360,7 +374,7 @@ function Landing() {
           {/* Barre du bas */}
           <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
             <span className="text-xs text-primary-foreground/60">
-              © {new Date().getFullYear()} Clear Flower — Dakar, Sénégal.
+              © {new Date().getFullYear()} ORUS TRANSIT — Dakar, Sénégal.
             </span>
             <div className="flex items-center gap-2.5 text-xs text-primary-foreground/60">
               <span>Un projet de</span>

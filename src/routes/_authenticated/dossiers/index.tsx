@@ -27,31 +27,35 @@ export const Route = createFileRoute("/_authenticated/dossiers/")({
 // Palette par état d'avancement du dossier.
 const TONE: Record<
   ReturnType<typeof statusTone>,
-  { accent: string; bar: string; track: string; pill: string }
+  { bar: string; track: string; pill: string; grad: string; glow: string }
 > = {
   done: {
-    accent: "bg-emerald-500",
     bar: "bg-emerald-500",
     track: "bg-emerald-100",
     pill: "bg-emerald-100 text-emerald-700",
+    grad: "from-emerald-300 to-emerald-600",
+    glow: "shadow-[0_0_16px_1px_rgba(16,185,129,0.55)]",
   },
   progress: {
-    accent: "bg-blue-500",
     bar: "bg-blue-500",
     track: "bg-blue-100",
     pill: "bg-blue-100 text-blue-700",
+    grad: "from-sky-300 to-blue-600",
+    glow: "shadow-[0_0_16px_1px_rgba(59,130,246,0.55)]",
   },
   blocked: {
-    accent: "bg-amber-500",
     bar: "bg-amber-500",
     track: "bg-amber-100",
     pill: "bg-amber-100 text-amber-700",
+    grad: "from-amber-300 to-amber-600",
+    glow: "shadow-[0_0_16px_1px_rgba(245,158,11,0.6)]",
   },
   neutral: {
-    accent: "bg-slate-400",
     bar: "bg-slate-400",
     track: "bg-slate-100",
     pill: "bg-slate-100 text-slate-600",
+    grad: "from-slate-300 to-slate-500",
+    glow: "shadow-[0_0_14px_1px_rgba(148,163,184,0.5)]",
   },
 };
 
@@ -151,7 +155,9 @@ function DossiersList() {
                 params={{ id: s.id }}
                 className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                <span className={`absolute inset-y-0 left-0 w-1 ${tone.accent}`} />
+                <span
+                  className={`pointer-events-none absolute inset-y-3 left-1 w-1 rounded-full bg-gradient-to-b ${tone.grad} ${tone.glow} transition-all duration-300 group-hover:inset-y-2 group-hover:w-1.5`}
+                />
                 <div className="flex flex-col gap-2.5 p-4 pl-5">
                   {/* Réf + client + priorité */}
                   <div className="flex items-start justify-between gap-3">

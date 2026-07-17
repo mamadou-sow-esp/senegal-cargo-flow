@@ -1,15 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getPlan } from "@/lib/plans";
 
 const Input = z.object({
   to: z.string().min(6).max(20),
   message: z.string().min(1).max(480),
   shipmentId: z.string().uuid().optional(),
 });
-
-// Quota mensuel inclus (plan Pro). Ajustable / rechargeable plus tard.
-const MONTHLY_QUOTA = 100;
 
 export const sendSms = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -35,10 +33,10 @@ export const sendSms = createServerFn({ method: "POST" })
       .select("subscription_plan")
       .eq("id", companyId)
       .single();
-    const plan = comp?.subscription_plan ?? "trial";
-    if (plan === "business")
+    const plan = getPlan(comp?.subscription_plan);
+    if (plan.smsQuota <= 0)
       throw new Error(
-        "Les notifications SMS sont réservées au plan Pro. Mettez à niveau votre abonnement.",
+        `Les notifications SMS ne sont pas incluses dans la formule ${plan.name}. Passez à la formule Cabinet pour les activer.`,
       );
 
     // 2) Quota du mois en cours
@@ -51,9 +49,9 @@ export const sendSms = createServerFn({ method: "POST" })
       .eq("company_id", companyId)
       .eq("status", "sent")
       .gte("created_at", start.toISOString());
-    if ((count ?? 0) >= MONTHLY_QUOTA)
+    if ((count ?? 0) >= plan.smsQuota)
       throw new Error(
-        `Quota mensuel de ${MONTHLY_QUOTA} SMS atteint. Rechargez pour continuer à envoyer.`,
+        `Quota mensuel de ${plan.smsQuota} SMS atteint. Rechargez ou passez à une formule supérieure pour continuer.`,
       );
 
     // 3) Envoi via Africa's Talking

@@ -9,6 +9,7 @@ import {
   STATUS_LABEL,
   STATUS_ORDER,
   priorityTone,
+  statusTone,
   type ShipmentStatus,
 } from "@/lib/status";
 import {
@@ -32,6 +33,15 @@ import {
 export const Route = createFileRoute("/_authenticated/dossiers/$id")({
   component: DossierDetail,
 });
+
+// Police d'affichage Sora + pastille d'état « glowy ».
+const sora = { fontFamily: "var(--font-label)" } as const;
+const STATUS_DOT: Record<ReturnType<typeof statusTone>, string> = {
+  done: "bg-emerald-500 shadow-[0_0_12px_1px_rgba(16,185,129,0.65)]",
+  progress: "bg-blue-500 shadow-[0_0_12px_1px_rgba(59,130,246,0.65)]",
+  blocked: "bg-amber-500 shadow-[0_0_12px_1px_rgba(245,158,11,0.7)]",
+  neutral: "bg-slate-400 shadow-[0_0_10px_1px_rgba(148,163,184,0.55)]",
+};
 
 type Shipment = {
   id: string;
@@ -127,17 +137,23 @@ function DossierDetail() {
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-lg font-extrabold text-primary">
+          <div className="flex items-center gap-2.5">
+            <span
+              className="font-mono text-xl font-extrabold text-primary"
+              style={sora}
+            >
               {shipment.reference}
             </span>
             <span
-              className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${priorityTone(shipment.priority)}`}
+              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${priorityTone(shipment.priority)}`}
             >
               {shipment.priority}
             </span>
           </div>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+          <h1
+            className="mt-1.5 text-2xl font-extrabold tracking-tight"
+            style={sora}
+          >
             {shipment.clients?.name || "Client non renseigné"}
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -146,17 +162,22 @@ function DossierDetail() {
             <span className="font-mono">{shipment.bl_number || "—"}</span>
           </p>
         </div>
-        <div className="rounded border border-border bg-white px-4 py-3">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Statut actuel
-          </div>
-          <div className="mt-1 text-sm font-semibold">
-            {STATUS_LABEL[shipment.status]}
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm">
+          <span
+            className={`size-3 shrink-0 rounded-full ${STATUS_DOT[statusTone(shipment.status)]}`}
+          />
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Statut actuel
+            </div>
+            <div className="mt-0.5 text-sm font-semibold">
+              {STATUS_LABEL[shipment.status]}
+            </div>
           </div>
         </div>
       </div>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Pipeline de dédouanement
         </h2>
@@ -195,11 +216,11 @@ function DossierDetail() {
         </ol>
       </section>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <CarrierCircuitPanel id={id} steps={shipment.carrier_steps} />
       </section>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <DeadlinesPanel
           id={id}
           freeTimeEnd={shipment.free_time_end}
@@ -208,12 +229,16 @@ function DossierDetail() {
         />
       </section>
 
-      <section className="rounded border border-border bg-white p-6">
-        <ChecklistPanel regime={shipment.customs_regime} docs={docs ?? []} />
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+        <ChecklistPanel
+          regime={shipment.customs_regime}
+          goods={shipment.goods_description}
+          docs={docs ?? []}
+        />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="rounded border border-border bg-white p-6 lg:col-span-2">
+        <section className="rounded-2xl border border-border bg-white p-6 shadow-sm lg:col-span-2">
           <DocumentsPanel
             shipmentId={id}
             companyId={shipment.company_id}
@@ -222,7 +247,7 @@ function DossierDetail() {
           />
         </section>
 
-        <section className="rounded border border-border bg-white p-6">
+        <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
           <CommentsPanel
             shipmentId={id}
             comments={comments ?? []}
@@ -233,7 +258,7 @@ function DossierDetail() {
         </section>
       </div>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <DisbursementsPanel
           shipmentId={id}
           companyId={shipment.company_id}
@@ -242,7 +267,7 @@ function DossierDetail() {
         />
       </section>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <SmsPanel
           shipmentId={id}
           reference={shipment.reference}
@@ -250,12 +275,12 @@ function DossierDetail() {
         />
       </section>
 
-      <section className="rounded border border-border bg-white p-6">
+      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Informations générales
         </h2>
         <dl className="grid gap-4 text-sm md:grid-cols-3">
-          <Info label="Conteneur" value={shipment.container_number} mono />
+          <Info label="Conteneur / Châssis" value={shipment.container_number} mono />
           <Info label="Pays d'origine" value={shipment.origin_country} />
           <Info label="Port d'origine" value={shipment.origin_port} />
           <Info
@@ -358,15 +383,15 @@ function SmsPanel({
   const templates = [
     {
       label: "Conteneur arrive",
-      text: `Bonjour, votre conteneur pour le dossier ${reference} est arrive au Port de Dakar. Clear Flower.`,
+      text: `Bonjour, votre conteneur pour le dossier ${reference} est arrive au Port de Dakar. ORUS TRANSIT.`,
     },
     {
       label: "BAE disponible",
-      text: `Bonjour, le Bon a Enlever (BAE) de votre dossier ${reference} est disponible. Clear Flower.`,
+      text: `Bonjour, le Bon a Enlever (BAE) de votre dossier ${reference} est disponible. ORUS TRANSIT.`,
     },
     {
       label: "Document manquant",
-      text: `Bonjour, un document est manquant pour votre dossier ${reference}. Merci de nous contacter. Clear Flower.`,
+      text: `Bonjour, un document est manquant pour votre dossier ${reference}. Merci de nous contacter. ORUS TRANSIT.`,
     },
   ];
 
@@ -675,6 +700,7 @@ const REGIME_PROFILES: {
       "Connaissement",
       "Facture commerciale",
       "Packing List",
+      "BESC",
       "Acte de caution / soumission",
     ],
   },
@@ -684,6 +710,7 @@ const REGIME_PROFILES: {
     required: [
       "Connaissement",
       "Facture commerciale",
+      "BESC",
       "Déclaration de transit",
       "Caution de transit",
     ],
@@ -695,6 +722,7 @@ const REGIME_PROFILES: {
       "Connaissement",
       "Facture commerciale",
       "Packing List",
+      "BESC",
       "Autorisation d'entrepôt",
     ],
   },
@@ -706,21 +734,39 @@ const DEFAULT_REGIME = {
     "Connaissement",
     "Facture commerciale",
     "Packing List",
+    "BESC",
     "Certificat d'origine",
+  ],
+};
+
+// Profil spécifique aux imports de véhicules (RoRo).
+const VEHICLE_PROFILE = {
+  label: "Véhicule (import)",
+  required: [
+    "Connaissement",
+    "Facture commerciale",
+    "BESC",
+    "Certificat d'immatriculation",
   ],
 };
 
 function ChecklistPanel({
   regime,
+  goods,
   docs,
 }: {
   regime: string | null;
+  goods: string | null;
   docs: Array<{ category: string | null }>;
 }) {
   const r = (regime ?? "").toLowerCase();
-  const profile =
-    REGIME_PROFILES.find((p) => p.match.some((m) => r.includes(m))) ??
-    DEFAULT_REGIME;
+  const isVehicle = /v[eé]hicule|voiture|ch[aâ]ssis|roro/i.test(
+    `${regime ?? ""} ${goods ?? ""}`,
+  );
+  const profile = isVehicle
+    ? VEHICLE_PROFILE
+    : (REGIME_PROFILES.find((p) => p.match.some((m) => r.includes(m))) ??
+      DEFAULT_REGIME);
   const have = new Set(
     docs.map((d) => (d.category ?? "").trim().toLowerCase()),
   );
@@ -1050,7 +1096,7 @@ function DisbursementsPanel({
                 </span>
               </div>
               <p className="mt-4 text-[10px] text-muted-foreground">
-                Montants indicatifs — document généré par Clear Flower.
+                Montants indicatifs — document généré par ORUS TRANSIT.
               </p>
             </div>
           </div>
@@ -1171,7 +1217,9 @@ function DocumentsPanel({
               "Facture commerciale",
               "Packing List",
               "Connaissement",
+              "BESC",
               "Certificat d'origine",
+              "Certificat d'immatriculation",
               "Certificat sanitaire",
               "Quitus",
               "Autres",

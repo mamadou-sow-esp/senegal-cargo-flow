@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Search } from "lucide-react";
+import { inviteClient } from "@/lib/employees.functions";
+import { Plus, Search, Send, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/clients")({
   component: ClientsPage,
@@ -68,26 +70,61 @@ function ClientsPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erreur"),
   });
 
+  const inviteFn = useServerFn(inviteClient);
+  const [inviting, setInviting] = useState<string | null>(null);
+
+  const handleInvite = async (c: {
+    id: string;
+    email: string | null;
+    name: string;
+    contact_name: string | null;
+  }) => {
+    if (!c.email) {
+      toast.error("Ajoutez d'abord un email à ce client pour l'inviter.");
+      return;
+    }
+    setInviting(c.id);
+    try {
+      await inviteFn({
+        data: {
+          clientId: c.id,
+          email: c.email,
+          fullName: c.contact_name || c.name,
+          redirectTo: `${window.location.origin}/invitation`,
+        },
+      });
+      toast.success("Invitation envoyée au client.");
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setInviting(null);
+    }
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
             Contacts
           </div>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
+          <h1
+            className="mt-1 text-3xl font-extrabold tracking-tight"
+            style={{ fontFamily: "var(--font-label)" }}
+          >
             Clients importateurs
           </h1>
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-hero-blue px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 hover:opacity-90"
         >
           <Plus className="size-3.5" /> Nouveau client
         </button>
       </div>
 
-      <div className="flex items-center gap-2 rounded border border-border bg-white p-3">
+      <div className="flex items-center gap-2 rounded-xl border border-border bg-white px-3.5 py-2.5 shadow-sm">
         <Search className="size-3.5 text-muted-foreground" />
         <input
           value={q}
@@ -97,7 +134,7 @@ function ClientsPage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded border border-border bg-white">
+      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-muted/60">
@@ -106,6 +143,7 @@ function ClientsPage() {
               <Th>Email</Th>
               <Th>Téléphone</Th>
               <Th>NINEA</Th>
+              <Th>Portail</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border text-sm">
@@ -124,12 +162,28 @@ function ClientsPage() {
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                   {c.ninea || "—"}
                 </td>
+                <td className="px-4 py-3">
+                  {c.user_id ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                      <CheckCircle2 className="size-3.5" /> Accès actif
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleInvite(c)}
+                      disabled={inviting === c.id}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition hover:border-hero-blue hover:text-hero-blue disabled:opacity-50"
+                    >
+                      <Send className="size-3" />
+                      {inviting === c.id ? "Envoi…" : "Inviter"}
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
             {(data ?? []).length === 0 && (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="px-4 py-12 text-center text-xs text-muted-foreground"
                 >
                   Aucun client. Créez votre premier client importateur.
@@ -142,8 +196,11 @@ function ClientsPage() {
 
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded border border-border bg-white p-6">
-            <h2 className="text-lg font-extrabold tracking-tight">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
+            <h2
+              className="text-lg font-extrabold tracking-tight"
+              style={{ fontFamily: "var(--font-label)" }}
+            >
               Nouveau client
             </h2>
             <form
