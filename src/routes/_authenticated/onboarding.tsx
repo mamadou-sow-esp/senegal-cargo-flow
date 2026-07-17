@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createCompanyAndAdmin } from "@/lib/onboarding.functions";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   component: Onboarding,

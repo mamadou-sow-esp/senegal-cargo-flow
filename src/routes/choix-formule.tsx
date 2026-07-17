@@ -13,7 +13,7 @@ import {
   type PlanId,
 } from "@/lib/plans";
 import { Check, LogOut, Clock } from "lucide-react";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 import waveLogo from "@/assets/wave-logo.jpg";
 
 export const Route = createFileRoute("/choix-formule")({

@@ -8,7 +8,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { LogOut } from "lucide-react";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 
 const sora = { fontFamily: "var(--font-label)" } as const;
 

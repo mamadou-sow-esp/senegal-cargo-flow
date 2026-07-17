@@ -4,7 +4,7 @@ import logoAsset from "@/assets/oruslogonobackground.png";
 export const Route = createFileRoute("/conditions")({
   component: ConditionsPage,
   head: () => ({
-    meta: [{ title: "Conditions d'utilisation — ORUS TRANSIT" }],
+    meta: [{ title: "Conditions d'utilisation · ORUS TRANSIT" }],
   }),
 });
 
@@ -80,7 +80,7 @@ function ConditionsPage() {
             </p>
             <p>
               Les informations, montants de droits et taxes, délais ou procédures
-              fournis par le Service — y compris par l'assistant IA — sont
+              fournis par le Service (y compris par l'assistant IA) sont
               <strong> indicatifs</strong> et ne se substituent pas aux informations
               officielles de l'Administration des douanes sénégalaises. L'utilisateur
               demeure seul responsable de la vérification et de la conformité de ses
@@ -205,8 +205,8 @@ function ConditionsPage() {
           <Section n="14" title="Contact">
             <p>
               Pour toute question relative aux présentes CGU, vous pouvez nous
-              contacter à l'adresse : <strong>[email de contact]</strong> — Clear
-              Flower, [raison sociale], [adresse], Dakar, Sénégal.
+              contacter à l'adresse : <strong>contact@orustransit.com</strong>.
+              ORUS TRANSIT, [raison sociale], [adresse], Dakar, Sénégal.
             </p>
           </Section>
         </div>
@@ -220,7 +220,7 @@ function ConditionsPage() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} ORUS TRANSIT — Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT · Dakar, Sénégal.
         </div>
       </footer>
     </div>

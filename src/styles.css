@@ -27,6 +27,9 @@
   --font-label:
     "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-poppins:
+    "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
 
 
 
@@ -221,4 +224,20 @@
   );
   box-shadow: 0 1px 0 0 oklch(1 0 0 / 0.04) inset,
     0 8px 24px -12px oklch(0 0 0 / 0.6);
+}
+
+/* ── Animation du menu mobile (hamburger) ────────────────────────────── */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-menu-in {
+  animation: menu-in 0.22s ease-out;
+  transform-origin: top;
 }

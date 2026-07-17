@@ -11,15 +11,128 @@ const InputSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(30),
 });
 
-const SYSTEM_PROMPT = `Tu es « ORUS TRANSIT AI », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal.
+const SYSTEM_PROMPT = `Tu es « TransitORUS », l'assistant expert des commissionnaires en douane (transitaires) au Sénégal, intégré à leur logiciel ORUS TRANSIT.
+
+Tu as accès aux DONNÉES RÉELLES du cabinet (dossiers, clients, employés, statuts, échéances de surestaries) fournies dans le message de contexte. Utilise-les pour produire des résumés, des états de situation et des recommandations concrètes : dossiers en retard, surestaries à surveiller, priorités du jour, charge par statut. Si une information n'est pas dans le contexte, dis-le simplement au lieu d'inventer.
 
 Ton rôle :
-- Aider les transitaires à gérer leurs dossiers de dédouanement à l'importation.
+- Aider à gérer les dossiers de dédouanement à l'importation.
 - Expliquer les procédures GAINDE / COTECNA / Douanes sénégalaises, les documents requis (BL, facture commerciale, packing list, certificat d'origine, DPI, BAE, quittance, etc.), les incoterms, les régimes douaniers et le calcul indicatif des droits & taxes (DD, TVA 18%, PCS, PC, RS).
-- Donner des réponses concises, structurées, professionnelles, en français.
-- Toujours rappeler que les montants et délais sont indicatifs et doivent être vérifiés auprès de l'Administration des douanes.
 
-Style : sobre, précis, orienté action. Utilise des listes courtes quand utile.`;
+FORMAT DE RÉPONSE (respecte-le strictement, sois lisible) :
+- Écris en français, en phrases courtes.
+- Pour toute liste, utilise UNIQUEMENT des puces commençant par un tiret « - ». N'utilise JAMAIS « + » ni « * » comme puce.
+- Emploie le gras (**texte**) avec parcimonie, seulement pour un intitulé de section ou un chiffre clé.
+- Pas de tableaux ni de titres markdown à dièses.
+- Rappelle que les montants et délais sont indicatifs et à vérifier auprès de l'Administration des douanes.`;
+
+// Libellés lisibles des statuts de dossier.
+const STATUS_FR: Record<string, string> = {
+  cree: "Créé",
+  documents_attente: "Documents en attente",
+  documents_complets: "Documents complets",
+  declaration_preparee: "Déclaration préparée",
+  declaration_deposee: "Déclaration déposée",
+  attente_validation: "Attente de validation",
+  controle_documentaire: "Contrôle documentaire",
+  controle_physique: "Contrôle physique",
+  paiement_droits: "Paiement des droits",
+  bon_a_enlever: "Bon à Enlever",
+  marchandise_sortie: "Marchandise sortie",
+  cloture: "Clôturé",
+};
+
+// Construit un instantané concis des données du cabinet pour l'IA.
+async function buildCompanyContext(userId: string): Promise<string> {
+  try {
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("company_id, companies(name)")
+      .eq("id", userId)
+      .maybeSingle();
+    const companyId = profile?.company_id as string | undefined;
+    if (!companyId) return "";
+    const companyName =
+      (profile?.companies as { name?: string } | null)?.name ?? "le cabinet";
+
+    const { data: ships } = await supabaseAdmin
+      .from("shipments")
+      .select(
+        "reference, status, priority, arrival_date, free_time_end, storage_free_end, created_at, clients(name)",
+      )
+      .eq("company_id", companyId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: false })
+      .limit(80);
+    const list = (ships ?? []) as Array<{
+      reference: string;
+      status: string;
+      priority: string;
+      free_time_end: string | null;
+      storage_free_end: string | null;
+      clients: { name?: string } | null;
+    }>;
+
+    const { count: clientCount } = await supabaseAdmin
+      .from("clients")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId);
+    const { count: staffCount } = await supabaseAdmin
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayMs = 86400000;
+    const deadlineOf = (s: (typeof list)[number]) =>
+      s.free_time_end || s.storage_free_end;
+    const daysLeft = (d: string) =>
+      Math.round((new Date(d).getTime() - today.getTime()) / dayMs);
+
+    const byStatus = new Map<string, number>();
+    for (const s of list) byStatus.set(s.status, (byStatus.get(s.status) ?? 0) + 1);
+    const active = list.filter((s) => s.status !== "cloture");
+
+    const lines = active.slice(0, 40).map((s) => {
+      const client = s.clients?.name ?? "client inconnu";
+      const d = deadlineOf(s);
+      let flag = "";
+      if (d) {
+        const dl = daysLeft(d);
+        if (dl < 0) flag = ` · SURESTARIES DÉPASSÉES de ${-dl} j`;
+        else if (dl <= 3) flag = ` · surestaries dans ${dl} j`;
+      }
+      return `- ${s.reference} · ${client} · ${STATUS_FR[s.status] ?? s.status} · priorité ${s.priority}${flag}`;
+    });
+
+    const alerts = active.filter((s) => {
+      const d = deadlineOf(s);
+      return d ? daysLeft(d) <= 3 : false;
+    }).length;
+
+    const statusSummary =
+      [...byStatus.entries()]
+        .map(([st, n]) => `${STATUS_FR[st] ?? st}: ${n}`)
+        .join(", ") || "aucun";
+
+    return [
+      "[DONNÉES RÉELLES DU CABINET — à jour. Sers-t'en pour les résumés, états et recommandations.]",
+      `Cabinet : ${companyName}. Clients : ${clientCount ?? 0}. Employés : ${staffCount ?? 0}.`,
+      `Dossiers actifs (hors clôturés/supprimés) : ${active.length}${alerts ? `, dont ${alerts} en alerte surestaries` : ""}.`,
+      `Répartition par statut : ${statusSummary}.`,
+      active.length
+        ? `Détail des dossiers actifs :\n${lines.join("\n")}`
+        : "Aucun dossier actif pour le moment.",
+    ].join("\n");
+  } catch (e) {
+    console.error("[AI context]", e);
+    return "";
+  }
+}
 
 // Convertit une durée ("30", "2.5s", "7m30s", "1h2m") en secondes.
 function parseDurationToSeconds(v: string | null): number | null {
@@ -129,10 +242,15 @@ async function runGroq(body: Record<string, unknown>): Promise<GroqResponse> {
 export const chatWithAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => InputSchema.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const userId = (context as { userId: string }).userId;
+    const companyContext = await buildCompanyContext(userId);
     const json = await runGroq({
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
+        ...(companyContext
+          ? [{ role: "system" as const, content: companyContext }]
+          : []),
         ...data.messages,
       ],
     });

@@ -4,8 +4,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { FolderKanban, FileText, GitBranch, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/oruslogonobackground.png";
-import logoOnDark from "@/assets/oruslogo.png";
+import logoAsset from "@/assets/newlogo.png";
+import logoOnDark from "@/assets/newlogoblack.png";
 import heroPort from "@/assets/banner.png";
 
 const searchSchema = z.object({

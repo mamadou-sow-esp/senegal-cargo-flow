@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 
 const sora = { fontFamily: "var(--font-label)" } as const;
 

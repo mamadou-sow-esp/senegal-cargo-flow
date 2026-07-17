@@ -26,7 +26,7 @@ export const MANUAL_PAYMENT = {
    */
   waveQrImage: "",
   /** Adresse de contact / aide. */
-  contactEmail: "contact@orus-transit.sn",
+  contactEmail: "contact@orustransit.com",
   /** Message affiché sous le bouton de paiement. */
   note:
     "Après votre paiement, il est vérifié puis validé. L'activation intervient " +

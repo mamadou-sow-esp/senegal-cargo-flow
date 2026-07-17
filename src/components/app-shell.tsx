@@ -23,8 +23,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { amISuperAdmin } from "@/lib/subscription.functions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
-import logoAsset from "@/assets/oruslogonobackground.png";
-import blackLogo from "@/assets/logoenhancedblack.png";
+import logoAsset from "@/assets/newlogo.png";
+import blackLogo from "@/assets/newlogoblack.png";
 
 
 const NAV = [

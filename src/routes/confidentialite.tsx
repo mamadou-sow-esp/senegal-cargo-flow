@@ -4,7 +4,7 @@ import logoAsset from "@/assets/oruslogonobackground.png";
 export const Route = createFileRoute("/confidentialite")({
   component: ConfidentialitePage,
   head: () => ({
-    meta: [{ title: "Politique de confidentialité — ORUS TRANSIT" }],
+    meta: [{ title: "Politique de confidentialité · ORUS TRANSIT" }],
   }),
 });
 
@@ -61,7 +61,7 @@ function ConfidentialitePage() {
             <p>
               Le responsable du traitement est ORUS TRANSIT, [raison sociale],
               [adresse], Dakar, Sénégal. Pour toute question relative à vos données,
-              vous pouvez nous écrire à <strong>[email de contact]</strong>.
+              vous pouvez nous écrire à <strong>contact@orustransit.com</strong>.
             </p>
             <p>
               Lorsqu'un cabinet de commission en douane utilise le Service pour gérer
@@ -141,8 +141,8 @@ function ConfidentialitePage() {
                 authentification et stockage des documents.
               </li>
               <li>
-                <strong>Google (API Gemini)</strong> : traitement des messages envoyés
-                à l'assistant IA afin de générer une réponse.
+                <strong>Groq</strong> : traitement des messages envoyés à
+                l'assistant IA afin de générer une réponse.
               </li>
             </ul>
             <p>
@@ -179,7 +179,7 @@ function ConfidentialitePage() {
               Conformément à la loi n° 2008-12, vous disposez d'un droit d'accès, de
               rectification, d'opposition, de suppression et de limitation concernant
               vos données. Vous pouvez exercer ces droits en nous écrivant à{" "}
-              <strong>[email de contact]</strong>. Si un cabinet est responsable de vos
+              <strong>contact@orustransit.com</strong>. Si un cabinet est responsable de vos
               données (en tant que client importateur), votre demande peut être
               adressée directement à ce cabinet.
             </p>
@@ -210,7 +210,7 @@ function ConfidentialitePage() {
           <Section n="12" title="Contact">
             <p>
               Pour toute question relative à cette politique ou à vos données
-              personnelles : <strong>[email de contact]</strong> — ORUS TRANSIT,
+              personnelles : <strong>contact@orustransit.com</strong>. ORUS TRANSIT,
               [raison sociale], [adresse], Dakar, Sénégal.
             </p>
           </Section>
@@ -225,7 +225,7 @@ function ConfidentialitePage() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} ORUS TRANSIT — Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT · Dakar, Sénégal.
         </div>
       </footer>
     </div>

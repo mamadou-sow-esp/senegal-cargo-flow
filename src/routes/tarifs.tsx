@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ArrowRight } from "lucide-react";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 import {
   PLANS,
   PLAN_ORDER,
