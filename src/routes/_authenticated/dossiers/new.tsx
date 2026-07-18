@@ -40,6 +40,8 @@ function NewDossier() {
     goods_value: "",
     customs_regime: "",
     priority: "standard",
+    free_time_end: "",
+    storage_free_end: "",
     notes: "",
   });
 
@@ -130,6 +132,8 @@ function NewDossier() {
         goods_value: form.goods_value ? Number(form.goods_value) : null,
         customs_regime: form.customs_regime || null,
         priority: form.priority as never,
+        free_time_end: form.free_time_end || null,
+        storage_free_end: form.storage_free_end || null,
         notes: form.notes || null,
       };
       const { data, error } = await supabase
@@ -279,6 +283,28 @@ function NewDossier() {
               className="w-full rounded border border-input bg-white px-3 py-2 text-sm"
             />
           </label>
+        </Section>
+
+        <Section title="Surestaries & échéances">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field
+              label="Fin de franchise conteneur"
+              type="date"
+              value={form.free_time_end}
+              onChange={(v) => set("free_time_end", v)}
+            />
+            <Field
+              label="Fin de franchise magasinage"
+              type="date"
+              value={form.storage_free_end}
+              onChange={(v) => set("storage_free_end", v)}
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Au-delà de ces dates, les surestaries (conteneur) et le magasinage
+            commencent à courir. Un compte à rebours s'affiche alors sur le
+            dossier et sur le portail client.
+          </p>
         </Section>
 
         <div className="flex justify-end gap-2">

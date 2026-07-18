@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Circle,
+  Clock,
   Download,
   FileText,
   MessageSquare,
@@ -38,7 +39,7 @@ function PortailDetail() {
       const { data } = await supabase
         .from("shipments")
         .select(
-          "id, reference, status, vessel_name, shipping_company, bl_number, container_number, origin_country, origin_port, arrival_date, goods_description",
+          "id, reference, status, vessel_name, shipping_company, bl_number, container_number, origin_country, origin_port, arrival_date, goods_description, free_time_end, storage_free_end",
         )
         .eq("id", id)
         .maybeSingle();
@@ -96,6 +97,33 @@ function PortailDetail() {
   const status = shipment.status as ShipmentStatus;
   const currIdx = STATUS_ORDER.indexOf(status);
 
+  // Compte à rebours des surestaries (franchise conteneur / magasinage).
+  const deadlineStr =
+    (shipment.free_time_end as string | null) ||
+    (shipment.storage_free_end as string | null);
+  let surestarie: { days: number; date: string } | null = null;
+  if (deadlineStr) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Math.round(
+      (new Date(deadlineStr).getTime() - today.getTime()) / 86400000,
+    );
+    surestarie = { days, date: deadlineStr };
+  }
+
+  const infos: { label: string; value: string | null | undefined }[] = [
+    { label: "Connaissement (BL)", value: shipment.bl_number },
+    { label: "Conteneur", value: shipment.container_number },
+    {
+      label: "Origine",
+      value:
+        [shipment.origin_port, shipment.origin_country]
+          .filter(Boolean)
+          .join(", ") || null,
+    },
+    { label: "Marchandise", value: shipment.goods_description },
+  ].filter((i) => i.value);
+
   return (
     <div className="space-y-5">
       <Link
@@ -125,6 +153,59 @@ function PortailDetail() {
           </div>
         </div>
       </div>
+
+      {/* Alerte surestaries */}
+      {surestarie && surestarie.days <= 10 && (
+        <div
+          className={`flex items-start gap-3 rounded-2xl border p-4 ${
+            surestarie.days < 0
+              ? "border-red-200 bg-red-50 text-red-800"
+              : "border-amber-200 bg-amber-50 text-amber-800"
+          }`}
+        >
+          <Clock className="mt-0.5 size-5 shrink-0" />
+          <div className="text-sm">
+            {surestarie.days < 0 ? (
+              <>
+                <strong>Surestaries dépassées</strong> depuis{" "}
+                {Math.abs(surestarie.days)} jour
+                {Math.abs(surestarie.days) > 1 ? "s" : ""} (échéance :{" "}
+                {new Date(surestarie.date).toLocaleDateString("fr-FR")}). Des
+                frais peuvent s'appliquer.
+              </>
+            ) : (
+              <>
+                <strong>
+                  Surestaries dans {surestarie.days} jour
+                  {surestarie.days > 1 ? "s" : ""}
+                </strong>{" "}
+                (échéance :{" "}
+                {new Date(surestarie.date).toLocaleDateString("fr-FR")}).
+                Anticipez l'enlèvement pour éviter des frais.
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Informations du dossier */}
+      {infos.length > 0 && (
+        <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Informations
+          </h2>
+          <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+            {infos.map((i) => (
+              <div key={i.label}>
+                <dt className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {i.label}
+                </dt>
+                <dd className="mt-0.5 text-sm">{i.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       {/* Pipeline */}
       <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">

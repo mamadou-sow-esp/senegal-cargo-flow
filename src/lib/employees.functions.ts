@@ -193,22 +193,50 @@ export const inviteClient = createServerFn({ method: "POST" })
     if (!client || client.company_id !== companyId)
       throw new Error("Client introuvable");
 
+    // Nom du cabinet pour personnaliser l'email.
+    const { data: comp } = await supabaseAdmin
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
+      .maybeSingle();
+    const cabinetName = comp?.name || "Votre transitaire";
+
     const { data: existing, error: listErr } =
       await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
     if (listErr) throw new Error(listErr.message);
-    let userId = existing.users.find(
+    const found = existing.users.find(
       (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
-    )?.id;
+    );
 
-    if (!userId) {
-      const { data: created, error: cErr } =
-        await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
-          redirectTo: data.redirectTo,
-          data: { full_name: data.fullName || client.name, role: "client" },
+    // On GÉNÈRE le lien (sans passer par l'email Supabase), puis on l'envoie
+    // nous-mêmes via l'API Resend (email au design maison).
+    let userId: string;
+    let actionLink: string;
+    if (found) {
+      userId = found.id;
+      const { data: gen, error: gErr } =
+        await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email: data.email,
+          options: { redirectTo: data.redirectTo },
         });
-      if (cErr || !created.user)
-        throw new Error(cErr?.message || "Invitation échouée");
-      userId = created.user.id;
+      if (gErr || !gen?.properties?.action_link)
+        throw new Error(gErr?.message || "Lien non généré");
+      actionLink = gen.properties.action_link;
+    } else {
+      const { data: gen, error: gErr } =
+        await supabaseAdmin.auth.admin.generateLink({
+          type: "invite",
+          email: data.email,
+          options: {
+            redirectTo: data.redirectTo,
+            data: { full_name: data.fullName || client.name, role: "client" },
+          },
+        });
+      if (gErr || !gen?.user || !gen?.properties?.action_link)
+        throw new Error(gErr?.message || "Lien non généré");
+      userId = gen.user.id;
+      actionLink = gen.properties.action_link;
     }
 
     // Profil sans company_id (le client n'est pas un membre du cabinet).
@@ -225,7 +253,22 @@ export const inviteClient = createServerFn({ method: "POST" })
       .eq("id", data.clientId);
     if (linkErr) throw new Error(linkErr.message);
 
-    return { ok: true };
+    // Envoi de l'email d'invitation via Resend.
+    const { sendEmail, inviteClientEmailHtml } = await import(
+      "@/lib/email.server"
+    );
+    const res = await sendEmail({
+      to: data.email,
+      subject: `${cabinetName} vous invite sur votre portail ORUS TRANSIT`,
+      html: inviteClientEmailHtml({
+        clientName: data.fullName || client.name,
+        cabinetName,
+        actionLink,
+      }),
+    });
+
+    // sent=false si Resend n'est pas configuré → le front proposera le lien.
+    return { ok: true, sent: res.sent, actionLink };
   });
 
 export const updateEmployeeRole = createServerFn({ method: "POST" })

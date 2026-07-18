@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { inviteClient } from "@/lib/employees.functions";
-import { Plus, Search, Send, CheckCircle2 } from "lucide-react";
+import { Plus, Search, Send, CheckCircle2, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/clients")({
   component: ClientsPage,
@@ -15,6 +15,7 @@ function ClientsPage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     contact_name: "",
@@ -39,6 +40,46 @@ function ClientsPage() {
     },
   });
 
+  const resetForm = () =>
+    setForm({
+      name: "",
+      contact_name: "",
+      email: "",
+      phone: "",
+      ninea: "",
+      rccm: "",
+      address: "",
+    });
+
+  const openNew = () => {
+    resetForm();
+    setEditId(null);
+    setOpen(true);
+  };
+
+  const openEdit = (c: {
+    id: string;
+    name: string;
+    contact_name: string | null;
+    email: string | null;
+    phone: string | null;
+    ninea: string | null;
+    rccm: string | null;
+    address: string | null;
+  }) => {
+    setForm({
+      name: c.name || "",
+      contact_name: c.contact_name || "",
+      email: c.email || "",
+      phone: c.phone || "",
+      ninea: c.ninea || "",
+      rccm: c.rccm || "",
+      address: c.address || "",
+    });
+    setEditId(c.id);
+    setOpen(true);
+  };
+
   const create = useMutation({
     mutationFn: async () => {
       const { data: u } = await supabase.auth.getUser();
@@ -48,22 +89,23 @@ function ClientsPage() {
         .eq("id", u.user!.id)
         .single();
       if (!prof?.company_id) throw new Error("Aucune entreprise");
-      const { error } = await supabase
-        .from("clients")
-        .insert({ ...form, company_id: prof.company_id });
-      if (error) throw error;
+      if (editId) {
+        const { error } = await supabase
+          .from("clients")
+          .update({ ...form })
+          .eq("id", editId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("clients")
+          .insert({ ...form, company_id: prof.company_id });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      toast.success("Client créé");
-      setForm({
-        name: "",
-        contact_name: "",
-        email: "",
-        phone: "",
-        ninea: "",
-        rccm: "",
-        address: "",
-      });
+      toast.success(editId ? "Client mis à jour" : "Client créé");
+      resetForm();
+      setEditId(null);
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["clients"] });
     },
@@ -72,6 +114,10 @@ function ClientsPage() {
 
   const inviteFn = useServerFn(inviteClient);
   const [inviting, setInviting] = useState<string | null>(null);
+  const [invite, setInvite] = useState<{ name: string; link: string } | null>(
+    null,
+  );
+  const [copied, setCopied] = useState(false);
 
   const handleInvite = async (c: {
     id: string;
@@ -85,7 +131,7 @@ function ClientsPage() {
     }
     setInviting(c.id);
     try {
-      await inviteFn({
+      const res = await inviteFn({
         data: {
           clientId: c.id,
           email: c.email,
@@ -93,12 +139,31 @@ function ClientsPage() {
           redirectTo: `${window.location.origin}/invitation`,
         },
       });
-      toast.success("Invitation envoyée au client.");
       qc.invalidateQueries({ queryKey: ["clients"] });
+      if (res?.sent) {
+        toast.success(`Invitation envoyée à ${c.email}.`);
+      } else if (res?.actionLink) {
+        // Resend pas encore configuré : on propose le lien à partager.
+        setCopied(false);
+        setInvite({ name: c.contact_name || c.name, link: res.actionLink });
+      } else {
+        toast.success("Client invité.");
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally {
       setInviting(null);
+    }
+  };
+
+  const copyLink = async () => {
+    if (!invite) return;
+    try {
+      await navigator.clipboard.writeText(invite.link);
+      setCopied(true);
+      toast.success("Lien copié.");
+    } catch {
+      toast.error("Copie impossible — sélectionnez le lien manuellement.");
     }
   };
 
@@ -117,7 +182,7 @@ function ClientsPage() {
           </h1>
         </div>
         <button
-          onClick={() => setOpen(true)}
+          onClick={openNew}
           className="inline-flex items-center gap-1.5 rounded-xl bg-hero-blue px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 hover:opacity-90"
         >
           <Plus className="size-3.5" /> Nouveau client
@@ -144,6 +209,7 @@ function ClientsPage() {
               <Th>Téléphone</Th>
               <Th>NINEA</Th>
               <Th>Portail</Th>
+              <Th></Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border text-sm">
@@ -178,12 +244,20 @@ function ClientsPage() {
                     </button>
                   )}
                 </td>
+                <td className="px-4 py-3 text-right">
+                  <button
+                    onClick={() => openEdit(c)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition hover:border-hero-blue hover:text-hero-blue"
+                  >
+                    <Pencil className="size-3" /> Modifier
+                  </button>
+                </td>
               </tr>
             ))}
             {(data ?? []).length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-4 py-12 text-center text-xs text-muted-foreground"
                 >
                   Aucun client. Créez votre premier client importateur.
@@ -194,6 +268,58 @@ function ClientsPage() {
         </table>
       </div>
 
+      {invite && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-2xl">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
+              Lien d'invitation
+            </div>
+            <h2
+              className="mt-1 text-lg font-extrabold tracking-tight"
+              style={{ fontFamily: "var(--font-label)" }}
+            >
+              Invitez {invite.name}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              L'envoi automatique d'email n'est pas encore activé. Copiez ce lien
+              et envoyez-le à votre client (WhatsApp, SMS, email) : il choisira
+              son mot de passe et accèdera à son portail.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-border bg-muted/50 px-3 py-2.5">
+              <p className="break-all font-mono text-[11px] leading-relaxed text-foreground/80">
+                {invite.link}
+              </p>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `Bonjour, voici votre accès au portail de suivi ORUS TRANSIT : ${invite.link}`,
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-100"
+              >
+                Partager sur WhatsApp
+              </a>
+              <button
+                onClick={copyLink}
+                className="rounded-lg bg-hero-blue px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90"
+              >
+                {copied ? "Copié ✓" : "Copier le lien"}
+              </button>
+              <button
+                onClick={() => setInvite(null)}
+                className="rounded-lg border border-border bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
@@ -201,7 +327,7 @@ function ClientsPage() {
               className="text-lg font-extrabold tracking-tight"
               style={{ fontFamily: "var(--font-label)" }}
             >
-              Nouveau client
+              {editId ? "Modifier le client" : "Nouveau client"}
             </h2>
             <form
               className="mt-4 space-y-3"
@@ -221,7 +347,10 @@ function ClientsPage() {
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setEditId(null);
+                  }}
                   className="rounded border border-border bg-white px-3 py-1.5 text-xs font-semibold hover:bg-muted"
                 >
                   Annuler
@@ -230,7 +359,7 @@ function ClientsPage() {
                   disabled={create.isPending}
                   className="rounded bg-primary px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary-foreground disabled:opacity-60"
                 >
-                  {create.isPending ? "…" : "Créer"}
+                  {create.isPending ? "…" : editId ? "Enregistrer" : "Créer"}
                 </button>
               </div>
             </form>
