@@ -126,6 +126,17 @@ export function AiAssistant() {
     });
   }, [messages, loading]);
 
+  // Verrouille le scroll de la page tant que le panneau est ouvert
+  // (sinon l'arrière-plan défile derrière l'assistant).
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || loading) return;
@@ -196,7 +207,10 @@ export function AiAssistant() {
             </header>
 
             {/* Fil de messages */}
-            <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
+            <div
+              ref={scrollRef}
+              className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-4"
+            >
               {messages.map((m, i) => (
                 <div
                   key={i}
