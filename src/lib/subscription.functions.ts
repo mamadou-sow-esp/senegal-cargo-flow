@@ -78,13 +78,33 @@ export const getSubscription = createServerFn({ method: "GET" })
       .eq("is_deleted", false)
       .neq("status", "cloture");
 
+    // Verrouillage : essai expiré, ou Pro dont la période est dépassée.
+    const status = comp?.subscription_status ?? "trialing";
+    const now = Date.now();
+    const trialEnd = comp?.trial_ends_at
+      ? new Date(comp.trial_ends_at).getTime()
+      : null;
+    const periodEnd = comp?.current_period_end
+      ? new Date(comp.current_period_end).getTime()
+      : null;
+    let locked = false;
+    if (status === "trialing" && trialEnd) locked = trialEnd < now;
+    else if ((status === "active" || status === "past_due") && periodEnd)
+      locked = periodEnd < now;
+    const trialDaysLeft =
+      status === "trialing" && trialEnd
+        ? Math.ceil((trialEnd - now) / 86400000)
+        : null;
+
     return {
       planId: plan.id,
-      status: comp?.subscription_status ?? "trialing",
+      status,
       trialEndsAt: comp?.trial_ends_at ?? null,
       currentPeriodEnd: comp?.current_period_end ?? null,
       planSelected: comp?.plan_selected ?? false,
       pendingPlan: (comp?.pending_plan as string | null) ?? null,
+      locked,
+      trialDaysLeft,
       isAdmin,
       usage: {
         users: users ?? 0,

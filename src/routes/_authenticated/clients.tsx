@@ -138,10 +138,16 @@ function ClientsPage() {
       qc.invalidateQueries({ queryKey: ["clients"] });
       if (res?.sent) {
         toast.success(`Lien de suivi envoyé à ${c.email}.`);
-      } else {
+      } else if (res?.reason === "no_key") {
         toast.error(
-          "Email non envoyé. Configurez Resend (RESEND_API_KEY) pour l'envoi automatique.",
+          "Clé Resend absente côté serveur. Ajoute RESEND_API_KEY dans Vercel (env Production) puis redéploie.",
         );
+      } else if (res?.reason === "http") {
+        toast.error(
+          "Resend a refusé l'envoi. Vérifie que RESEND_FROM utilise ton domaine vérifié (ex. no-reply@orustransit.com).",
+        );
+      } else {
+        toast.error("Email non envoyé. Vérifie la configuration Resend.");
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");

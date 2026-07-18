@@ -293,6 +293,26 @@ function AuthPage() {
               <div className="flex justify-end">
                 <button
                   type="button"
+                  onClick={async () => {
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+                      setEmailError("Entrez d'abord votre email.");
+                      return;
+                    }
+                    try {
+                      const { error } =
+                        await supabase.auth.resetPasswordForEmail(email.trim(), {
+                          redirectTo: `${window.location.origin}/reset`,
+                        });
+                      if (error) throw error;
+                      toast.success(
+                        "Email de réinitialisation envoyé. Vérifiez votre boîte mail.",
+                      );
+                    } catch (err) {
+                      toast.error(
+                        err instanceof Error ? err.message : "Erreur",
+                      );
+                    }
+                  }}
                   className="text-xs font-semibold text-muted-foreground hover:text-foreground"
                 >
                   Mot de passe oublié ?

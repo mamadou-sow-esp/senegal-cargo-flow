@@ -18,6 +18,8 @@ import {
   Moon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { getSubscription } from "@/lib/subscription.functions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
 import logoAsset from "@/assets/newlogo.png";
@@ -90,6 +92,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       navigate({ to: "/onboarding" });
     }
   }, [profile, pathname, navigate]);
+
+  // Abonnement expiré (essai terminé ou Pro non renouvelé) → on force la page
+  // Abonnement tant que le paiement n'est pas régularisé.
+  const getSub = useServerFn(getSubscription);
+  const { data: sub } = useQuery({
+    queryKey: ["subscription-lock"],
+    queryFn: () => getSub(),
+  });
+  useEffect(() => {
+    if (sub?.locked && pathname !== "/abonnement") {
+      navigate({ to: "/abonnement" });
+    }
+  }, [sub, pathname, navigate]);
 
   const handleSignOut = async () => {
     await qc.cancelQueries();

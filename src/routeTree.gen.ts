@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarifsRouteImport } from './routes/tarifs'
+import { Route as ResetRouteImport } from './routes/reset'
 import { Route as PortailRouteImport } from './routes/portail'
 import { Route as InvitationRouteImport } from './routes/invitation'
 import { Route as ConsoleRouteImport } from './routes/console'
@@ -40,6 +41,11 @@ import { Route as AuthenticatedDossiersIdRouteImport } from './routes/_authentic
 const TarifsRoute = TarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetRoute = ResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortailRoute = PortailRouteImport.update({
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/console': typeof ConsoleRouteWithChildren
   '/invitation': typeof InvitationRoute
   '/portail': typeof PortailRouteWithChildren
+  '/reset': typeof ResetRoute
   '/tarifs': typeof TarifsRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/invitation': typeof InvitationRoute
+  '/reset': typeof ResetRoute
   '/tarifs': typeof TarifsRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/console': typeof ConsoleRouteWithChildren
   '/invitation': typeof InvitationRoute
   '/portail': typeof PortailRouteWithChildren
+  '/reset': typeof ResetRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/invitation'
     | '/portail'
+    | '/reset'
     | '/tarifs'
     | '/abonnement'
     | '/admin'
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/conditions'
     | '/confidentialite'
     | '/invitation'
+    | '/reset'
     | '/tarifs'
     | '/abonnement'
     | '/admin'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/invitation'
     | '/portail'
+    | '/reset'
     | '/tarifs'
     | '/_authenticated/abonnement'
     | '/_authenticated/admin'
@@ -356,6 +368,7 @@ export interface RootRouteChildren {
   ConsoleRoute: typeof ConsoleRouteWithChildren
   InvitationRoute: typeof InvitationRoute
   PortailRoute: typeof PortailRouteWithChildren
+  ResetRoute: typeof ResetRoute
   TarifsRoute: typeof TarifsRoute
   SuiviTokenRoute: typeof SuiviTokenRoute
 }
@@ -367,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/tarifs'
       fullPath: '/tarifs'
       preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset': {
+      id: '/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof ResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portail': {
@@ -623,6 +643,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsoleRoute: ConsoleRouteWithChildren,
   InvitationRoute: InvitationRoute,
   PortailRoute: PortailRouteWithChildren,
+  ResetRoute: ResetRoute,
   TarifsRoute: TarifsRoute,
   SuiviTokenRoute: SuiviTokenRoute,
 }

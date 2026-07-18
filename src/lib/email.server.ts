@@ -11,7 +11,10 @@ export async function sendEmail(opts: {
   html: string;
 }): Promise<{ sent: boolean; reason?: string }> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM || "ORUS TRANSIT <onboarding@resend.dev>";
+  // Tolère une valeur collée avec le nom de variable ("RESEND_FROM = ...").
+  const from = (process.env.RESEND_FROM || "ORUS TRANSIT <onboarding@resend.dev>")
+    .replace(/^\s*RESEND_FROM\s*=\s*/i, "")
+    .trim();
   if (!key) {
     console.warn("[email] RESEND_API_KEY manquant — email non envoyé.");
     return { sent: false, reason: "no_key" };

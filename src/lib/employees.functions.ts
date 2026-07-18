@@ -185,11 +185,17 @@ export const inviteClient = createServerFn({ method: "POST" })
         `Le portail client n'est pas inclus dans la formule ${plan.name}. Passez à la formule Cabinet pour inviter vos clients.`,
       );
 
-    const { data: client } = await supabaseAdmin
+    const { data: client, error: cErr } = await supabaseAdmin
       .from("clients")
       .select("id, company_id, name, portal_token")
       .eq("id", data.clientId)
       .maybeSingle();
+    if (cErr)
+      throw new Error(
+        cErr.message.includes("portal_token")
+          ? "Le portail n'est pas encore activé : exécutez la migration 20260716200000_portal_token.sql dans Supabase."
+          : cErr.message,
+      );
     if (!client || client.company_id !== companyId)
       throw new Error("Client introuvable");
 
@@ -229,12 +235,13 @@ export const inviteClient = createServerFn({ method: "POST" })
       }),
     });
 
-    await supabaseAdmin
-      .from("clients")
-      .update({ portal_invited_at: new Date().toISOString() })
-      .eq("id", client.id);
+    if (res.sent)
+      await supabaseAdmin
+        .from("clients")
+        .update({ portal_invited_at: new Date().toISOString() })
+        .eq("id", client.id);
 
-    return { ok: true, sent: res.sent };
+    return { ok: true, sent: res.sent, reason: res.reason };
   });
 
 export const updateEmployeeRole = createServerFn({ method: "POST" })

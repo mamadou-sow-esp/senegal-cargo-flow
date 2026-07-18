@@ -100,6 +100,19 @@ function AbonnementPage() {
         </p>
       </div>
 
+      {/* Bandeau abonnement expiré / essai terminé */}
+      {sub?.locked && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <strong>
+            {sub.status === "trialing"
+              ? "Votre essai gratuit est terminé."
+              : "Votre abonnement a expiré."}
+          </strong>{" "}
+          L'accès à votre espace est suspendu. Passez au mode Pro ci-dessous pour
+          le réactiver immédiatement.
+        </div>
+      )}
+
       {/* Bandeau paiement en attente */}
       {sub?.status === "pending" && pendingPlan && (
         <div className="flex items-start gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-4">
