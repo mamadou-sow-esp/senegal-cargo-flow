@@ -21,6 +21,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortailIndexRouteImport } from './routes/portail.index'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as SuiviTokenRouteImport } from './routes/suivi.$token'
 import { Route as ConsoleCabinetsRouteImport } from './routes/console.cabinets'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -94,6 +95,11 @@ const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ConsoleRoute,
+} as any)
+const SuiviTokenRoute = SuiviTokenRouteImport.update({
+  id: '/suivi/$token',
+  path: '/suivi/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ConsoleCabinetsRoute = ConsoleCabinetsRouteImport.update({
   id: '/cabinets',
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/suivi/$token': typeof SuiviTokenRoute
   '/console/': typeof ConsoleIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/suivi/$token': typeof SuiviTokenRoute
   '/console': typeof ConsoleIndexRoute
   '/portail': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
   '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/suivi/$token': typeof SuiviTokenRoute
   '/console/': typeof ConsoleIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/_authenticated/dossiers/$id': typeof AuthenticatedDossiersIdRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/statistiques'
     | '/console/cabinets'
+    | '/suivi/$token'
     | '/console/'
     | '/portail/'
     | '/dossiers/$id'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/statistiques'
     | '/console/cabinets'
+    | '/suivi/$token'
     | '/console'
     | '/portail'
     | '/dossiers/$id'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/statistiques'
     | '/console/cabinets'
+    | '/suivi/$token'
     | '/console/'
     | '/portail/'
     | '/_authenticated/dossiers/$id'
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   InvitationRoute: typeof InvitationRoute
   PortailRoute: typeof PortailRouteWithChildren
   TarifsRoute: typeof TarifsRoute
+  SuiviTokenRoute: typeof SuiviTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/console/'
       preLoaderRoute: typeof ConsoleIndexRouteImport
       parentRoute: typeof ConsoleRoute
+    }
+    '/suivi/$token': {
+      id: '/suivi/$token'
+      path: '/suivi/$token'
+      fullPath: '/suivi/$token'
+      preLoaderRoute: typeof SuiviTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/console/cabinets': {
       id: '/console/cabinets'
@@ -604,6 +624,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvitationRoute: InvitationRoute,
   PortailRoute: PortailRouteWithChildren,
   TarifsRoute: TarifsRoute,
+  SuiviTokenRoute: SuiviTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

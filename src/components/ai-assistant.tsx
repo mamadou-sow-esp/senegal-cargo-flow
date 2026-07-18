@@ -153,11 +153,10 @@ export function AiAssistant() {
         <button
           onClick={() => setOpen(true)}
           title="TransitORUS"
-          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-primary py-1.5 pl-1.5 pr-4 text-xs font-bold uppercase tracking-widest text-primary-foreground shadow-lg shadow-hero-blue/30 ring-1 ring-white/10 transition hover:opacity-90"
-          style={sora}
+          aria-label="Ouvrir l'assistant"
+          className="fixed bottom-5 right-5 z-40 rounded-full shadow-lg shadow-black/25 ring-1 ring-black/5 transition hover:scale-105"
         >
-          <Avatar size={28} />
-          TransitORUS
+          <Avatar size={56} />
         </button>
       )}
 

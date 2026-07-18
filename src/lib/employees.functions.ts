@@ -169,7 +169,7 @@ export const inviteClient = createServerFn({ method: "POST" })
         clientId: z.string().uuid(),
         email: z.string().trim().email(),
         fullName: z.string().trim().max(120).optional().or(z.literal("")),
-        redirectTo: z.string().url(),
+        origin: z.string().url(),
       })
       .parse(data),
   )
@@ -187,7 +187,7 @@ export const inviteClient = createServerFn({ method: "POST" })
 
     const { data: client } = await supabaseAdmin
       .from("clients")
-      .select("id, company_id, name")
+      .select("id, company_id, name, portal_token")
       .eq("id", data.clientId)
       .maybeSingle();
     if (!client || client.company_id !== companyId)
@@ -201,74 +201,40 @@ export const inviteClient = createServerFn({ method: "POST" })
       .maybeSingle();
     const cabinetName = comp?.name || "Votre transitaire";
 
-    const { data: existing, error: listErr } =
-      await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    if (listErr) throw new Error(listErr.message);
-    const found = existing.users.find(
-      (u) => u.email?.toLowerCase() === data.email.toLowerCase(),
-    );
-
-    // On GÉNÈRE le lien (sans passer par l'email Supabase), puis on l'envoie
-    // nous-mêmes via l'API Resend (email au design maison).
-    let userId: string;
-    let actionLink: string;
-    if (found) {
-      userId = found.id;
-      const { data: gen, error: gErr } =
-        await supabaseAdmin.auth.admin.generateLink({
-          type: "magiclink",
-          email: data.email,
-          options: { redirectTo: data.redirectTo },
-        });
-      if (gErr || !gen?.properties?.action_link)
-        throw new Error(gErr?.message || "Lien non généré");
-      actionLink = gen.properties.action_link;
-    } else {
-      const { data: gen, error: gErr } =
-        await supabaseAdmin.auth.admin.generateLink({
-          type: "invite",
-          email: data.email,
-          options: {
-            redirectTo: data.redirectTo,
-            data: { full_name: data.fullName || client.name, role: "client" },
-          },
-        });
-      if (gErr || !gen?.user || !gen?.properties?.action_link)
-        throw new Error(gErr?.message || "Lien non généré");
-      userId = gen.user.id;
-      actionLink = gen.properties.action_link;
+    // Jeton de suivi (généré par défaut à la création ; sécurité si absent).
+    let token = client.portal_token as string | null;
+    if (!token) {
+      token = crypto.randomUUID();
+      await supabaseAdmin
+        .from("clients")
+        .update({ portal_token: token })
+        .eq("id", client.id);
     }
 
-    // Profil sans company_id (le client n'est pas un membre du cabinet).
-    await supabaseAdmin.from("profiles").upsert({
-      id: userId,
-      full_name: data.fullName || client.name,
-      email: data.email,
-    });
+    // Lien de suivi PUBLIC (aucun compte, aucun mot de passe).
+    const base = data.origin.replace(/\/$/, "");
+    const trackingLink = `${base}/suivi/${token}`;
 
-    // Lie la fiche client au compte.
-    const { error: linkErr } = await supabaseAdmin
-      .from("clients")
-      .update({ user_id: userId })
-      .eq("id", data.clientId);
-    if (linkErr) throw new Error(linkErr.message);
-
-    // Envoi de l'email d'invitation via Resend.
+    // Envoi de l'email via l'API Resend.
     const { sendEmail, inviteClientEmailHtml } = await import(
       "@/lib/email.server"
     );
     const res = await sendEmail({
       to: data.email,
-      subject: `${cabinetName} vous invite sur votre portail ORUS TRANSIT`,
+      subject: `${cabinetName} — suivez votre dossier`,
       html: inviteClientEmailHtml({
         clientName: data.fullName || client.name,
         cabinetName,
-        actionLink,
+        actionLink: trackingLink,
       }),
     });
 
-    // sent=false si Resend n'est pas configuré → le front proposera le lien.
-    return { ok: true, sent: res.sent, actionLink };
+    await supabaseAdmin
+      .from("clients")
+      .update({ portal_invited_at: new Date().toISOString() })
+      .eq("id", client.id);
+
+    return { ok: true, sent: res.sent };
   });
 
 export const updateEmployeeRole = createServerFn({ method: "POST" })

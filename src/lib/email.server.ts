@@ -109,13 +109,14 @@ export function inviteClientEmailHtml(params: {
           documents et &eacute;changer en toute transparence.
         </p>
         <p style="margin:14px 0 0 0;font-size:15px;line-height:1.6;color:#4a5162;">
-          Cliquez ci-dessous pour choisir votre mot de passe et activer votre acc&egrave;s.
+          Cliquez ci-dessous pour ouvrir votre suivi. Aucun compte ni mot de
+          passe n'est n&eacute;cessaire &mdash; ce lien vous est personnel.
         </p>
       </td></tr>
       <tr><td style="padding:28px 32px 8px 32px;">
         <table cellpadding="0" cellspacing="0" role="presentation"><tr>
           <td style="background-color:#2f6bed;border-radius:6px;">
-            <a href="${actionLink}" style="display:inline-block;padding:14px 30px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#ffffff;text-decoration:none;">Activer mon acc&egrave;s</a>
+            <a href="${actionLink}" style="display:inline-block;padding:14px 30px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#ffffff;text-decoration:none;">Suivre mon dossier</a>
           </td>
         </tr></table>
       </td></tr>

@@ -211,7 +211,6 @@
       oklch(1 0 0 / 0.025),
       transparent 55%
     );
-  background-attachment: fixed;
 }
 
 /* Cartes plus « soft » : très léger dégradé + ombre profonde diffuse */

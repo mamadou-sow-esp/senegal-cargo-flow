@@ -556,12 +556,12 @@ function CarrierCircuitPanel({
                 onClick={() => toggle(s.key)}
                 className={`flex w-full items-center gap-3 rounded border px-3 py-2 text-left text-sm transition ${
                   ok
-                    ? "border-emerald-200 bg-emerald-50/50"
+                    ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/25 dark:bg-emerald-500/10"
                     : "border-border bg-white hover:bg-muted/40"
                 }`}
               >
                 {ok ? (
-                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 ) : (
                   <Circle className="size-4 shrink-0 text-muted-foreground/50" />
                 )}
@@ -648,15 +648,17 @@ function DeadlineCard({
     days == null ? "neutral" : days < 0 ? "red" : days <= 3 ? "amber" : "green";
   const box: Record<string, string> = {
     neutral: "border-border bg-muted/30",
-    green: "border-emerald-200 bg-emerald-50/60",
-    amber: "border-amber-200 bg-amber-50/60",
-    red: "border-red-200 bg-red-50/60",
+    green:
+      "border-emerald-200 bg-emerald-50/60 dark:border-emerald-500/25 dark:bg-emerald-500/10",
+    amber:
+      "border-amber-200 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10",
+    red: "border-red-200 bg-red-50/60 dark:border-red-500/25 dark:bg-red-500/10",
   };
   const txt: Record<string, string> = {
     neutral: "text-muted-foreground",
-    green: "text-emerald-600",
-    amber: "text-amber-600",
-    red: "text-red-600",
+    green: "text-emerald-600 dark:text-emerald-400",
+    amber: "text-amber-600 dark:text-amber-400",
+    red: "text-red-600 dark:text-red-400",
   };
   const badge =
     days == null
@@ -785,8 +787,8 @@ function ChecklistPanel({
         <span
           className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
             done === items.length
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-amber-100 text-amber-700"
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+              : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
           }`}
         >
           {done}/{items.length} fournies
@@ -798,18 +800,18 @@ function ChecklistPanel({
             key={i.name}
             className={`flex items-center gap-2 rounded border px-3 py-2 text-sm ${
               i.ok
-                ? "border-emerald-200 bg-emerald-50/50 text-foreground"
-                : "border-amber-200 bg-amber-50/40 text-foreground"
+                ? "border-emerald-200 bg-emerald-50/50 text-foreground dark:border-emerald-500/25 dark:bg-emerald-500/10"
+                : "border-amber-200 bg-amber-50/40 text-foreground dark:border-amber-500/25 dark:bg-amber-500/10"
             }`}
           >
             {i.ok ? (
-              <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+              <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <Circle className="size-4 shrink-0 text-amber-500" />
+              <Circle className="size-4 shrink-0 text-amber-500 dark:text-amber-400" />
             )}
             <span className="flex-1">{i.name}</span>
             {!i.ok && (
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-600">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
                 Manquant
               </span>
             )}

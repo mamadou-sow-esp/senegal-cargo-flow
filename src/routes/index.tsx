@@ -78,7 +78,7 @@ function Landing() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1200px] 2xl:max-w-[1440px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">

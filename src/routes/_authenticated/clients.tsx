@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { inviteClient } from "@/lib/employees.functions";
-import { Plus, Search, Send, CheckCircle2, Pencil } from "lucide-react";
+import { Plus, Search, Send, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/clients")({
   component: ClientsPage,
@@ -114,10 +114,6 @@ function ClientsPage() {
 
   const inviteFn = useServerFn(inviteClient);
   const [inviting, setInviting] = useState<string | null>(null);
-  const [invite, setInvite] = useState<{ name: string; link: string } | null>(
-    null,
-  );
-  const [copied, setCopied] = useState(false);
 
   const handleInvite = async (c: {
     id: string;
@@ -126,7 +122,7 @@ function ClientsPage() {
     contact_name: string | null;
   }) => {
     if (!c.email) {
-      toast.error("Ajoutez d'abord un email à ce client pour l'inviter.");
+      toast.error("Ajoutez d'abord un email à ce client pour lui envoyer son suivi.");
       return;
     }
     setInviting(c.id);
@@ -136,34 +132,21 @@ function ClientsPage() {
           clientId: c.id,
           email: c.email,
           fullName: c.contact_name || c.name,
-          redirectTo: `${window.location.origin}/invitation`,
+          origin: window.location.origin,
         },
       });
       qc.invalidateQueries({ queryKey: ["clients"] });
       if (res?.sent) {
-        toast.success(`Invitation envoyée à ${c.email}.`);
-      } else if (res?.actionLink) {
-        // Resend pas encore configuré : on propose le lien à partager.
-        setCopied(false);
-        setInvite({ name: c.contact_name || c.name, link: res.actionLink });
+        toast.success(`Lien de suivi envoyé à ${c.email}.`);
       } else {
-        toast.success("Client invité.");
+        toast.error(
+          "Email non envoyé. Configurez Resend (RESEND_API_KEY) pour l'envoi automatique.",
+        );
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally {
       setInviting(null);
-    }
-  };
-
-  const copyLink = async () => {
-    if (!invite) return;
-    try {
-      await navigator.clipboard.writeText(invite.link);
-      setCopied(true);
-      toast.success("Lien copié.");
-    } catch {
-      toast.error("Copie impossible — sélectionnez le lien manuellement.");
     }
   };
 
@@ -229,20 +212,19 @@ function ClientsPage() {
                   {c.ninea || "—"}
                 </td>
                 <td className="px-4 py-3">
-                  {c.user_id ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                      <CheckCircle2 className="size-3.5" /> Accès actif
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handleInvite(c)}
-                      disabled={inviting === c.id}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition hover:border-hero-blue hover:text-hero-blue disabled:opacity-50"
-                    >
-                      <Send className="size-3" />
-                      {inviting === c.id ? "Envoi…" : "Inviter"}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleInvite(c)}
+                    disabled={inviting === c.id}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition hover:border-hero-blue hover:text-hero-blue disabled:opacity-50"
+                  >
+                    <Send className="size-3" />
+                    {inviting === c.id
+                      ? "Envoi…"
+                      : (c as { portal_invited_at?: string | null })
+                            .portal_invited_at
+                        ? "Renvoyer"
+                        : "Envoyer le suivi"}
+                  </button>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button
@@ -267,58 +249,6 @@ function ClientsPage() {
           </tbody>
         </table>
       </div>
-
-      {invite && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-2xl">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
-              Lien d'invitation
-            </div>
-            <h2
-              className="mt-1 text-lg font-extrabold tracking-tight"
-              style={{ fontFamily: "var(--font-label)" }}
-            >
-              Invitez {invite.name}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              L'envoi automatique d'email n'est pas encore activé. Copiez ce lien
-              et envoyez-le à votre client (WhatsApp, SMS, email) : il choisira
-              son mot de passe et accèdera à son portail.
-            </p>
-
-            <div className="mt-4 rounded-xl border border-border bg-muted/50 px-3 py-2.5">
-              <p className="break-all font-mono text-[11px] leading-relaxed text-foreground/80">
-                {invite.link}
-              </p>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(
-                  `Bonjour, voici votre accès au portail de suivi ORUS TRANSIT : ${invite.link}`,
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-100"
-              >
-                Partager sur WhatsApp
-              </a>
-              <button
-                onClick={copyLink}
-                className="rounded-lg bg-hero-blue px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90"
-              >
-                {copied ? "Copié ✓" : "Copier le lien"}
-              </button>
-              <button
-                onClick={() => setInvite(null)}
-                className="rounded-lg border border-border bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
