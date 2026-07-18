@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight,
   Anchor,
@@ -48,6 +49,33 @@ const hideOnError = (e: { currentTarget: HTMLImageElement }) => {
 
 function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // UNIQUEMENT si on arrive depuis un lien d'authentification (confirmation
+  // d'e-mail, magic link…), on entre dans l'app. Sinon, l'accueil reste normal
+  // (visiteurs et comptes connectés peuvent le consulter, le logo remarche).
+  useEffect(() => {
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+    const isAuthCallback =
+      /access_token=|type=(signup|magiclink|recovery|invite)/.test(hash) ||
+      /[?&]code=/.test(search);
+    if (!isAuthCallback) return;
+
+    let done = false;
+    const go = () => {
+      if (done) return;
+      done = true;
+      navigate({ to: "/dashboard" });
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) go();
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session) go();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
