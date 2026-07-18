@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowRight,
   Anchor,
@@ -49,15 +48,6 @@ const hideOnError = (e: { currentTarget: HTMLImageElement }) => {
 
 function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // Après confirmation d'e-mail (ou pour tout compte déjà connecté), on entre
-  // directement dans l'app au lieu de rester bloqué sur la page d'accueil.
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
-    });
-  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
