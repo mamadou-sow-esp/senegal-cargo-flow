@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as PortailRouteImport } from './routes/portail'
 import { Route as InvitationRouteImport } from './routes/invitation'
+import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConditionsRouteImport } from './routes/conditions'
 import { Route as ChoixFormuleRouteImport } from './routes/choix-formule'
@@ -19,6 +20,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortailIndexRouteImport } from './routes/portail.index'
+import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as ConsoleCabinetsRouteImport } from './routes/console.cabinets'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedEmployesRouteImport } from './routes/_authenticated/employes'
@@ -46,6 +49,11 @@ const PortailRoute = PortailRouteImport.update({
 const InvitationRoute = InvitationRouteImport.update({
   id: '/invitation',
   path: '/invitation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConsoleRoute = ConsoleRouteImport.update({
+  id: '/console',
+  path: '/console',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
@@ -81,6 +89,16 @@ const PortailIndexRoute = PortailIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PortailRoute,
+} as any)
+const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleCabinetsRoute = ConsoleCabinetsRouteImport.update({
+  id: '/cabinets',
+  path: '/cabinets',
+  getParentRoute: () => ConsoleRoute,
 } as any)
 const AuthenticatedStatistiquesRoute =
   AuthenticatedStatistiquesRouteImport.update({
@@ -158,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/choix-formule': typeof ChoixFormuleRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/console': typeof ConsoleRouteWithChildren
   '/invitation': typeof InvitationRoute
   '/portail': typeof PortailRouteWithChildren
   '/tarifs': typeof TarifsRoute
@@ -170,6 +189,8 @@ export interface FileRoutesByFullPath {
   '/employes': typeof AuthenticatedEmployesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/console/': typeof ConsoleIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
@@ -193,6 +214,8 @@ export interface FileRoutesByTo {
   '/employes': typeof AuthenticatedEmployesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/console': typeof ConsoleIndexRoute
   '/portail': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
@@ -207,6 +230,7 @@ export interface FileRoutesById {
   '/choix-formule': typeof ChoixFormuleRoute
   '/conditions': typeof ConditionsRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/console': typeof ConsoleRouteWithChildren
   '/invitation': typeof InvitationRoute
   '/portail': typeof PortailRouteWithChildren
   '/tarifs': typeof TarifsRoute
@@ -219,6 +243,8 @@ export interface FileRoutesById {
   '/_authenticated/employes': typeof AuthenticatedEmployesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/console/cabinets': typeof ConsoleCabinetsRoute
+  '/console/': typeof ConsoleIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/_authenticated/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/_authenticated/dossiers/new': typeof AuthenticatedDossiersNewRoute
@@ -233,6 +259,7 @@ export interface FileRouteTypes {
     | '/choix-formule'
     | '/conditions'
     | '/confidentialite'
+    | '/console'
     | '/invitation'
     | '/portail'
     | '/tarifs'
@@ -245,6 +272,8 @@ export interface FileRouteTypes {
     | '/employes'
     | '/onboarding'
     | '/statistiques'
+    | '/console/cabinets'
+    | '/console/'
     | '/portail/'
     | '/dossiers/$id'
     | '/dossiers/new'
@@ -268,6 +297,8 @@ export interface FileRouteTypes {
     | '/employes'
     | '/onboarding'
     | '/statistiques'
+    | '/console/cabinets'
+    | '/console'
     | '/portail'
     | '/dossiers/$id'
     | '/dossiers/new'
@@ -281,6 +312,7 @@ export interface FileRouteTypes {
     | '/choix-formule'
     | '/conditions'
     | '/confidentialite'
+    | '/console'
     | '/invitation'
     | '/portail'
     | '/tarifs'
@@ -293,6 +325,8 @@ export interface FileRouteTypes {
     | '/_authenticated/employes'
     | '/_authenticated/onboarding'
     | '/_authenticated/statistiques'
+    | '/console/cabinets'
+    | '/console/'
     | '/portail/'
     | '/_authenticated/dossiers/$id'
     | '/_authenticated/dossiers/new'
@@ -307,6 +341,7 @@ export interface RootRouteChildren {
   ChoixFormuleRoute: typeof ChoixFormuleRoute
   ConditionsRoute: typeof ConditionsRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
+  ConsoleRoute: typeof ConsoleRouteWithChildren
   InvitationRoute: typeof InvitationRoute
   PortailRoute: typeof PortailRouteWithChildren
   TarifsRoute: typeof TarifsRoute
@@ -333,6 +368,13 @@ declare module '@tanstack/react-router' {
       path: '/invitation'
       fullPath: '/invitation'
       preLoaderRoute: typeof InvitationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/console': {
+      id: '/console'
+      path: '/console'
+      fullPath: '/console'
+      preLoaderRoute: typeof ConsoleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confidentialite': {
@@ -383,6 +425,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/portail/'
       preLoaderRoute: typeof PortailIndexRouteImport
       parentRoute: typeof PortailRoute
+    }
+    '/console/': {
+      id: '/console/'
+      path: '/'
+      fullPath: '/console/'
+      preLoaderRoute: typeof ConsoleIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/cabinets': {
+      id: '/console/cabinets'
+      path: '/cabinets'
+      fullPath: '/console/cabinets'
+      preLoaderRoute: typeof ConsoleCabinetsRouteImport
+      parentRoute: typeof ConsoleRoute
     }
     '/_authenticated/statistiques': {
       id: '/_authenticated/statistiques'
@@ -511,6 +567,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ConsoleRouteChildren {
+  ConsoleCabinetsRoute: typeof ConsoleCabinetsRoute
+  ConsoleIndexRoute: typeof ConsoleIndexRoute
+}
+
+const ConsoleRouteChildren: ConsoleRouteChildren = {
+  ConsoleCabinetsRoute: ConsoleCabinetsRoute,
+  ConsoleIndexRoute: ConsoleIndexRoute,
+}
+
+const ConsoleRouteWithChildren =
+  ConsoleRoute._addFileChildren(ConsoleRouteChildren)
+
 interface PortailRouteChildren {
   PortailIndexRoute: typeof PortailIndexRoute
   PortailDossierIdRoute: typeof PortailDossierIdRoute
@@ -531,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChoixFormuleRoute: ChoixFormuleRoute,
   ConditionsRoute: ConditionsRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
+  ConsoleRoute: ConsoleRouteWithChildren,
   InvitationRoute: InvitationRoute,
   PortailRoute: PortailRouteWithChildren,
   TarifsRoute: TarifsRoute,

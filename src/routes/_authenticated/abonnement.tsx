@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getSubscription, selectPlan } from "@/lib/subscription.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { StatusBadge } from "@/components/status-badge";
 import { MANUAL_PAYMENT, WAVE_PLAN_LINKS } from "@/lib/billing";
 import {
   PLANS,
@@ -30,14 +31,6 @@ export const Route = createFileRoute("/_authenticated/abonnement")({
 });
 
 const sora = { fontFamily: "var(--font-label)" };
-
-const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  trialing: { label: "Période d'essai", cls: "bg-amber-100 text-amber-700" },
-  pending: { label: "Paiement en attente", cls: "bg-orange-100 text-orange-700" },
-  active: { label: "Actif", cls: "bg-emerald-100 text-emerald-700" },
-  past_due: { label: "Paiement échu", cls: "bg-red-100 text-red-700" },
-  canceled: { label: "Résilié", cls: "bg-muted text-muted-foreground" },
-};
 
 function AbonnementPage() {
   const qc = useQueryClient();
@@ -89,7 +82,6 @@ function AbonnementPage() {
   };
 
   const current = getPlan(sub?.planId);
-  const status = STATUS_LABEL[sub?.status ?? "trialing"] ?? STATUS_LABEL.trialing;
   const pendingPlan = sub?.pendingPlan
     ? PLANS[sub.pendingPlan as PlanId]
     : null;
@@ -152,11 +144,7 @@ function AbonnementPage() {
                   </div>
                 </div>
               </div>
-              <span
-                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${status.cls}`}
-              >
-                {status.label}
-              </span>
+              <StatusBadge status={sub?.status} />
             </div>
 
             {sub?.status === "trialing" && sub?.trialEndsAt && (

@@ -98,16 +98,28 @@ function AuthPage() {
           password,
         });
         if (error) throw error;
-        // Un importateur invité est dirigé vers son portail client.
         const uid = signIn.user?.id;
-        const { data: client } = uid
+        // Super-admin ORUS TRANSIT → sa console.
+        const { data: superRole } = uid
           ? await supabase
-              .from("clients")
-              .select("id")
+              .from("user_roles")
+              .select("role")
               .eq("user_id", uid)
-              .maybeSingle()
+              .eq("role", "super_admin")
           : { data: null };
-        navigate({ to: client ? "/portail" : "/dashboard" });
+        if (superRole && superRole.length > 0) {
+          navigate({ to: "/console" });
+        } else {
+          // Un importateur invité est dirigé vers son portail client.
+          const { data: client } = uid
+            ? await supabase
+                .from("clients")
+                .select("id")
+                .eq("user_id", uid)
+                .maybeSingle()
+            : { data: null };
+          navigate({ to: client ? "/portail" : "/dashboard" });
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");

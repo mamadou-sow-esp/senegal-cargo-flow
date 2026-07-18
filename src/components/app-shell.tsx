@@ -9,7 +9,6 @@ import {
   BarChart3,
   Calculator,
   CreditCard,
-  ShieldCheck,
   LogOut,
   Search,
   Plus,
@@ -19,8 +18,6 @@ import {
   Moon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { amISuperAdmin } from "@/lib/subscription.functions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
 import logoAsset from "@/assets/newlogo.png";
@@ -84,15 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     },
   });
 
-  const superAdminFn = useServerFn(amISuperAdmin);
-  const { data: superAdmin } = useQuery({
-    queryKey: ["is-super-admin"],
-    queryFn: () => superAdminFn(),
-  });
-
-  const navItems = superAdmin?.superAdmin
-    ? [...NAV, { to: "/admin", label: "Admin", icon: ShieldCheck } as const]
-    : NAV;
+  const navItems = NAV;
 
   useEffect(() => {
     if (!profile) return;
