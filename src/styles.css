@@ -244,9 +244,8 @@
 /* ── Scroll mobile plus stable ───────────────────────────────────────── */
 /* Coupe tout débordement horizontal (clip ne casse pas le sticky) et */
 /* supprime le rebond qui fait « trembler » en haut/bas de page.        */
-html {
-  overflow-x: clip;
-}
+html,
 body {
-  overscroll-behavior-y: none;
+  overflow-x: clip;
+  overscroll-behavior: none;
 }

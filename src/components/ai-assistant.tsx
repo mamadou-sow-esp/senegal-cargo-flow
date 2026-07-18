@@ -126,14 +126,34 @@ export function AiAssistant() {
     });
   }, [messages, loading]);
 
-  // Verrouille le scroll de la page tant que le panneau est ouvert
-  // (sinon l'arrière-plan défile derrière l'assistant).
+  // Verrouille réellement le scroll de la page tant que le panneau est ouvert
+  // (technique position:fixed — la seule fiable sur mobile).
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const saved = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev;
+      body.style.position = saved.position;
+      body.style.top = saved.top;
+      body.style.left = saved.left;
+      body.style.right = saved.right;
+      body.style.width = saved.width;
+      body.style.overflow = saved.overflow;
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
