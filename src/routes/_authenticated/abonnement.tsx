@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getSubscription, selectPlan } from "@/lib/subscription.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { MANUAL_PAYMENT, WAVE_PLAN_LINKS } from "@/lib/billing";
 import {
   PLANS,
@@ -17,7 +18,7 @@ import {
 import {
   Check,
   Crown,
-  Users,
+  FolderKanban,
   MessageSquare,
   Sparkles,
   Clock,
@@ -50,6 +51,29 @@ function AbonnementPage() {
     queryKey: ["subscription"],
     queryFn: () => getSub(),
   });
+
+  // Arrivée depuis « Choisir Pro » à l'inscription → ouvre direct le paiement.
+  useEffect(() => {
+    void (async () => {
+      let intent: string | null = null;
+      try {
+        intent = localStorage.getItem("orus_pay_intent");
+        if (intent === "pro") localStorage.removeItem("orus_pay_intent");
+      } catch {
+        /* ignore */
+      }
+      if (intent !== "pro") {
+        // Repli fiable : métadonnées du compte (survit au changement de navigateur).
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.user_metadata?.pay_intent === "pro") {
+          intent = "pro";
+          // On consomme le flag pour ne pas rouvrir le paiement à chaque visite.
+          await supabase.auth.updateUser({ data: { pay_intent: null } });
+        }
+      }
+      if (intent === "pro") setPay({ planId: "pro", amount: PLANS.pro.price ?? 0 });
+    })();
+  }, []);
 
   // Ouvre simplement le panneau de paiement : rien n'est modifié tant que
   // l'utilisateur n'a pas confirmé son paiement (évite les misclics).
@@ -156,10 +180,10 @@ function AbonnementPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <UsageBar
-                icon={Users}
-                label="Utilisateurs"
-                used={sub?.usage.users ?? 0}
-                max={current.maxUsers}
+                icon={FolderKanban}
+                label="Dossiers actifs"
+                used={sub?.usage.dossiers ?? 0}
+                max={current.maxActiveDossiers}
               />
               <UsageBar
                 icon={MessageSquare}
@@ -170,10 +194,12 @@ function AbonnementPage() {
               />
               <div className="rounded-xl border border-border bg-muted/40 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                  <Sparkles className="size-4 text-hero-blue" /> Portail client
+                  <Sparkles className="size-4 text-hero-blue" /> Assistant IA
                 </div>
                 <div className="mt-2 text-sm font-bold" style={sora}>
-                  {current.clientPortal ? "Inclus" : "Non inclus"}
+                  {current.aiPerDay === null
+                    ? "Illimité"
+                    : `${current.aiPerDay} / jour`}
                 </div>
               </div>
             </div>
@@ -184,9 +210,9 @@ function AbonnementPage() {
       {/* Choix de formule */}
       <div>
         <h2 className="text-lg font-extrabold tracking-tight" style={sora}>
-          Changer de formule
+          Passer au mode Pro
         </h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid max-w-md gap-4">
           {PAID_PLAN_ORDER.map((id) => {
             const p = PLANS[id];
             const isCurrent = current.id === id;
@@ -251,8 +277,8 @@ function AbonnementPage() {
           })}
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          Paiement par mobile money (Wave, Orange Money). Votre formule est
-          activée dès la validation du paiement.
+          Paiement par Wave. Après paiement, l'activation est vérifiée puis
+          validée sous 30 minutes maximum.
         </p>
       </div>
 

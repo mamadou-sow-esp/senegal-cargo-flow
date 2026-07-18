@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getPlan } from "@/lib/plans";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
@@ -244,7 +245,41 @@ export const chatWithAi = createServerFn({ method: "POST" })
   .validator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data, context }) => {
     const userId = (context as { userId: string }).userId;
-    const companyContext = await buildCompanyContext(userId);
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+
+    // Cabinet + formule → quota IA journalier en essai.
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("company_id")
+      .eq("id", userId)
+      .maybeSingle();
+    const companyId = prof?.company_id as string | undefined;
+
+    if (companyId) {
+      const { data: comp } = await supabaseAdmin
+        .from("companies")
+        .select("subscription_plan")
+        .eq("id", companyId)
+        .maybeSingle();
+      const plan = getPlan(comp?.subscription_plan);
+      if (plan.aiPerDay != null) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const { count } = await supabaseAdmin
+          .from("ai_log")
+          .select("id", { count: "exact", head: true })
+          .eq("company_id", companyId)
+          .gte("created_at", start.toISOString());
+        if ((count ?? 0) >= plan.aiPerDay)
+          throw new Error(
+            `Limite de l'essai atteinte : ${plan.aiPerDay} questions à l'assistant par jour. Activez le mode Pro pour un accès illimité.`,
+          );
+      }
+    }
+
+    const companyContext = companyId ? await buildCompanyContext(userId) : "";
     const json = await runGroq({
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -259,6 +294,13 @@ export const chatWithAi = createServerFn({ method: "POST" })
       throw new Error(
         "L'assistant n'a pas pu générer de réponse. Reformulez votre question.",
       );
+
+    // Journalise la requête (compteur du quota IA).
+    if (companyId)
+      await supabaseAdmin
+        .from("ai_log")
+        .insert({ company_id: companyId, user_id: userId });
+
     return { reply };
   });
 

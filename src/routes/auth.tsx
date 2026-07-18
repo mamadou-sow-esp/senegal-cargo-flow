@@ -64,12 +64,24 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        // Intention « Pro » choisie sur la page Tarifs : on la stocke dans le
+        // compte (métadonnées) pour qu'elle survive à un changement de
+        // navigateur lors de la confirmation par e-mail.
+        let payIntent: string | null = null;
+        try {
+          payIntent = localStorage.getItem("orus_pay_intent");
+        } catch {
+          /* ignore */
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: emailRedirect(),
-            data: { full_name: fullName },
+            data: {
+              full_name: fullName,
+              ...(payIntent === "pro" ? { pay_intent: "pro" } : {}),
+            },
           },
         });
         if (error) throw error;

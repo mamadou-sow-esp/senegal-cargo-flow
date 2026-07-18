@@ -96,16 +96,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!profile) return;
-    if (!profile.company_id) {
-      if (pathname !== "/onboarding") navigate({ to: "/onboarding" });
-      return;
-    }
-    // Cabinet créé mais formule pas encore choisie → écran de choix.
-    const planSelected = (
-      profile.companies as { plan_selected?: boolean } | null
-    )?.plan_selected;
-    if (!planSelected && pathname !== "/onboarding") {
-      navigate({ to: "/choix-formule" });
+    // Sans cabinet → onboarding. L'essai est ensuite activé automatiquement.
+    if (!profile.company_id && pathname !== "/onboarding") {
+      navigate({ to: "/onboarding" });
     }
   }, [profile, pathname, navigate]);
 

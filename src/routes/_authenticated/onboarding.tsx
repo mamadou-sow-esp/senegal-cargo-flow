@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createCompanyAndAdmin } from "@/lib/onboarding.functions";
+import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -23,7 +24,20 @@ function Onboarding() {
     onSuccess: async () => {
       await qc.invalidateQueries();
       toast.success("Espace ORUS TRANSIT prêt.");
-      navigate({ to: "/dashboard" });
+      // Si l'utilisateur avait choisi le Pro à l'inscription, on l'emmène
+      // directement au paiement (l'écran Abonnement ouvre la fenêtre Wave).
+      let intent: string | null = null;
+      try {
+        intent = localStorage.getItem("orus_pay_intent");
+      } catch {
+        /* ignore */
+      }
+      if (intent !== "pro") {
+        // Repli fiable (survit à un changement de navigateur) : métadonnées.
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.user_metadata?.pay_intent === "pro") intent = "pro";
+      }
+      navigate({ to: intent === "pro" ? "/abonnement" : "/dashboard" });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erreur"),
   });

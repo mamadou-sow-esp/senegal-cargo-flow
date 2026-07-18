@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight,
   Anchor,
@@ -48,6 +49,15 @@ const hideOnError = (e: { currentTarget: HTMLImageElement }) => {
 
 function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Après confirmation d'e-mail (ou pour tout compte déjà connecté), on entre
+  // directement dans l'app au lieu de rester bloqué sur la page d'accueil.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/dashboard" });
+    });
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -177,7 +187,7 @@ function Landing() {
                 search={{ mode: "signup" }}
                 className="inline-flex items-center gap-2 rounded-lg bg-hero-blue px-5 py-3 text-sm font-bold uppercase tracking-wider text-white hover:opacity-90"
               >
-                Démarrer 14 jours d'essai <ArrowRight className="size-4" />
+                Démarrer 7 jours d'essai <ArrowRight className="size-4" />
               </Link>
               <a
                 href="#solution"
@@ -472,7 +482,7 @@ function Landing() {
             Passez votre cabinet au numérique
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
-            14 jours d'essai gratuit, sans engagement. Mettez de l'ordre dans vos
+            7 jours d'essai gratuit, sans engagement. Mettez de l'ordre dans vos
             dossiers dès aujourd'hui.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">

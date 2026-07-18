@@ -12,9 +12,7 @@ import type { PlanId } from "@/lib/plans";
  * Laisse "" pour une formule non encore configurée.
  */
 export const WAVE_PLAN_LINKS: Partial<Record<PlanId, string>> = {
-  solo: "https://pay.wave.com/m/M_sn_9G6l39cBgOlh/c/sn/?amount=15000",
-  cabinet: "https://pay.wave.com/m/M_sn_9G6l39cBgOlh/c/sn/?amount=45000",
-  entreprise: "", // sur devis → traité par contact
+  pro: "https://pay.wave.com/m/M_sn_9G6l39cBgOlh/c/sn/?amount=30000",
 };
 
 export const MANUAL_PAYMENT = {

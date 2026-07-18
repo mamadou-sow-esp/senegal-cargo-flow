@@ -70,6 +70,14 @@ export const getSubscription = createServerFn({ method: "GET" })
       .eq("status", "sent")
       .gte("created_at", start.toISOString());
 
+    // Usage : dossiers actifs (non clôturés)
+    const { count: dossiers } = await supabaseAdmin
+      .from("shipments")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .eq("is_deleted", false)
+      .neq("status", "cloture");
+
     return {
       planId: plan.id,
       status: comp?.subscription_status ?? "trialing",
@@ -78,7 +86,11 @@ export const getSubscription = createServerFn({ method: "GET" })
       planSelected: comp?.plan_selected ?? false,
       pendingPlan: (comp?.pending_plan as string | null) ?? null,
       isAdmin,
-      usage: { users: users ?? 0, smsUsed: smsUsed ?? 0 },
+      usage: {
+        users: users ?? 0,
+        smsUsed: smsUsed ?? 0,
+        dossiers: dossiers ?? 0,
+      },
     };
   });
 
@@ -466,7 +478,7 @@ export const adminSetPlan = createServerFn({ method: "POST" })
           const appUrl = `${process.env.PUBLIC_APP_URL || ""}/dashboard`;
           await sendEmail({
             to: email,
-            subject: `Votre formule ${plan.name} est activée — ORUS TRANSIT`,
+            subject: `Votre abonnement ${plan.name} est activé`,
             html: activationEmailHtml({ planName: plan.name, appUrl }),
           });
         }

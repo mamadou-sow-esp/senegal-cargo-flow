@@ -48,12 +48,12 @@ function TarifsPage() {
             Une formule pour chaque cabinet
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-            Commencez gratuitement pendant 14 jours. Paiement par mobile money
-            (Wave, Orange Money). Sans engagement.
+            Commencez gratuitement pendant 7 jours. Paiement par Wave. Sans
+            engagement.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto mt-12 grid max-w-3xl gap-5 sm:grid-cols-2">
           {PLAN_ORDER.map((id) => {
             const p = PLANS[id];
             return (
@@ -80,7 +80,7 @@ function TarifsPage() {
                   {priceLabel(p)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {p.price ? "par mois" : id === "trial" ? "14 jours" : " "}
+                  {p.price ? "par mois" : id === "trial" ? "7 jours" : " "}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">{p.tagline}</p>
                 <ul className="mt-5 flex-1 space-y-2.5 text-sm">
@@ -103,6 +103,15 @@ function TarifsPage() {
                     <Link
                       to="/auth"
                       search={{ mode: "signup" }}
+                      onClick={() => {
+                        try {
+                          if (id === "pro")
+                            localStorage.setItem("orus_pay_intent", "pro");
+                          else localStorage.removeItem("orus_pay_intent");
+                        } catch {
+                          /* ignore */
+                        }
+                      }}
                       className={`block rounded-xl py-2.5 text-center text-[11px] font-bold uppercase tracking-widest ${
                         p.highlight
                           ? "bg-hero-blue text-white hover:opacity-90"

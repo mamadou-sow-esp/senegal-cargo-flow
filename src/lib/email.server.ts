@@ -77,7 +77,7 @@ export function activationEmailHtml(params: {
         </p>
       </td></tr>
       <tr><td style="background-color:#f4f6fb;padding:20px 32px;border-top:1px solid #e6e9f0;">
-        <p style="margin:0;font-size:11px;color:#9aa0af;">&copy; 2026 ORUS TRANSIT &mdash; Dakar, S&eacute;n&eacute;gal.<br>Gestion du d&eacute;douanement pour transitaires.</p>
+        <p style="margin:0;font-size:11px;color:#9aa0af;">&copy; 2026 ORUS TRANSIT &middot; Dakar, S&eacute;n&eacute;gal.<br>Gestion du d&eacute;douanement pour transitaires.</p>
       </td></tr>
     </table>
   </td></tr>
