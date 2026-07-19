@@ -62,11 +62,13 @@ function Landing() {
       /[?&]code=/.test(search);
     if (!isAuthCallback) return;
 
+    // Récupération de mot de passe → page de réinitialisation, pas le dashboard.
+    const dest = /type=recovery/.test(hash) ? "/reset" : "/dashboard";
     let done = false;
     const go = () => {
       if (done) return;
       done = true;
-      navigate({ to: "/dashboard" });
+      navigate({ to: dest });
     };
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) go();
