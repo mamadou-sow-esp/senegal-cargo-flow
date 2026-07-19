@@ -70,13 +70,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useQuery({
     queryKey: ["me-profile"],
     queryFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return null;
-      setEmail(u.user.email ?? null);
+      const { data: s } = await supabase.auth.getSession();
+      const user = s.session?.user;
+      if (!user) return null;
+      setEmail(user.email ?? null);
       const { data } = await supabase
         .from("profiles")
         .select("company_id, full_name, companies(name, plan_selected)")
-        .eq("id", u.user.id)
+        .eq("id", user.id)
         .maybeSingle();
       setCompanyName(data?.companies?.name ?? null);
       return data;
@@ -84,6 +85,35 @@ export function AppShell({ children }: { children: ReactNode }) {
   });
 
   const navItems = NAV;
+
+  // Contrôle d'accès en cache (une seule fois) : super-admin → console,
+  // client importateur → portail. Ne se refait PAS à chaque navigation.
+  const { data: access } = useQuery({
+    queryKey: ["my-access"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data: s } = await supabase.auth.getSession();
+      const uid = s.session?.user?.id;
+      if (!uid) return { superAdmin: false, client: false };
+      const [{ data: roles }, { data: client }] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", uid)
+          .eq("role", "super_admin"),
+        supabase.from("clients").select("id").eq("user_id", uid).maybeSingle(),
+      ]);
+      return {
+        superAdmin: !!(roles && roles.length),
+        client: !!client,
+      };
+    },
+  });
+  useEffect(() => {
+    if (!access) return;
+    if (access.superAdmin) navigate({ to: "/console" });
+    else if (access.client) navigate({ to: "/portail" });
+  }, [access, navigate]);
 
   useEffect(() => {
     if (!profile) return;

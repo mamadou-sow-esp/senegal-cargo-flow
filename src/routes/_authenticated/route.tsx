@@ -5,23 +5,13 @@ import { AppShell } from "@/components/app-shell";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    // Le super-administrateur ORUS TRANSIT a sa propre console.
-    const { data: superRole } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "super_admin");
-    if (superRole && superRole.length > 0) throw redirect({ to: "/console" });
-    // Un importateur (client lié) est renvoyé vers son portail.
-    const { data: client } = await supabase
-      .from("clients")
-      .select("id")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
-    if (client) throw redirect({ to: "/portail" });
-    return { user: data.user };
+    // Garde légère : uniquement la présence de session (locale, instantanée),
+    // AUCUN appel réseau ici → plus de requêtes répétées à chaque navigation.
+    // Les redirections super-admin / client sont faites UNE fois dans l'app-shell.
+    const { data: s } = await supabase.auth.getSession();
+    const user = s.session?.user;
+    if (!user) throw redirect({ to: "/auth" });
+    return { user };
   },
   component: LayoutComponent,
 });

@@ -14,12 +14,13 @@ import logoOnDark from "@/assets/newlogoblack.png";
 export const Route = createFileRoute("/console")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    const { data: s } = await supabase.auth.getSession();
+    const user = s.session?.user;
+    if (!user) throw redirect({ to: "/auth" });
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .eq("role", "super_admin");
     if (!roles || roles.length === 0) throw redirect({ to: "/dashboard" });
   },
