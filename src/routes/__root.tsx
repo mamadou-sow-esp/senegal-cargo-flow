@@ -86,23 +86,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           title:
-            "ORUS TRANSIT — Gestion du dédouanement pour transitaires au Sénégal",
+            "ORUS TRANSIT, le logiciel de dédouanement des transitaires sénégalais",
         },
         {
           name: "description",
           content:
-            "ORUS TRANSIT est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
+            "Centralisez vos dossiers d'importation, suivez chaque conteneur du connaissement au Bon à Enlever, et offrez à vos clients un suivi en temps réel. Le poste de commande des commissionnaires en douane au Sénégal.",
         },
-        { property: "og:title", content: "ORUS TRANSIT — Gestion du dédouanement pour transitaires au Sénégal" },
+        { property: "og:title", content: "ORUS TRANSIT, le logiciel de dédouanement des transitaires sénégalais" },
         {
           property: "og:description",
           content:
-            "ORUS TRANSIT est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs.",
+            "Centralisez vos dossiers d'importation, suivez chaque conteneur du connaissement au Bon à Enlever, et offrez à vos clients un suivi en temps réel. Le poste de commande des commissionnaires en douane au Sénégal.",
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: "ORUS TRANSIT — Gestion du dédouanement pour transitaires au Sénégal" },
-        { name: "twitter:description", content: "ORUS TRANSIT est le SaaS premium des commissionnaires en douane sénégalais : suivi des dossiers, documents, pipeline de dédouanement et transparence pour vos clients importateurs." },
+        { name: "twitter:title", content: "ORUS TRANSIT, le logiciel de dédouanement des transitaires sénégalais" },
+        { name: "twitter:description", content: "Centralisez vos dossiers d'importation, suivez chaque conteneur du connaissement au Bon à Enlever, et offrez à vos clients un suivi en temps réel. Le poste de commande des commissionnaires en douane au Sénégal." },
         { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
         { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
       ],
