@@ -94,7 +94,7 @@ function TarifsPage() {
                 <div className="mt-6">
                   {p.price === null ? (
                     <a
-                      href="mailto:contact@orus-transit.sn?subject=Formule Entreprise"
+                      href="mailto:orus.contact@gmail.com?subject=Formule Entreprise"
                       className="block rounded-xl border border-hero-blue py-2.5 text-center text-[11px] font-bold uppercase tracking-widest text-hero-blue hover:bg-hero-blue/5"
                     >
                       Nous contacter

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/confidentialite")({
   component: ConfidentialitePage,
@@ -59,9 +59,9 @@ function ConfidentialitePage() {
 
           <Section n="2" title="Responsable du traitement">
             <p>
-              Le responsable du traitement est ORUS TRANSIT, [raison sociale],
-              [adresse], Dakar, Sénégal. Pour toute question relative à vos données,
-              vous pouvez nous écrire à <strong>contact@orustransit.com</strong>.
+              Le responsable du traitement est ORUS TRANSIT,
+              Dakar, Sénégal. Pour toute question relative à vos données,
+              vous pouvez nous écrire à <strong>orus.contact@gmail.com</strong>.
             </p>
             <p>
               Lorsqu'un cabinet de commission en douane utilise le Service pour gérer
@@ -179,7 +179,7 @@ function ConfidentialitePage() {
               Conformément à la loi n° 2008-12, vous disposez d'un droit d'accès, de
               rectification, d'opposition, de suppression et de limitation concernant
               vos données. Vous pouvez exercer ces droits en nous écrivant à{" "}
-              <strong>contact@orustransit.com</strong>. Si un cabinet est responsable de vos
+              <strong>orus.contact@gmail.com</strong>. Si un cabinet est responsable de vos
               données (en tant que client importateur), votre demande peut être
               adressée directement à ce cabinet.
             </p>
@@ -210,8 +210,8 @@ function ConfidentialitePage() {
           <Section n="12" title="Contact">
             <p>
               Pour toute question relative à cette politique ou à vos données
-              personnelles : <strong>contact@orustransit.com</strong>. ORUS TRANSIT,
-              [raison sociale], [adresse], Dakar, Sénégal.
+              personnelles : <strong>orus.contact@gmail.com</strong>. ORUS TRANSIT,
+              Dakar, Sénégal.
             </p>
           </Section>
         </div>

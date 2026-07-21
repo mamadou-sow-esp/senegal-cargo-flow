@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/oruslogonobackground.png";
+import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/conditions")({
   component: ConditionsPage,
@@ -205,8 +205,8 @@ function ConditionsPage() {
           <Section n="14" title="Contact">
             <p>
               Pour toute question relative aux présentes CGU, vous pouvez nous
-              contacter à l'adresse : <strong>contact@orustransit.com</strong>.
-              ORUS TRANSIT, [raison sociale], [adresse], Dakar, Sénégal.
+              contacter à l'adresse : <strong>orus.contact@gmail.com</strong>.
+              ORUS TRANSIT · Dakar, Sénégal.
             </p>
           </Section>
         </div>

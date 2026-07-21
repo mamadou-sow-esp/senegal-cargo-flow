@@ -565,7 +565,7 @@ function Landing() {
                 Contact
               </h3>
               <ul className="mt-4 space-y-2.5 text-sm text-primary-foreground/80">
-                <li>contact@orustransit.com</li>
+                <li>orus.contact@gmail.com</li>
                 <li>Dakar, Sénégal</li>
               </ul>
             </div>
