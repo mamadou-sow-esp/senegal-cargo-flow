@@ -53,7 +53,9 @@ function AbonnementPage() {
     queryFn: () => getSub(),
   });
 
-  // Arrivée depuis « Choisir Pro » à l'inscription → ouvre direct le paiement.
+  // Arrivée depuis « Choisir Pro » à l'inscription → lance direct le paiement
+  // automatique GeniusPay (même chemin que le bouton "Passer à Pro" — pas de
+  // court-circuit vers le modal Wave manuel).
   useEffect(() => {
     void (async () => {
       let intent: string | null = null;
@@ -72,8 +74,9 @@ function AbonnementPage() {
           await supabase.auth.updateUser({ data: { pay_intent: null } });
         }
       }
-      if (intent === "pro") setPay({ planId: "pro", amount: PLANS.pro.price ?? 0 });
+      if (intent === "pro") void choose("pro");
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Retour depuis la page de checkout GeniusPay (success_url). Le webhook
@@ -340,8 +343,8 @@ function AbonnementPage() {
           })}
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          Paiement par Wave. Après paiement, l'activation est vérifiée puis
-          validée sous 30 minutes maximum.
+          Paiement sécurisé par Wave, Orange Money ou MTN MoMo. Activation
+          automatique dès la confirmation du paiement.
         </p>
       </div>
 

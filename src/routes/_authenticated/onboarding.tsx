@@ -25,7 +25,8 @@ function Onboarding() {
       await qc.invalidateQueries();
       toast.success("Espace ORUS TRANSIT prêt.");
       // Si l'utilisateur avait choisi le Pro à l'inscription, on l'emmène
-      // directement au paiement (l'écran Abonnement ouvre la fenêtre Wave).
+      // directement au paiement (l'écran Abonnement lance le checkout
+      // automatique GeniusPay — Wave/Orange/MTN).
       let intent: string | null = null;
       try {
         intent = localStorage.getItem("orus_pay_intent");
