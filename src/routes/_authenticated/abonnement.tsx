@@ -5,19 +5,17 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   getSubscription,
-  selectPlan,
   createCheckout,
   confirmPayment,
 } from "@/lib/subscription.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/status-badge";
-import { MANUAL_PAYMENT, WAVE_PLAN_LINKS } from "@/lib/billing";
+import { CONTACT_EMAIL } from "@/lib/billing";
 import {
   PLANS,
   PAID_PLAN_ORDER,
   getPlan,
   priceLabel,
-  formatFcfa,
   limitLabel,
   type PlanId,
 } from "@/lib/plans";
@@ -29,7 +27,6 @@ import {
   Sparkles,
   Clock,
 } from "lucide-react";
-import waveLogo from "@/assets/wave-logo.jpg";
 
 export const Route = createFileRoute("/_authenticated/abonnement")({
   component: AbonnementPage,
@@ -40,12 +37,8 @@ const sora = { fontFamily: "var(--font-label)" };
 function AbonnementPage() {
   const qc = useQueryClient();
   const getSub = useServerFn(getSubscription);
-  const selectFn = useServerFn(selectPlan);
   const checkoutFn = useServerFn(createCheckout);
   const confirmFn = useServerFn(confirmPayment);
-  const [pay, setPay] = useState<{ planId: PlanId; amount: number } | null>(
-    null,
-  );
   const [redirecting, setRedirecting] = useState<PlanId | null>(null);
 
   const { data: sub, isLoading } = useQuery({
@@ -54,8 +47,7 @@ function AbonnementPage() {
   });
 
   // Arrivée depuis « Choisir Pro » à l'inscription → lance direct le paiement
-  // automatique GeniusPay (même chemin que le bouton "Passer à Pro" — pas de
-  // court-circuit vers le modal Wave manuel).
+  // automatique GeniusPay (même chemin que le bouton "Passer à Pro").
   useEffect(() => {
     void (async () => {
       let intent: string | null = null;
@@ -119,8 +111,7 @@ function AbonnementPage() {
   }, []);
 
   // Lance le paiement automatique GeniusPay (Wave / Orange / MTN MoMo) et
-  // redirige vers la page de checkout hébergée. En cas d'indisponibilité
-  // (clés non configurées), on retombe sur le panneau de paiement manuel.
+  // redirige vers la page de checkout hébergée.
   const choose = async (planId: PlanId) => {
     setRedirecting(planId);
     try {
@@ -134,15 +125,7 @@ function AbonnementPage() {
           ? e.message
           : "Paiement en ligne indisponible pour le moment.",
       );
-      setPay({ planId, amount: PLANS[planId].price ?? 0 });
     }
-  };
-
-  // Confirmé après paiement → passe la formule "en attente de validation".
-  const confirmPaid = async () => {
-    if (!pay) return;
-    await selectFn({ data: { planId: pay.planId } });
-    qc.invalidateQueries({ queryKey: ["subscription"] });
   };
 
   const current = getPlan(sub?.planId);
@@ -185,15 +168,11 @@ function AbonnementPage() {
             <strong>Formule {pendingPlan.name} en attente.</strong> Votre accès
             reste en essai jusqu'à la validation de votre paiement.{" "}
             <button
-              onClick={() =>
-                setPay({
-                  planId: pendingPlan.id,
-                  amount: pendingPlan.price ?? 0,
-                })
-              }
+              onClick={() => choose(pendingPlan.id)}
+              disabled={redirecting === pendingPlan.id}
               className="font-semibold underline underline-offset-2"
             >
-              Revoir les instructions de paiement
+              {redirecting === pendingPlan.id ? "Redirection…" : "Reprendre le paiement"}
             </button>
           </div>
         </div>
@@ -323,7 +302,7 @@ function AbonnementPage() {
                     </div>
                   ) : p.price === null ? (
                     <a
-                      href={`mailto:${MANUAL_PAYMENT.contactEmail}?subject=Formule Entreprise`}
+                      href={`mailto:${CONTACT_EMAIL}?subject=Formule Entreprise`}
                       className="block rounded-xl border border-hero-blue py-2.5 text-center text-[11px] font-bold uppercase tracking-widest text-hero-blue hover:bg-hero-blue/5"
                     >
                       Nous contacter
@@ -347,15 +326,6 @@ function AbonnementPage() {
           automatique dès la confirmation du paiement.
         </p>
       </div>
-
-      {pay && (
-        <PaymentModal
-          planId={pay.planId}
-          amount={pay.amount}
-          onConfirm={confirmPaid}
-          onClose={() => setPay(null)}
-        />
-      )}
     </div>
   );
 }
@@ -390,139 +360,6 @@ function UsageBar({
           />
         </div>
       )}
-    </div>
-  );
-}
-
-function PaymentModal({
-  planId,
-  amount,
-  onConfirm,
-  onClose,
-}: {
-  planId: PlanId;
-  amount: number;
-  onConfirm: () => Promise<void>;
-  onClose: () => void;
-}) {
-  const plan = PLANS[planId];
-  const waveLink = WAVE_PLAN_LINKS[planId];
-  const [paid, setPaid] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-
-  const confirm = async () => {
-    setConfirming(true);
-    try {
-      await onConfirm();
-      setPaid(true);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur");
-    } finally {
-      setConfirming(false);
-    }
-  };
-
-  if (paid) {
-    return (
-      <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-        <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 text-center shadow-2xl">
-          <div className="mx-auto grid size-14 place-items-center rounded-full bg-emerald-100">
-            <Clock className="size-7 text-emerald-600" />
-          </div>
-          <h2 className="mt-5 text-xl font-extrabold" style={sora}>
-            Paiement en cours de vérification
-          </h2>
-          <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">
-            Nous vérifions votre paiement. L'activation intervient généralement{" "}
-            <strong className="text-foreground">sous 30 minutes</strong>. Vous
-            recevrez un <strong className="text-foreground">email</strong> avec le
-            lien d'accès dès l'activation.
-          </p>
-          <button
-            onClick={onClose}
-            className="mt-6 rounded-xl bg-hero-blue px-6 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-hero-blue">
-          Paiement — formule {plan.name}
-        </div>
-        <h2 className="mt-1 text-xl font-extrabold" style={sora}>
-          {formatFcfa(amount)} / mois
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Payez avec Wave en cliquant sur le bouton ci-dessous. Précisez le nom
-          de votre cabinet si demandé.
-        </p>
-
-        {waveLink ? (
-          <a
-            href={waveLink}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 flex items-center justify-center gap-2.5 rounded-xl bg-hero-blue py-3 text-center text-xs font-bold uppercase tracking-widest text-white hover:opacity-90"
-          >
-            <span className="grid size-6 place-items-center overflow-hidden rounded-md bg-white">
-              <img src={waveLogo} alt="Wave" className="size-6 object-cover" />
-            </span>
-            Payer {formatFcfa(amount)} sur Wave
-          </a>
-        ) : (
-          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-            Lien de paiement bientôt disponible. Écrivez-nous à{" "}
-            <a
-              href={`mailto:${MANUAL_PAYMENT.contactEmail}`}
-              className="font-semibold underline"
-            >
-              {MANUAL_PAYMENT.contactEmail}
-            </a>
-            .
-          </p>
-        )}
-
-        {MANUAL_PAYMENT.waveQrImage && (
-          <div className="mt-4 flex justify-center">
-            <img
-              src={MANUAL_PAYMENT.waveQrImage}
-              alt="QR code de paiement Wave"
-              className="size-48 rounded-2xl border border-border bg-white object-contain p-2"
-            />
-          </div>
-        )}
-
-        <div className="mt-4 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-          <span className="text-muted-foreground">Bénéficiaire : </span>
-          <strong>{MANUAL_PAYMENT.beneficiary}</strong>
-        </div>
-
-        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
-          {MANUAL_PAYMENT.note}
-        </p>
-
-        <div className="mt-5 flex items-center justify-between gap-3">
-          <button
-            onClick={onClose}
-            className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground"
-          >
-            Fermer
-          </button>
-          <button
-            onClick={confirm}
-            disabled={confirming}
-            className="rounded-xl bg-emerald-600 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90 disabled:opacity-60"
-          >
-            {confirming ? "…" : "J'ai effectué le paiement"}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
