@@ -182,7 +182,7 @@ export const selectPlan = createServerFn({ method: "POST" })
 // l'onglet avant de revenir sur success_url.
 // ------------------------------------------------------------
 function geniusPayBase() {
-  return "https://pay.genius.ci/api/v1/merchant";
+  return "https://geniuspay.ci/api/v1/merchant";
 }
 
 function geniusPayHeaders() {
