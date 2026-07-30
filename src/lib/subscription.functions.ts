@@ -172,10 +172,30 @@ export const selectPlan = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------
-// Lancer un paiement en ligne (PayDunya — mobile money)
-// Inerte tant que les clés PAYDUNYA_* ne sont pas dans .env :
+// Lancer un paiement en ligne (GeniusPay — Wave / Orange / MTN MoMo)
+// Inerte tant que les clés GENIUSPAY_* ne sont pas dans .env :
 // renvoie une erreur claire au lieu de planter.
+//
+// L'activation réelle se fait via le webhook GeniusPay
+// (src/routes/api.webhooks.geniuspay.ts), pas au retour du navigateur :
+// c'est ce qui rend le paiement "automatique" même si le client ferme
+// l'onglet avant de revenir sur success_url.
 // ------------------------------------------------------------
+function geniusPayBase() {
+  return "https://pay.genius.ci/api/v1/merchant";
+}
+
+function geniusPayHeaders() {
+  const key = process.env.GENIUSPAY_API_KEY;
+  const secret = process.env.GENIUSPAY_API_SECRET;
+  if (!key || !secret) return null;
+  return {
+    "Content-Type": "application/json",
+    "X-API-Key": key,
+    "X-API-Secret": secret,
+  };
+}
+
 export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) => z.object({ planId: z.string() }).parse(d))
@@ -190,53 +210,44 @@ export const createCheckout = createServerFn({ method: "POST" })
       );
     if (plan.price === 0) throw new Error("Cette formule ne se paie pas.");
 
-    const master = process.env.PAYDUNYA_MASTER_KEY;
-    const priv = process.env.PAYDUNYA_PRIVATE_KEY;
-    const token = process.env.PAYDUNYA_TOKEN;
-    if (!master || !priv || !token)
+    const headers = geniusPayHeaders();
+    if (!headers)
       throw new Error(
         "Le paiement en ligne n'est pas encore activé. Contactez ORUS TRANSIT pour régler par Wave ou Orange Money.",
       );
 
-    const mode = process.env.PAYDUNYA_MODE === "live" ? "live" : "test";
-    const base =
-      mode === "live"
-        ? "https://app.paydunya.com/api/v1"
-        : "https://app.paydunya.com/sandbox-api/v1";
     const origin = process.env.PUBLIC_APP_URL || "";
 
-    const res = await fetch(`${base}/checkout-invoice/create`, {
+    const res = await fetch(`${geniusPayBase()}/payments`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "PAYDUNYA-MASTER-KEY": master,
-        "PAYDUNYA-PRIVATE-KEY": priv,
-        "PAYDUNYA-TOKEN": token,
-      },
+      headers,
       body: JSON.stringify({
-        invoice: {
-          total_amount: plan.price,
-          description: `Abonnement ORUS TRANSIT — formule ${plan.name}`,
+        amount: plan.price,
+        currency: "XOF",
+        // payment_method omis volontairement : le client choisit
+        // Wave / Orange Money / MTN MoMo sur la page GeniusPay hébergée.
+        description: `Abonnement ORUS TRANSIT — formule ${plan.name}`,
+        success_url: `${origin}/abonnement?paiement=retour`,
+        error_url: `${origin}/abonnement?paiement=annule`,
+        metadata: {
+          company_id: companyId,
+          plan: plan.id,
+          user_id: context.userId,
         },
-        store: { name: "ORUS TRANSIT" },
-        actions: {
-          return_url: `${origin}/abonnement?paiement=retour`,
-          cancel_url: `${origin}/abonnement?paiement=annule`,
-        },
-        custom_data: { company_id: companyId, plan: plan.id },
       }),
     });
     const json = (await res.json()) as {
-      response_code?: string;
-      response_text?: string;
-      token?: string;
+      success: boolean;
+      data?: { reference?: string; checkout_url?: string };
+      error?: { code?: string; message?: string };
     };
-    if (json.response_code !== "00" || !json.token)
+    if (!json.success || !json.data?.reference || !json.data?.checkout_url)
       throw new Error(
-        json.response_text || "Impossible d'initier le paiement. Réessayez.",
+        json.error?.message || "Impossible d'initier le paiement. Réessayez.",
       );
 
-    // Trace du paiement en attente
+    // Trace du paiement en attente. L'activation se fera au webhook
+    // `payment.success` (voir src/routes/api.webhooks.geniuspay.ts).
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
@@ -244,17 +255,20 @@ export const createCheckout = createServerFn({ method: "POST" })
       company_id: companyId,
       plan: plan.id,
       amount: plan.price,
-      provider: "paydunya",
-      provider_ref: json.token,
+      provider: "geniuspay",
+      provider_ref: json.data.reference,
       status: "pending",
       created_by: context.userId,
     });
 
-    return { url: json.response_text as string, token: json.token };
+    return { url: json.data.checkout_url, token: json.data.reference };
   });
 
 // ------------------------------------------------------------
-// Confirmer un paiement au retour PayDunya et activer la formule
+// Vérification manuelle de secours (au retour du navigateur sur
+// success_url). Le webhook est la source de vérité ; cette fonction
+// sert juste à rafraîchir l'écran immédiatement si le webhook est
+// déjà passé, sans jamais faire confiance à la seule redirection.
 // ------------------------------------------------------------
 export const confirmPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -265,63 +279,65 @@ export const confirmPayment = createServerFn({ method: "POST" })
     );
     if (!isAdmin) throw new Error("Accès refusé");
 
-    const master = process.env.PAYDUNYA_MASTER_KEY;
-    const priv = process.env.PAYDUNYA_PRIVATE_KEY;
-    const tok = process.env.PAYDUNYA_TOKEN;
-    if (!master || !priv || !tok)
-      throw new Error("Paiement en ligne non configuré.");
-
-    const mode = process.env.PAYDUNYA_MODE === "live" ? "live" : "test";
-    const base =
-      mode === "live"
-        ? "https://app.paydunya.com/api/v1"
-        : "https://app.paydunya.com/sandbox-api/v1";
+    const headers = geniusPayHeaders();
+    if (!headers) throw new Error("Paiement en ligne non configuré.");
 
     const res = await fetch(
-      `${base}/checkout-invoice/confirm/${data.token}`,
-      {
-        headers: {
-          "PAYDUNYA-MASTER-KEY": master,
-          "PAYDUNYA-PRIVATE-KEY": priv,
-          "PAYDUNYA-TOKEN": tok,
-        },
-      },
+      `${geniusPayBase()}/payments/${encodeURIComponent(data.token)}`,
+      { headers },
     );
     const json = (await res.json()) as {
-      status?: string;
-      custom_data?: { company_id?: string; plan?: string };
+      success: boolean;
+      data?: {
+        status?: string;
+        metadata?: { company_id?: string; plan?: string };
+      };
     };
-    if (json.status !== "completed")
-      return { ok: false, status: json.status ?? "pending" };
+    if (!json.success || !json.data)
+      return { ok: false, status: "pending" as const };
+
+    if (json.data.status !== "completed")
+      return { ok: false, status: json.data.status ?? "pending" };
 
     // Sécurité : le paiement doit concerner CE cabinet.
-    if (json.custom_data?.company_id && json.custom_data.company_id !== companyId)
+    if (
+      json.data.metadata?.company_id &&
+      json.data.metadata.company_id !== companyId
+    )
       throw new Error("Paiement associé à un autre cabinet.");
-    const planId = isPlanId(json.custom_data?.plan ?? "")
-      ? (json.custom_data!.plan as PlanId)
+    const planId = isPlanId(json.data.metadata?.plan ?? "")
+      ? (json.data.metadata!.plan as PlanId)
       : null;
     if (!planId) throw new Error("Formule du paiement introuvable.");
 
-    const periodEnd = new Date();
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-    await supabaseAdmin
+    // Le webhook a probablement déjà tout activé ; on relit l'état actuel
+    // plutôt que d'écraser current_period_end une seconde fois.
+    const { data: comp } = await supabaseAdmin
       .from("companies")
-      .update({
-        subscription_plan: planId,
-        subscription_status: "active",
-        current_period_end: periodEnd.toISOString(),
-      })
-      .eq("id", companyId);
+      .select("subscription_status")
+      .eq("id", companyId)
+      .maybeSingle();
 
-    await supabaseAdmin
-      .from("payments")
-      .update({
-        status: "completed",
-        period_start: new Date().toISOString(),
-        period_end: periodEnd.toISOString(),
-      })
-      .eq("provider_ref", data.token);
+    if (comp?.subscription_status !== "active") {
+      const periodEnd = new Date();
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+      await supabaseAdmin
+        .from("companies")
+        .update({
+          subscription_plan: planId,
+          subscription_status: "active",
+          current_period_end: periodEnd.toISOString(),
+        })
+        .eq("id", companyId);
+      await supabaseAdmin
+        .from("payments")
+        .update({
+          status: "completed",
+          period_start: new Date().toISOString(),
+          period_end: periodEnd.toISOString(),
+        })
+        .eq("provider_ref", data.token);
+    }
 
     return { ok: true, planId };
   });

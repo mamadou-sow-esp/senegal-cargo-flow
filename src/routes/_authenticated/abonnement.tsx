@@ -3,7 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getSubscription, selectPlan } from "@/lib/subscription.functions";
+import {
+  getSubscription,
+  selectPlan,
+  createCheckout,
+  confirmPayment,
+} from "@/lib/subscription.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/status-badge";
 import { MANUAL_PAYMENT, WAVE_PLAN_LINKS } from "@/lib/billing";
@@ -36,9 +41,12 @@ function AbonnementPage() {
   const qc = useQueryClient();
   const getSub = useServerFn(getSubscription);
   const selectFn = useServerFn(selectPlan);
+  const checkoutFn = useServerFn(createCheckout);
+  const confirmFn = useServerFn(confirmPayment);
   const [pay, setPay] = useState<{ planId: PlanId; amount: number } | null>(
     null,
   );
+  const [redirecting, setRedirecting] = useState<PlanId | null>(null);
 
   const { data: sub, isLoading } = useQuery({
     queryKey: ["subscription"],
@@ -68,10 +76,63 @@ function AbonnementPage() {
     })();
   }, []);
 
-  // Ouvre simplement le panneau de paiement : rien n'est modifié tant que
-  // l'utilisateur n'a pas confirmé son paiement (évite les misclics).
-  const choose = (planId: PlanId) => {
-    setPay({ planId, amount: PLANS[planId].price ?? 0 });
+  // Retour depuis la page de checkout GeniusPay (success_url). Le webhook
+  // a normalement déjà activé l'abonnement ; on relit l'état pour affichage
+  // immédiat, sans jamais se fier uniquement à cette redirection.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const statutPaiement = params.get("paiement");
+    if (!statutPaiement) return;
+
+    window.history.replaceState(null, "", window.location.pathname);
+    const ref = localStorage.getItem("orus_pay_ref");
+
+    if (statutPaiement === "annule") {
+      toast.info("Paiement annulé.");
+      localStorage.removeItem("orus_pay_ref");
+      return;
+    }
+
+    if (statutPaiement === "retour" && ref) {
+      void (async () => {
+        try {
+          const res = await confirmFn({ data: { token: ref } });
+          if (res.ok) {
+            toast.success("Paiement confirmé, votre formule Pro est active !");
+          } else {
+            toast.info(
+              "Paiement en cours de vérification, cela peut prendre quelques instants.",
+            );
+          }
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Erreur de vérification du paiement");
+        } finally {
+          localStorage.removeItem("orus_pay_ref");
+          qc.invalidateQueries({ queryKey: ["subscription"] });
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Lance le paiement automatique GeniusPay (Wave / Orange / MTN MoMo) et
+  // redirige vers la page de checkout hébergée. En cas d'indisponibilité
+  // (clés non configurées), on retombe sur le panneau de paiement manuel.
+  const choose = async (planId: PlanId) => {
+    setRedirecting(planId);
+    try {
+      const res = await checkoutFn({ data: { planId } });
+      localStorage.setItem("orus_pay_ref", res.token);
+      window.location.href = res.url;
+    } catch (e) {
+      setRedirecting(null);
+      toast.error(
+        e instanceof Error
+          ? e.message
+          : "Paiement en ligne indisponible pour le moment.",
+      );
+      setPay({ planId, amount: PLANS[planId].price ?? 0 });
+    }
   };
 
   // Confirmé après paiement → passe la formule "en attente de validation".
@@ -267,9 +328,10 @@ function AbonnementPage() {
                   ) : (
                     <button
                       onClick={() => choose(id)}
-                      className="w-full rounded-xl bg-hero-blue py-2.5 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90"
+                      disabled={redirecting === id}
+                      className="w-full rounded-xl bg-hero-blue py-2.5 text-[11px] font-bold uppercase tracking-widest text-white hover:opacity-90 disabled:opacity-60"
                     >
-                      Passer à {p.name}
+                      {redirecting === id ? "Redirection…" : `Passer à ${p.name}`}
                     </button>
                   )}
                 </div>
