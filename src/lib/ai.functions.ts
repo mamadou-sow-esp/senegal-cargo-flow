@@ -27,7 +27,8 @@ RÈGLES POUR CRÉER / MODIFIER UN DOSSIER :
 - Utilise l'outil \`update_dossier\` pour changer un statut, une échéance, une priorité ou tout autre champ d'un dossier existant, en identifiant le dossier par sa référence. Statuts valides, exactement sous cette forme : cree, documents_attente, documents_complets, declaration_preparee, declaration_deposee, attente_validation, controle_documentaire, controle_physique, paiement_droits, bon_a_enlever, marchandise_sortie, cloture. N'utilise jamais un autre mot pour un statut.
 - Si la référence donnée ne correspond à aucun dossier, correspond à plusieurs, ou s'il te manque une information indispensable, ne devine jamais : pose une question claire en français à l'utilisateur.
 - Après chaque création ou modification réussie, confirme précisément ce qui a été fait (référence, champs modifiés) en langage naturel. Si l'outil renvoie une erreur, explique-la simplement et propose une correction.
-- INTERDICTION ABSOLUE : n'écris JAMAIS dans ta réponse le nom d'un outil, un appel de fonction, du pseudo-code ou une syntaxe du type \`update_dossier(...)\` ou \`create_dossier(...)\`. Les outils s'appellent uniquement via le mécanisme de function calling, jamais en texte. Ta réponse ne doit contenir que du français naturel.
+- Si tu dois agir sur PLUSIEURS dossiers dans le même message (ex : en clôturer trois), fais un appel d'outil séparé pour chacun via le mécanisme natif de function calling. N'essaie jamais de les décrire ou de les regrouper sous forme de texte ou de pseudo-code.
+- INTERDICTION ABSOLUE, sans aucune exception : n'écris JAMAIS dans le texte de ta réponse le nom d'un outil, un appel de fonction, du JSON brut, ni une syntaxe imitant un appel d'outil — que ce soit \`update_dossier(...)\`, \`create_dossier(...)\`, des balises comme \`<function>\`, \`<tool_call>\`, \`<function(update_dossier)=...></function>\`, ou tout autre format similaire. Les outils s'appellent UNIQUEMENT via le mécanisme de function calling natif, jamais en texte visible. Ta réponse visible ne doit contenir que du français naturel, sans crochets, balises ni accolades techniques.
 
 FORMAT DE RÉPONSE (respecte-le strictement, sois lisible) :
 - Écris en français, en phrases courtes.
@@ -413,11 +414,22 @@ async function toolUpdateDossier(
   };
 }
 
+// Détecte un faux appel d'outil écrit en texte (donc jamais exécuté).
+const FAKE_TOOL_SYNTAX =
+  /<(function|tool_call|tool)\b|\b(?:create_dossier|update_dossier)\s*\(|\bfunction\s*\((?:create_dossier|update_dossier)\)\s*=/i;
+
 // Filet de sécurité : au cas où le modèle écrirait quand même une syntaxe
 // d'appel d'outil en toutes lettres, on la retire avant d'afficher la réponse.
 function stripToolSyntax(text: string): string {
   return text
+    // <function(update_dossier)={...}></function>, <tool_call>...</tool_call>, etc.
+    .replace(/<(function|tool_call|tool)[^>]*>[\s\S]*?<\/\1>/gi, "")
+    // Balises orphelines si la paire n'a pas matché (fermeture manquante/différente).
+    .replace(/<\/?(function|tool_call|tool)\b[^>]*>/gi, "")
+    // update_dossier(...) / create_dossier(...) écrits en texte brut.
     .replace(/`?\b(?:create_dossier|update_dossier)\s*\([^)]*\)`?/gi, "")
+    // function(update_dossier)=... écrit hors balises.
+    .replace(/\bfunction\s*\((?:create_dossier|update_dossier)\)\s*=\s*\{[^}]*\}/gi, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\n{3,}/g, "\n\n")
@@ -571,6 +583,32 @@ export const chatWithAi = createServerFn({ method: "POST" })
       ...(canUseTools ? { tools: TOOLS, tool_choice: "auto" } : {}),
     });
     let message = json.choices?.[0]?.message;
+
+    // Filet de rattrapage : le modèle a parfois « halluciné » un faux appel
+    // d'outil écrit en texte (ex. <function(update_dossier)={...}>) au lieu
+    // d'utiliser le vrai mécanisme de function calling — dans ce cas, RIEN
+    // n'a réellement été exécuté. On lui redonne une chance explicite plutôt
+    // que de laisser passer une réponse qui prétend à tort avoir agi.
+    if (
+      canUseTools &&
+      !message?.tool_calls?.length &&
+      message?.content &&
+      FAKE_TOOL_SYNTAX.test(message.content)
+    ) {
+      json = await runGroq({
+        messages: [
+          ...baseMessages,
+          {
+            role: "system",
+            content:
+              "Ta réponse précédente contenait un faux appel d'outil écrit en texte : cela n'exécute rien. Recommence ta réponse à la dernière question de l'utilisateur. Si une action sur un ou plusieurs dossiers est nécessaire, utilise réellement le mécanisme de function calling (un appel d'outil par dossier si besoin), sans jamais l'écrire en texte.",
+          },
+        ],
+        tools: TOOLS,
+        tool_choice: "auto",
+      });
+      message = json.choices?.[0]?.message;
+    }
 
     // L'IA a demandé une ou plusieurs actions (créer/modifier un dossier) :
     // on les exécute puis on redemande une réponse en langage naturel.

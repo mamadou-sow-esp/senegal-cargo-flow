@@ -308,7 +308,7 @@ function DossierDetail() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="rounded-2xl border border-border bg-white p-6 shadow-sm lg:col-span-2">
+        <section className="min-w-0 rounded-2xl border border-border bg-white p-6 shadow-sm lg:col-span-2">
           <DocumentsPanel
             shipmentId={id}
             companyId={shipment.company_id}
@@ -317,7 +317,7 @@ function DossierDetail() {
           />
         </section>
 
-        <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+        <section className="min-w-0 rounded-2xl border border-border bg-white p-6 shadow-sm">
           <CommentsPanel
             shipmentId={id}
             comments={comments ?? []}
@@ -500,7 +500,7 @@ function SmsPanel({
           value={to}
           onChange={(e) => setTo(e.target.value)}
           placeholder="+221 7X XXX XX XX"
-          className="rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue"
+          className="rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-hero-blue sm:text-sm"
         />
         <div className="flex flex-wrap gap-1.5">
           {templates.map((t) => (
@@ -521,7 +521,7 @@ function SmsPanel({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Votre message… (ou choisissez un modèle ci-dessus)"
-        className="mt-3 w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue"
+        className="mt-3 w-full rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-hero-blue sm:text-sm"
       />
       <div className="mt-2 flex items-center justify-between">
         <span className="text-[10px] text-muted-foreground">
@@ -753,7 +753,7 @@ function DeadlineCard({
         type="date"
         defaultValue={value ?? ""}
         onChange={(e) => onSave(e.target.value)}
-        className="mt-2 w-full rounded border border-input bg-white px-2 py-1.5 text-sm"
+        className="mt-2 w-full rounded border border-input bg-white px-2 py-1.5 text-base sm:text-sm"
       />
     </div>
   );
@@ -1018,12 +1018,12 @@ function DisbursementsPanel({
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="Libellé (ex : Surestaries 3 jours)"
-          className="rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue"
+          className="rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-hero-blue sm:text-sm"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded border border-input bg-white px-2 py-2 text-sm"
+          className="rounded border border-input bg-white px-2 py-2 text-base sm:text-sm"
         >
           {DISB_CATEGORIES.map((c) => (
             <option key={c}>{c}</option>
@@ -1034,7 +1034,7 @@ function DisbursementsPanel({
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Montant"
-          className="rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue"
+          className="rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-hero-blue sm:text-sm"
         />
         <button
           type="submit"
@@ -1279,11 +1279,11 @@ function DocumentsPanel({
         <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Documents ({docs.length})
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded border border-border bg-white px-2 py-1 text-xs"
+            className="rounded border border-border bg-white px-2 py-1 text-base sm:text-xs"
           >
             {[
               "Facture commerciale",
@@ -1507,7 +1507,7 @@ function CommentsPanel({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Ajouter un commentaire…"
-          className="w-full rounded border border-input bg-white px-3 py-2 text-xs"
+          className="w-full rounded border border-input bg-white px-3 py-2 text-base sm:text-xs"
         />
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground">

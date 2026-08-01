@@ -31,9 +31,15 @@ interface KivviWebhookPayload {
       company_id?: string;
       plan?: string;
       user_id?: string;
+      order_id?: string; // paiements du projet 8tech (aiguillés, pas traités ici)
     } | null;
   };
 }
+
+// URL de l'Edge Function Supabase du projet 8tech, qui reçoit les
+// webhooks Kivvi concernant SES commandes (metadata.order_id).
+const EIGHT_TECH_WEBHOOK_URL =
+  "https://wfrefmgpugdqusfzjnpc.supabase.co/functions/v1/payment-webhook";
 
 // Format Kivvi : "Kivvi-Signature: t={timestamp},v1={signature}"
 // signature = HMAC-SHA256(secret, timestamp + corps brut de la requête).
@@ -85,6 +91,44 @@ export const Route = createFileRoute("/api/webhooks/kivvi")({
         } catch {
           return Response.json({ status: 400, detail: "Invalid JSON" }, { status: 400 });
         }
+
+        // --- Aiguillage vers le projet 8tech ---
+        // Les paiements 8tech portent metadata.order_id (et pas de company_id).
+        // On relaie le webhook brut (même corps, même signature) à son Edge
+        // Function, qui revérifiera elle-même la signature de son côté.
+        const metadata = payload?.data?.metadata;
+        if (metadata?.order_id && !metadata.company_id) {
+          try {
+            const relayed = await fetch(EIGHT_TECH_WEBHOOK_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Kivvi-Signature": signature,
+              },
+              body: rawBody,
+            });
+            if (!relayed.ok) {
+              console.error(
+                "[kivvi-webhook] relais 8tech a répondu",
+                relayed.status,
+              );
+              // On ne confirme pas à Kivvi : il retentera l'envoi plus tard
+              // plutôt que de perdre silencieusement ce paiement 8tech.
+              return Response.json(
+                { status: 502, detail: "8tech relay failed" },
+                { status: 502 },
+              );
+            }
+          } catch (e) {
+            console.error("[kivvi-webhook] erreur relais 8tech:", e);
+            return Response.json(
+              { status: 502, detail: "8tech relay unreachable" },
+              { status: 502 },
+            );
+          }
+          return Response.json({ received: true });
+        }
+        // --- Fin aiguillage 8tech ---
 
         const { supabaseAdmin } = await import(
           "@/integrations/supabase/client.server"

@@ -12,7 +12,7 @@ const UPDATED = "15 juillet 2026";
 
 function ConfidentialitePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-[1000px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">
@@ -60,7 +60,7 @@ function ConfidentialitePage() {
           <Section n="2" title="Responsable du traitement">
             <p>
               Le responsable du traitement est ORUS TRANSIT,
-              Dakar, Sénégal. Pour toute question relative à vos données,
+              Grand Mbao, Dakar, Sénégal. Pour toute question relative à vos données,
               vous pouvez nous écrire à <strong>orus.contact@gmail.com</strong>.
             </p>
             <p>
@@ -211,21 +211,15 @@ function ConfidentialitePage() {
             <p>
               Pour toute question relative à cette politique ou à vos données
               personnelles : <strong>orus.contact@gmail.com</strong>. ORUS TRANSIT,
-              Dakar, Sénégal.
+              Grand Mbao, Dakar, Sénégal.
             </p>
           </Section>
-        </div>
-
-        <div className="mt-12 rounded border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
-          Ce document est un modèle fourni à titre indicatif. Il doit être complété
-          (raison sociale, adresse, contact, éventuel délégué à la protection des
-          données) et relu par un conseil juridique avant sa mise en ligne définitive.
         </div>
       </main>
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} ORUS TRANSIT · Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT · Grand Mbao, Dakar, Sénégal.
         </div>
       </footer>
     </div>

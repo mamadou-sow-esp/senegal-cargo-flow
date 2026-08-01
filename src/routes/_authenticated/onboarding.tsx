@@ -70,7 +70,7 @@ function Onboarding() {
             Nom du transitaire
           </span>
           <input
-            className="w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+            className="w-full rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-accent focus:ring-2 focus:ring-ring sm:text-sm"
             placeholder="Ex. Transit Dakar Pro"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
@@ -82,7 +82,7 @@ function Onboarding() {
             Votre nom complet
           </span>
           <input
-            className="w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+            className="w-full rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-accent focus:ring-2 focus:ring-ring sm:text-sm"
             placeholder="Ex. Abdoulaye Diallo"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}

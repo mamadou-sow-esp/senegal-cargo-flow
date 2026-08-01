@@ -16,7 +16,7 @@ export const Route = createFileRoute("/tarifs")({
 
 function TarifsPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-[1100px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">

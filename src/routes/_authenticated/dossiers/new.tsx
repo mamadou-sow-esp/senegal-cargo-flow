@@ -185,7 +185,7 @@ function NewDossier() {
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
           placeholder="Ex : Bonjour, merci d'ouvrir un dossier pour le client Teranga Électro. Navire CMA CGM Dakar, BL CMDUSH8812340, conteneur CMAU5567012, 600 climatiseurs split en provenance de Ningbo (Chine), arrivée le 28/07/2026, valeur 27 300 000 FCFA."
-          className="mt-3 w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25"
+          className="mt-3 w-full rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25 sm:text-sm"
         />
         <div className="mt-3 flex justify-end">
           <button
@@ -226,7 +226,7 @@ function NewDossier() {
               <select
                 value={form.client_id}
                 onChange={(e) => set("client_id", e.target.value)}
-                className="w-full rounded border border-input bg-white px-3 py-2 text-sm"
+                className="w-full rounded border border-input bg-white px-3 py-2 text-base sm:text-sm"
               >
                 <option value="">—</option>
                 {(clients ?? []).map((c) => (
@@ -243,7 +243,7 @@ function NewDossier() {
               <select
                 value={form.priority}
                 onChange={(e) => set("priority", e.target.value)}
-                className="w-full rounded border border-input bg-white px-3 py-2 text-sm"
+                className="w-full rounded border border-input bg-white px-3 py-2 text-base sm:text-sm"
               >
                 <option value="basse">Basse</option>
                 <option value="standard">Standard</option>
@@ -280,7 +280,7 @@ function NewDossier() {
               rows={3}
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
-              className="w-full rounded border border-input bg-white px-3 py-2 text-sm"
+              className="w-full rounded border border-input bg-white px-3 py-2 text-base sm:text-sm"
             />
           </label>
         </Section>
@@ -361,7 +361,7 @@ function Field({
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded border border-input bg-white px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+        className="w-full rounded border border-input bg-white px-3 py-2 text-base outline-none focus:border-accent focus:ring-2 focus:ring-ring sm:text-sm"
       />
     </label>
   );

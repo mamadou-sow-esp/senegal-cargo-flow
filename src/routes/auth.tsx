@@ -131,7 +131,7 @@ function AuthPage() {
   const isSignup = mode === "signup";
 
   return (
-    <div className="grid min-h-screen bg-background lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[1.2fr_1fr]">
+    <div className="grid min-h-screen overflow-x-clip bg-background lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[1.2fr_1fr]">
       {/* Panneau visuel — même identité bleue que la homepage */}
       <aside className="relative hidden overflow-hidden bg-hero-blue text-white lg:block">
         <img
@@ -401,7 +401,7 @@ function Field(props: {
         minLength={props.minLength}
         placeholder={props.placeholder}
         aria-invalid={props.error ? true : undefined}
-        className={`w-full rounded border bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted-foreground/50 focus:ring-2 ${
+        className={`w-full rounded border bg-white px-3.5 py-2.5 text-base outline-none transition placeholder:text-muted-foreground/50 focus:ring-2 sm:text-sm ${
           props.error
             ? "border-destructive focus:border-destructive focus:ring-destructive/25"
             : "border-input focus:border-hero-blue focus:ring-hero-blue/25"

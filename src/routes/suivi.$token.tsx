@@ -84,7 +84,7 @@ function SuiviPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6fb] text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-[#f4f6fb] text-foreground">
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex h-16 w-full max-w-3xl items-center gap-3 px-4 sm:px-6">
           <img src={logoAsset} alt="ORUS TRANSIT" className="h-9 w-auto object-contain" />

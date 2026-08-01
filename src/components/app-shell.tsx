@@ -151,7 +151,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen w-full bg-background text-foreground">
+    <div className="flex min-h-screen w-full overflow-x-clip bg-background text-foreground">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
         <Link to="/dashboard" className="flex flex-col items-center gap-1 p-4">
           <img src={displayLogo} alt="ORUS TRANSIT" className="h-20 w-auto object-contain" />

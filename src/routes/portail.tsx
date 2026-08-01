@@ -51,7 +51,7 @@ function PortailLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link to="/portail" className="flex items-center gap-3">

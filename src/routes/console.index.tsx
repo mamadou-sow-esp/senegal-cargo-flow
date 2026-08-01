@@ -161,24 +161,26 @@ function ConsoleOverview() {
                 Aucun paiement pour le moment.
               </p>
             ) : (
-              <table className="w-full text-left text-sm">
-                <tbody className="divide-y divide-border">
-                  {data.recentPayments.map((p, i) => (
-                    <tr key={i} className="hover:bg-primary/5">
-                      <td className="px-5 py-3 font-medium">{p.company}</td>
-                      <td className="px-5 py-3 text-muted-foreground">
-                        {p.plan === "pro" ? "Pro" : p.plan}
-                      </td>
-                      <td className="px-5 py-3 text-right font-mono font-semibold text-emerald-600">
-                        {formatFcfa(p.amount)}
-                      </td>
-                      <td className="px-5 py-3 text-right text-xs text-muted-foreground">
-                        {new Date(p.date).toLocaleDateString("fr-FR")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[480px] text-left text-sm">
+                  <tbody className="divide-y divide-border">
+                    {data.recentPayments.map((p, i) => (
+                      <tr key={i} className="hover:bg-primary/5">
+                        <td className="px-5 py-3 font-medium">{p.company}</td>
+                        <td className="px-5 py-3 text-muted-foreground">
+                          {p.plan === "pro" ? "Pro" : p.plan}
+                        </td>
+                        <td className="px-5 py-3 text-right font-mono font-semibold text-emerald-600">
+                          {formatFcfa(p.amount)}
+                        </td>
+                        <td className="px-5 py-3 text-right text-xs text-muted-foreground">
+                          {new Date(p.date).toLocaleDateString("fr-FR")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </>

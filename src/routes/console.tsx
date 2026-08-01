@@ -58,7 +58,7 @@ function ConsoleLayout() {
     n.exact ? pathname === n.to : pathname.startsWith(n.to);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0d1526] text-white">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-8">
           <div className="flex items-center gap-6">

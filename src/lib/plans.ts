@@ -55,7 +55,7 @@ export const PLANS: Record<PlanId, Plan> = {
     id: "pro",
     name: "Pro",
     tagline: "Toute la plateforme, sans aucune limite.",
-    price: 30000,
+    price: 100, // TODO: remettre à 30000 après le test de paiement
     maxUsers: null,
     maxActiveDossiers: null,
     smsQuota: 1000,

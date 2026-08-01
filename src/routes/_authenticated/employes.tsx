@@ -125,12 +125,12 @@ function EmployeesPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Rechercher un employé…"
-          className="w-full bg-transparent text-xs outline-none"
+          className="w-full bg-transparent text-base outline-none sm:text-xs"
         />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
-        <table className="w-full border-collapse text-left">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
+        <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-muted/60">
               <Th>Nom</Th>
@@ -252,7 +252,7 @@ function EmployeesPage() {
                   onChange={(ev) =>
                     setForm((f) => ({ ...f, role: ev.target.value as Role }))
                   }
-                  className="w-full rounded border border-input bg-white px-3 py-1.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+                  className="w-full rounded border border-input bg-white px-3 py-1.5 text-base outline-none focus:border-accent focus:ring-2 focus:ring-ring sm:text-sm"
                 >
                   <option value="employee">Employé</option>
                   <option value="company_admin">Administrateur</option>
@@ -322,7 +322,7 @@ function F({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded border border-input bg-white px-3 py-1.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-ring"
+        className="w-full rounded border border-input bg-white px-3 py-1.5 text-base outline-none focus:border-accent focus:ring-2 focus:ring-ring sm:text-sm"
       />
     </label>
   );

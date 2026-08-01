@@ -292,7 +292,7 @@ export function AiAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Posez votre question…"
-                className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25"
+                className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-base outline-none transition focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25 sm:text-sm"
                 disabled={loading}
               />
               <button

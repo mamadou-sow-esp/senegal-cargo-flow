@@ -101,7 +101,7 @@ function DocumentsPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Rechercher un document, un dossier ou un client…"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+          className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/60 sm:text-sm"
         />
         {q && (
           <button

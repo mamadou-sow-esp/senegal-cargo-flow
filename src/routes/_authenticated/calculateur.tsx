@@ -113,7 +113,7 @@ function CalculateurPage() {
             <select
               value={ddRate}
               onChange={(e) => setDdRate(Number(e.target.value))}
-              className="w-full rounded-xl border border-input bg-white px-3 py-2.5 text-sm outline-none focus:border-hero-blue"
+              className="w-full rounded-xl border border-input bg-white px-3 py-2.5 text-base outline-none focus:border-hero-blue sm:text-sm"
             >
               {DD_CATEGORIES.map((c) => (
                 <option key={c.rate} value={c.rate}>
@@ -155,7 +155,7 @@ function CalculateurPage() {
             <select
               value={acompteRate}
               onChange={(e) => setAcompteRate(Number(e.target.value))}
-              className="w-full rounded-xl border border-input bg-white px-3 py-2.5 text-sm outline-none focus:border-hero-blue"
+              className="w-full rounded-xl border border-input bg-white px-3 py-2.5 text-base outline-none focus:border-hero-blue sm:text-sm"
             >
               <option value={0}>Aucun</option>
               <option value={3}>3 % (importateur avec NINEA)</option>

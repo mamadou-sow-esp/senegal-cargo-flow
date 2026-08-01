@@ -12,7 +12,7 @@ const UPDATED = "15 juillet 2026";
 
 function ConditionsPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <header className="border-b border-border bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-20 w-full max-w-[1000px] items-center justify-between px-4 sm:px-8">
           <Link to="/" className="flex items-center">
@@ -101,12 +101,12 @@ function ConditionsPage() {
 
           <Section n="5" title="Période d'essai et tarifs">
             <p>
-              Le Service peut être proposé avec une période d'essai gratuite (par
-              exemple 14 jours). À l'issue de l'essai, la poursuite de l'utilisation
-              peut être soumise à un abonnement dont les conditions tarifaires sont
-              communiquées avant toute facturation. Les modalités de paiement, de
-              renouvellement et de résiliation applicables sont celles précisées lors
-              de la souscription.
+              Le Service est proposé avec une période d'essai gratuite de 7 jours,
+              sans engagement. À l'issue de l'essai, la poursuite de l'utilisation est
+              soumise à la souscription de la formule payante, dont le tarif est
+              communiqué avant toute facturation sur la page Tarifs. Le paiement est
+              traité par un prestataire de paiement tiers ; l'abonnement se renouvelle
+              mensuellement sauf résiliation par l'utilisateur.
             </p>
           </Section>
 
@@ -206,21 +206,15 @@ function ConditionsPage() {
             <p>
               Pour toute question relative aux présentes CGU, vous pouvez nous
               contacter à l'adresse : <strong>orus.contact@gmail.com</strong>.
-              ORUS TRANSIT · Dakar, Sénégal.
+              ORUS TRANSIT · Grand Mbao, Dakar, Sénégal.
             </p>
           </Section>
-        </div>
-
-        <div className="mt-12 rounded border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
-          Ce document est un modèle fourni à titre indicatif. Il doit être complété
-          (raison sociale, adresse, contact) et relu par un conseil juridique avant sa
-          mise en ligne définitive.
         </div>
       </main>
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-[820px] px-4 text-xs text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} ORUS TRANSIT · Dakar, Sénégal.
+          © {new Date().getFullYear()} ORUS TRANSIT · Grand Mbao, Dakar, Sénégal.
         </div>
       </footer>
     </div>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight,
@@ -52,6 +53,54 @@ const sora = { fontFamily: "var(--font-label)" };
 const hideOnError = (e: { currentTarget: HTMLImageElement }) => {
   e.currentTarget.style.display = "none";
 };
+
+// Révèle son contenu (fondu + léger décalage) quand il entre dans le
+// viewport. Une seule fois — pas de ré-animation en remontant la page.
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  as = "div",
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  as?: "div" | "li";
+}) {
+  const Tag = as as unknown as "div";
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref as never}
+      className={`reveal ${visible ? "is-visible" : ""} ${className}`}
+      style={{ "--reveal-delay": `${delay}ms` } as CSSProperties}
+    >
+      {children}
+    </Tag>
+  );
+}
 
 function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -201,9 +250,9 @@ function Landing() {
       {/* ===================== HERO ===================== */}
       <section className="border-b border-border bg-white">
         <div className="mx-auto grid w-full max-w-[1200px] 2xl:max-w-[1440px] items-center gap-10 px-4 py-14 sm:px-8 lg:grid-cols-2 lg:py-20">
-          <div className="min-w-0">
+          <Reveal className="min-w-0">
             <p className="text-[11px] uppercase tracking-widest text-hero-blue">
-              <span className="font-poppins">Logiciel métier  commission en douane</span> 
+              <span className="font-poppins">Logiciel métier  commission en douane</span>
             </p>
             <h1
               className="mt-3 text-balance text-4xl font-extrabold leading-[1.05] tracking-tighter sm:text-5xl lg:text-[3.4rem]"
@@ -233,10 +282,10 @@ function Landing() {
                 Voir comment
               </a>
             </div>
-          </div>
+          </Reveal>
 
           {/* Visuel conteneurs */}
-          <div className="relative">
+          <Reveal className="relative" delay={120}>
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-hero-blue to-primary shadow-xl">
               <img
                 src={IMG.hero}
@@ -257,7 +306,7 @@ function Landing() {
                 du BL au Bon à Enlever
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Mini-repères */}
@@ -268,14 +317,14 @@ function Landing() {
               { icon: FileText, title: "Documents", body: "Centralisés & versionnés" },
               { icon: GitBranch, title: "Dédouanement", body: "Pipeline structuré" },
               { icon: ShieldCheck, title: "Transparence client", body: "À chaque étape" },
-            ].map((f) => (
-              <div key={f.title} className="flex items-start gap-3">
+            ].map((f, i) => (
+              <Reveal key={f.title} delay={i * 80} className="flex items-start gap-3">
                 <f.icon className="mt-0.5 size-5 shrink-0 text-hero-blue" />
                 <div className="min-w-0">
                   <div className="text-sm font-semibold leading-tight">{f.title}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">{f.body}</div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -283,9 +332,9 @@ function Landing() {
 
       {/* ===================== PROBLÈME / SOLUTION ===================== */}
       <section id="solution" className="mx-auto w-full max-w-[1200px] 2xl:max-w-[1440px] px-4 py-16 sm:px-8 sm:py-24">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="text-[11px] uppercase tracking-widest text-hero-blue">
-            <span className="font-poppins">Le problème</span> 
+            <span className="font-poppins">Le problème</span>
           </p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl" style={sora}>
             Le dédouanement se gère encore à l'ancienne
@@ -295,11 +344,11 @@ function Landing() {
             documents, ses échéances et ses interlocuteurs. Sans outil dédié, tout
             repose sur la mémoire, les fichiers Excel et les messages WhatsApp.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           {/* Avant */}
-          <div className="rounded-2xl border border-border bg-white p-7 shadow-sm">
+          <Reveal className="rounded-2xl border border-border bg-white p-7 shadow-sm">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Aujourd'hui, sans ORUS
             </h3>
@@ -317,10 +366,10 @@ function Landing() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
 
           {/* Après */}
-          <div className="rounded-2xl border border-hero-blue/30 bg-white p-7 shadow-sm ring-1 ring-hero-blue/10">
+          <Reveal delay={120} className="rounded-2xl border border-hero-blue/30 bg-white p-7 shadow-sm ring-1 ring-hero-blue/10">
             <h3 className="text-sm font-bold uppercase tracking-widest text-hero-blue">
               Avec ORUS TRANSIT
             </h3>
@@ -338,7 +387,7 @@ function Landing() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
 
         {/* Trois piliers */}
@@ -359,12 +408,12 @@ function Landing() {
               title: "Portail client transparent",
               body: "Vos importateurs consultent leurs dossiers et téléchargent les documents autorisés.",
             },
-          ].map((f) => (
-            <div key={f.title} className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+          ].map((f, i) => (
+            <Reveal key={f.title} delay={i * 100} className="rounded-2xl border border-border bg-white p-6 shadow-sm">
               <f.icon className="size-6 text-hero-blue" />
               <h3 className="mt-4 text-base font-bold">{f.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -372,7 +421,7 @@ function Landing() {
       {/* ===================== PRODUIT EN ACTION ===================== */}
       <section className="border-t border-border bg-muted/30">
         <div className="mx-auto w-full max-w-[1200px] 2xl:max-w-[1440px] px-4 py-16 sm:px-8 sm:py-24">
-          <div className="max-w-2xl">
+          <Reveal className="max-w-2xl">
             <p className="text-[11px] uppercase tracking-widest text-hero-blue">
               <span className="font-poppins">Produit en action</span>
             </p>
@@ -385,10 +434,10 @@ function Landing() {
               statistiques du cabinet : voici l'interface telle que vos
               équipes l'utilisent chaque jour.
             </p>
-          </div>
+          </Reveal>
 
           {/* Capture principale, présentée comme une fenêtre d'app */}
-          <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-white shadow-md">
+          <Reveal className="mt-10 overflow-hidden rounded-2xl border border-border bg-white shadow-md">
             <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-4 py-2.5">
               <span className="size-2.5 rounded-full bg-red-400/70" />
               <span className="size-2.5 rounded-full bg-amber-400/70" />
@@ -414,7 +463,7 @@ function Landing() {
                 Tous vos dossiers en un coup d'œil : référence, navire, conteneur, priorité et avancement.
               </p>
             </div>
-          </div>
+          </Reveal>
 
           {/* Trois captures secondaires */}
           <div className="mt-6 grid gap-6 md:grid-cols-3">
@@ -434,9 +483,10 @@ function Landing() {
                 title: "Statistiques du cabinet",
                 body: "Répartition par étape et priorité, évolution des dossiers, top clients, en temps réel.",
               },
-            ].map((f) => (
-              <div
+            ].map((f, i) => (
+              <Reveal
                 key={f.title}
+                delay={i * 100}
                 className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-3 py-2">
@@ -459,7 +509,7 @@ function Landing() {
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{f.body}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -468,7 +518,7 @@ function Landing() {
       {/* ===================== ASSISTANT IA ===================== */}
       <section id="ia" className="border-t border-border bg-primary text-primary-foreground">
         <div className="mx-auto grid w-full max-w-[1200px] 2xl:max-w-[1440px] items-center gap-12 px-4 py-16 sm:px-8 sm:py-24 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <p className="inline-flex items-center gap-2 text-[11px] uppercase tracking-widest text-hero-blue">
               <img src={aiRobot} alt="" className="size-9 object-contain" />
               <span className="font-poppins">Assistant IA intégré</span>
@@ -500,8 +550,8 @@ function Landing() {
                   title: "Expert GAINDE, COTECNA et douanes sénégalaises",
                   body: "Documents requis, incoterms, régimes douaniers, calcul indicatif des droits & taxes (DD, TVA, PCS, PC, RS).",
                 },
-              ].map((f) => (
-                <li key={f.title} className="flex items-start gap-3.5">
+              ].map((f, i) => (
+                <Reveal key={f.title} as="li" delay={i * 100} className="flex items-start gap-3.5">
                   <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
                     <f.icon className="size-4 text-hero-blue" />
                   </div>
@@ -511,13 +561,13 @@ function Landing() {
                       {f.body}
                     </p>
                   </div>
-                </li>
+                </Reveal>
               ))}
             </ul>
-          </div>
+          </Reveal>
 
           {/* Mockup de conversation */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white shadow-2xl">
+          <Reveal delay={150} className="overflow-hidden rounded-2xl border border-white/10 bg-white shadow-2xl">
             <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
               <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-white ring-1 ring-black/10">
                 <img src={logoAstar} alt="TransitORUS" className="size-6 object-contain" />
@@ -560,14 +610,14 @@ function Landing() {
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ===================== HISTOIRE DU PORT ===================== */}
       <section id="port" className="border-y border-border bg-muted/40">
         <div className="mx-auto grid w-full max-w-[1200px] 2xl:max-w-[1440px] items-center gap-10 px-4 py-16 sm:px-8 sm:py-24 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <p className="text-[11px] font-bold uppercase tracking-widest text-hero-blue">
               Le Port de Dakar
             </p>
@@ -583,7 +633,7 @@ function Landing() {
               dimension.
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {[
                 ["≈ 800 000", "conteneurs / an"],
                 ["15 M", "tonnes de fret"],
@@ -597,9 +647,9 @@ function Landing() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
 
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-hero-blue shadow-xl">
+          <Reveal delay={120} className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-hero-blue shadow-xl">
             <img
               src={IMG.port}
               alt="Grues et porte-conteneurs au port"
@@ -607,7 +657,7 @@ function Landing() {
               className="h-full w-full object-cover"
               loading="lazy"
             />
-          </div>
+          </Reveal>
         </div>
 
         {/* Frise chronologique */}
@@ -620,14 +670,14 @@ function Landing() {
               { icon: TrendingUp, year: "2012 · 2015", text: "Le trafic de marchandises passe de 10 à 15 M de tonnes." },
               { icon: Anchor, year: "2020", text: "Lancement du port en eau profonde de Ndayane (~1 Md $)." },
               { icon: Ship, year: "Demain", text: "Ndayane : 18 m de tirant d'eau, 1,5 million d'EVP." },
-            ].map((s) => (
-              <div key={s.year} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            ].map((s, i) => (
+              <Reveal key={s.year} delay={(i % 3) * 100} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                 <s.icon className="size-5 text-hero-blue" />
                 <div className="mt-3 text-sm font-extrabold" style={sora}>
                   {s.year}
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -636,7 +686,7 @@ function Landing() {
       {/* ===================== RETARD DIGITAL ===================== */}
       <section className="mx-auto w-full max-w-[1200px] 2xl:max-w-[1440px] px-4 py-16 sm:px-8 sm:py-24">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <div className="relative order-last aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-hero-blue to-primary shadow-xl lg:order-first">
+          <Reveal className="relative order-last aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-hero-blue to-primary shadow-xl lg:order-first">
             <img
               src={IMG.yard}
               alt="Terminal à conteneurs vu du ciel"
@@ -644,9 +694,9 @@ function Landing() {
               className="h-full w-full object-cover"
               loading="lazy"
             />
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={120}>
             <p className="text-[11px] font-bold uppercase tracking-widest text-hero-blue">
               Le vrai retard
             </p>
@@ -668,7 +718,7 @@ function Landing() {
               exactement ce vide que comble ORUS TRANSIT.</strong>
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-3">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[
                 { icon: Database, v: "1990", l: "GAINDE" },
                 { icon: Zap, v: "2004", l: "Guichet unique ORBUS" },
@@ -683,7 +733,7 @@ function Landing() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -695,21 +745,21 @@ function Landing() {
             { icon: Lock, title: "Sécurisé.", body: "Données protégées et cloisonnées." },
             { icon: Cloud, title: "Accessible partout.", body: "Sur tous vos appareils." },
             { icon: Headphones, title: "Support dédié.", body: "À vos côtés à chaque étape." },
-          ].map((item) => (
-            <div key={item.title} className="flex items-start gap-3 bg-hero-blue px-4 py-6 sm:px-6">
+          ].map((item, i) => (
+            <Reveal key={item.title} delay={i * 80} className="flex items-start gap-3 bg-hero-blue px-4 py-6 sm:px-6">
               <item.icon className="mt-0.5 size-5 shrink-0 text-white/90" />
               <div>
                 <div className="text-sm font-semibold leading-tight">{item.title}</div>
                 <div className="mt-0.5 text-xs text-white/80">{item.body}</div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* ===================== CTA FINAL ===================== */}
       <section className="mx-auto w-full max-w-[1200px] 2xl:max-w-[1440px] px-4 py-16 sm:px-8 sm:py-20">
-        <div className="rounded-2xl border border-border bg-white p-8 text-center shadow-sm sm:p-12">
+        <Reveal className="rounded-2xl border border-border bg-white p-8 text-center shadow-sm sm:p-12">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl" style={sora}>
             Passez votre cabinet au numérique
           </h2>
@@ -732,7 +782,7 @@ function Landing() {
               Voir les tarifs
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ===================== FOOTER ===================== */}

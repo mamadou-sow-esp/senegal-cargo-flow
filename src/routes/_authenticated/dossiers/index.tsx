@@ -118,7 +118,7 @@ function DossiersList() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Rechercher BL, conteneur, navire, référence…"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+            className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/60 sm:text-sm"
           />
         </div>
         <select
@@ -126,7 +126,7 @@ function DossiersList() {
           onChange={(e) =>
             setStatusFilter(e.target.value as ShipmentStatus | "all")
           }
-          className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm shadow-sm"
+          className="rounded-lg border border-border bg-white px-3 py-2.5 text-base shadow-sm sm:text-sm"
         >
           <option value="all">Toutes les étapes</option>
           {STATUS_ORDER.map((s) => (

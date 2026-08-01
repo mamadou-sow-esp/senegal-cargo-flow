@@ -227,8 +227,8 @@ function Employees({ companyId }: { companyId: string }) {
       <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
         <UserCog className="size-3.5" /> Employés
       </div>
-      <div className="overflow-hidden rounded-xl border border-border bg-white">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-white">
+        <table className="w-full min-w-[480px] text-left text-sm">
           <tbody className="divide-y divide-border">
             {emps.map((e) => (
               <tr key={e.id}>

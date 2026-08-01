@@ -47,7 +47,7 @@ function Invitation() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
+    <div className="grid min-h-screen overflow-x-clip place-items-center bg-background px-4 text-foreground">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center">
           <img
@@ -81,7 +81,7 @@ function Invitation() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 6 caractères"
-                  className="w-full rounded-lg border border-input bg-white px-3.5 py-2.5 text-sm outline-none focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25"
+                  className="w-full rounded-lg border border-input bg-white px-3.5 py-2.5 text-base outline-none focus:border-hero-blue focus:ring-2 focus:ring-hero-blue/25 sm:text-sm"
                 />
               </label>
               <button
