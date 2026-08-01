@@ -95,7 +95,7 @@ function NewDossier() {
 
       if (fields.client_name && !matchedId) {
         toast.success(
-          `Champs pré-remplis. Client « ${fields.client_name} » introuvable — sélectionne-le manuellement.`,
+          `Champs pré-remplis. Client « ${fields.client_name} » introuvable, sélectionne-le manuellement.`,
         );
       } else {
         toast.success("Champs pré-remplis. Vérifie puis crée le dossier.");
@@ -178,7 +178,7 @@ function NewDossier() {
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           Colle un email, un connaissement (BL) ou un message contenant les infos
-          du dossier. L'IA extrait les champs — tu vérifies avant d'enregistrer.
+          du dossier. L'IA extrait les champs, tu vérifies avant d'enregistrer.
         </p>
         <textarea
           rows={5}

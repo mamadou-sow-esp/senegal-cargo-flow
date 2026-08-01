@@ -8,7 +8,7 @@ const sora = { fontFamily: "var(--font-label)" } as const;
 
 export const Route = createFileRoute("/invitation")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Bienvenue — ORUS TRANSIT" }] }),
+  head: () => ({ meta: [{ title: "Bienvenue · ORUS TRANSIT" }] }),
   component: Invitation,
 });
 

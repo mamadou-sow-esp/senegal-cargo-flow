@@ -10,7 +10,7 @@ import {
 export const Route = createFileRoute("/tarifs")({
   component: TarifsPage,
   head: () => ({
-    meta: [{ title: "Tarifs — ORUS TRANSIT" }],
+    meta: [{ title: "Tarifs · ORUS TRANSIT" }],
   }),
 });
 

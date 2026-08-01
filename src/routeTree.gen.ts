@@ -35,6 +35,9 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAbonnementRouteImport } from './routes/_authenticated/abonnement'
 import { Route as AuthenticatedDossiersIndexRouteImport } from './routes/_authenticated/dossiers/index'
 import { Route as PortailDossierIdRouteImport } from './routes/portail.dossier.$id'
+import { Route as ApiWebhooksWaveRouteImport } from './routes/api.webhooks.wave'
+import { Route as ApiWebhooksKivviRouteImport } from './routes/api.webhooks.kivvi'
+import { Route as ApiWebhooksGeniuspayRouteImport } from './routes/api.webhooks.geniuspay'
 import { Route as AuthenticatedDossiersNewRouteImport } from './routes/_authenticated/dossiers/new'
 import { Route as AuthenticatedDossiersIdRouteImport } from './routes/_authenticated/dossiers/$id'
 
@@ -170,6 +173,21 @@ const PortailDossierIdRoute = PortailDossierIdRouteImport.update({
   path: '/dossier/$id',
   getParentRoute: () => PortailRoute,
 } as any)
+const ApiWebhooksWaveRoute = ApiWebhooksWaveRouteImport.update({
+  id: '/api/webhooks/wave',
+  path: '/api/webhooks/wave',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksKivviRoute = ApiWebhooksKivviRouteImport.update({
+  id: '/api/webhooks/kivvi',
+  path: '/api/webhooks/kivvi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksGeniuspayRoute = ApiWebhooksGeniuspayRouteImport.update({
+  id: '/api/webhooks/geniuspay',
+  path: '/api/webhooks/geniuspay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDossiersNewRoute =
   AuthenticatedDossiersNewRouteImport.update({
     id: '/dossiers/new',
@@ -208,6 +226,9 @@ export interface FileRoutesByFullPath {
   '/portail/': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/api/webhooks/geniuspay': typeof ApiWebhooksGeniuspayRoute
+  '/api/webhooks/kivvi': typeof ApiWebhooksKivviRoute
+  '/api/webhooks/wave': typeof ApiWebhooksWaveRoute
   '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/dossiers/': typeof AuthenticatedDossiersIndexRoute
 }
@@ -235,6 +256,9 @@ export interface FileRoutesByTo {
   '/portail': typeof PortailIndexRoute
   '/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/api/webhooks/geniuspay': typeof ApiWebhooksGeniuspayRoute
+  '/api/webhooks/kivvi': typeof ApiWebhooksKivviRoute
+  '/api/webhooks/wave': typeof ApiWebhooksWaveRoute
   '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/dossiers': typeof AuthenticatedDossiersIndexRoute
 }
@@ -266,6 +290,9 @@ export interface FileRoutesById {
   '/portail/': typeof PortailIndexRoute
   '/_authenticated/dossiers/$id': typeof AuthenticatedDossiersIdRoute
   '/_authenticated/dossiers/new': typeof AuthenticatedDossiersNewRoute
+  '/api/webhooks/geniuspay': typeof ApiWebhooksGeniuspayRoute
+  '/api/webhooks/kivvi': typeof ApiWebhooksKivviRoute
+  '/api/webhooks/wave': typeof ApiWebhooksWaveRoute
   '/portail/dossier/$id': typeof PortailDossierIdRoute
   '/_authenticated/dossiers/': typeof AuthenticatedDossiersIndexRoute
 }
@@ -297,6 +324,9 @@ export interface FileRouteTypes {
     | '/portail/'
     | '/dossiers/$id'
     | '/dossiers/new'
+    | '/api/webhooks/geniuspay'
+    | '/api/webhooks/kivvi'
+    | '/api/webhooks/wave'
     | '/portail/dossier/$id'
     | '/dossiers/'
   fileRoutesByTo: FileRoutesByTo
@@ -324,6 +354,9 @@ export interface FileRouteTypes {
     | '/portail'
     | '/dossiers/$id'
     | '/dossiers/new'
+    | '/api/webhooks/geniuspay'
+    | '/api/webhooks/kivvi'
+    | '/api/webhooks/wave'
     | '/portail/dossier/$id'
     | '/dossiers'
   id:
@@ -354,6 +387,9 @@ export interface FileRouteTypes {
     | '/portail/'
     | '/_authenticated/dossiers/$id'
     | '/_authenticated/dossiers/new'
+    | '/api/webhooks/geniuspay'
+    | '/api/webhooks/kivvi'
+    | '/api/webhooks/wave'
     | '/portail/dossier/$id'
     | '/_authenticated/dossiers/'
   fileRoutesById: FileRoutesById
@@ -371,6 +407,9 @@ export interface RootRouteChildren {
   ResetRoute: typeof ResetRoute
   TarifsRoute: typeof TarifsRoute
   SuiviTokenRoute: typeof SuiviTokenRoute
+  ApiWebhooksGeniuspayRoute: typeof ApiWebhooksGeniuspayRoute
+  ApiWebhooksKivviRoute: typeof ApiWebhooksKivviRoute
+  ApiWebhooksWaveRoute: typeof ApiWebhooksWaveRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -557,6 +596,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortailDossierIdRouteImport
       parentRoute: typeof PortailRoute
     }
+    '/api/webhooks/wave': {
+      id: '/api/webhooks/wave'
+      path: '/api/webhooks/wave'
+      fullPath: '/api/webhooks/wave'
+      preLoaderRoute: typeof ApiWebhooksWaveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/kivvi': {
+      id: '/api/webhooks/kivvi'
+      path: '/api/webhooks/kivvi'
+      fullPath: '/api/webhooks/kivvi'
+      preLoaderRoute: typeof ApiWebhooksKivviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/geniuspay': {
+      id: '/api/webhooks/geniuspay'
+      path: '/api/webhooks/geniuspay'
+      fullPath: '/api/webhooks/geniuspay'
+      preLoaderRoute: typeof ApiWebhooksGeniuspayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dossiers/new': {
       id: '/_authenticated/dossiers/new'
       path: '/dossiers/new'
@@ -646,6 +706,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetRoute: ResetRoute,
   TarifsRoute: TarifsRoute,
   SuiviTokenRoute: SuiviTokenRoute,
+  ApiWebhooksGeniuspayRoute: ApiWebhooksGeniuspayRoute,
+  ApiWebhooksKivviRoute: ApiWebhooksKivviRoute,
+  ApiWebhooksWaveRoute: ApiWebhooksWaveRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -11,11 +11,11 @@ const sora = { fontFamily: "var(--font-label)" } as const;
 
 // Catégories du Tarif Extérieur Commun (TEC) CEDEAO.
 const DD_CATEGORIES = [
-  { rate: 0, label: "Cat 0 · 0 % — biens sociaux essentiels" },
-  { rate: 5, label: "Cat 1 · 5 % — matières premières, biens d'équipement" },
-  { rate: 10, label: "Cat 2 · 10 % — intrants, produits intermédiaires" },
-  { rate: 20, label: "Cat 3 · 20 % — biens de consommation finale" },
-  { rate: 35, label: "Cat 4 · 35 % — produits spécifiques" },
+  { rate: 0, label: "Cat 0 · 0 % · biens sociaux essentiels" },
+  { rate: 5, label: "Cat 1 · 5 % · matières premières, biens d'équipement" },
+  { rate: 10, label: "Cat 2 · 10 % · intrants, produits intermédiaires" },
+  { rate: 20, label: "Cat 3 · 20 % · biens de consommation finale" },
+  { rate: 35, label: "Cat 4 · 35 % · produits spécifiques" },
 ];
 
 // Taux sur la valeur CAF/CIF (barème douane sénégalaise, à revérifier).

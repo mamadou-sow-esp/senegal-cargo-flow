@@ -91,7 +91,7 @@ function ConsoleOverview() {
             {/* CA dans le temps */}
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm lg:col-span-2">
               <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                Chiffre d'affaires ORUS — 6 derniers mois
+                Chiffre d'affaires ORUS · 6 derniers mois
               </h2>
               <div className="mt-4 h-64">
                 <ResponsiveContainer width="100%" height="100%">

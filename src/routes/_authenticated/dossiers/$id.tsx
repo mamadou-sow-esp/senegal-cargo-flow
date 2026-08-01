@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { sendSms } from "@/lib/sms.functions";
+import { inviteClient } from "@/lib/employees.functions";
 import {
   STATUS_LABEL,
   STATUS_ORDER,
@@ -64,7 +65,15 @@ type Shipment = {
   priority: "basse" | "standard" | "haute" | "critique";
   notes: string | null;
   created_at: string;
-  clients: { name: string; phone: string | null } | null;
+  client_id: string | null;
+  clients: {
+    id: string;
+    name: string;
+    phone: string | null;
+    email: string | null;
+    contact_name: string | null;
+    portal_invited_at: string | null;
+  } | null;
 };
 
 function DossierDetail() {
@@ -76,7 +85,9 @@ function DossierDetail() {
     queryFn: async (): Promise<Shipment> => {
       const { data, error } = await supabase
         .from("shipments")
-        .select("*, clients(name, phone)")
+        .select(
+          "*, clients(id, name, phone, email, contact_name, portal_invited_at)",
+        )
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -122,6 +133,50 @@ function DossierDetail() {
     },
   });
 
+  const inviteFn = useServerFn(inviteClient);
+  const [inviting, setInviting] = useState(false);
+
+  const handleInvite = async () => {
+    const client = shipment?.clients;
+    if (!client) {
+      toast.error("Aucun client associé à ce dossier.");
+      return;
+    }
+    if (!client.email) {
+      toast.error("Ajoutez d'abord un email à ce client (page Clients) pour lui envoyer son suivi.");
+      return;
+    }
+    setInviting(true);
+    try {
+      const res = await inviteFn({
+        data: {
+          clientId: client.id,
+          email: client.email,
+          fullName: client.contact_name || client.name,
+          origin: window.location.origin,
+        },
+      });
+      qc.invalidateQueries({ queryKey: ["shipment", id] });
+      if (res?.sent) {
+        toast.success(`Lien de suivi envoyé à ${client.email}.`);
+      } else if (res?.reason === "no_key") {
+        toast.error(
+          "Clé Resend absente côté serveur. Ajoute RESEND_API_KEY dans Vercel (env Production) puis redéploie.",
+        );
+      } else if (res?.reason === "http") {
+        toast.error(
+          "Resend a refusé l'envoi. Vérifie que RESEND_FROM utilise ton domaine vérifié.",
+        );
+      } else {
+        toast.error("Email non envoyé. Vérifie la configuration Resend.");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setInviting(false);
+    }
+  };
+
   if (!shipment) {
     return <div className="p-8 text-sm text-muted-foreground">Chargement…</div>;
   }
@@ -162,18 +217,33 @@ function DossierDetail() {
             <span className="font-mono">{shipment.bl_number || "—"}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm">
-          <span
-            className={`size-3 shrink-0 rounded-full ${STATUS_DOT[statusTone(shipment.status)]}`}
-          />
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Statut actuel
-            </div>
-            <div className="mt-0.5 text-sm font-semibold">
-              {STATUS_LABEL[shipment.status]}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm">
+            <span
+              className={`size-3 shrink-0 rounded-full ${STATUS_DOT[statusTone(shipment.status)]}`}
+            />
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Statut actuel
+              </div>
+              <div className="mt-0.5 text-sm font-semibold">
+                {STATUS_LABEL[shipment.status]}
+              </div>
             </div>
           </div>
+          <button
+            onClick={handleInvite}
+            disabled={inviting}
+            title="Envoyer le lien de suivi de ce dossier au client, sans passer par la page Clients"
+            className="inline-flex items-center gap-1.5 rounded-2xl bg-hero-blue px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm shadow-hero-blue/25 transition hover:opacity-90 disabled:opacity-50"
+          >
+            <Send className="size-3.5" />
+            {inviting
+              ? "Envoi…"
+              : shipment.clients?.portal_invited_at
+                ? "Renvoyer au portail"
+                : "Envoyer au portail client"}
+          </button>
         </div>
       </div>
 
@@ -490,7 +560,7 @@ function SmsPanel({
       )}
 
       <p className="mt-3 text-[10px] text-muted-foreground">
-        SMS envoyés via Africa's Talking. Plan Pro — 100 SMS/mois inclus.
+        SMS envoyés via Africa's Talking. Plan Pro : 100 SMS/mois inclus.
       </p>
     </div>
   );
@@ -1098,7 +1168,7 @@ function DisbursementsPanel({
                 </span>
               </div>
               <p className="mt-4 text-[10px] text-muted-foreground">
-                Montants indicatifs — document généré par ORUS TRANSIT.
+                Montants indicatifs, document généré par ORUS TRANSIT.
               </p>
             </div>
           </div>

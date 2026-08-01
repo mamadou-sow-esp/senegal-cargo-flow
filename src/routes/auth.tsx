@@ -16,7 +16,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
   head: () => ({
-    meta: [{ title: "Connexion — ORUS TRANSIT" }],
+    meta: [{ title: "Connexion · ORUS TRANSIT" }],
   }),
 });
 
@@ -210,7 +210,7 @@ function AuthPage() {
               <p className="mt-4 text-sm text-muted-foreground">
                 Nous avons envoyé un lien de confirmation à{" "}
                 <strong className="text-foreground">{sentTo}</strong>. Cliquez dessus
-                pour activer votre compte — vous serez ensuite redirigé vers votre
+                pour activer votre compte, vous serez ensuite redirigé vers votre
                 espace.
               </p>
               <p className="mt-2 text-xs text-muted-foreground">

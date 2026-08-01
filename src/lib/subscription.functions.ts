@@ -225,7 +225,7 @@ export const createCheckout = createServerFn({ method: "POST" })
         amount: plan.price,
         currency: "XOF",
         reference,
-        description: `Abonnement ORUS TRANSIT — formule ${plan.name}`,
+        description: `Abonnement ORUS TRANSIT, formule ${plan.name}`,
         success_url: `${origin}/abonnement?paiement=retour`,
         error_url: `${origin}/abonnement?paiement=annule`,
         metadata: {

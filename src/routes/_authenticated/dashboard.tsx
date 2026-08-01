@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import aiRobot from "@/assets/ia.png";
 import {
   STATUS_LABEL,
   STATUS_ORDER,
@@ -18,7 +19,6 @@ import {
   Plus,
   Calculator,
   Users,
-  Sparkles,
   Ship,
 } from "lucide-react";
 
@@ -377,7 +377,7 @@ function Dashboard() {
           {/* Assistant IA */}
           <div className="rounded-2xl border border-hero-blue/20 bg-gradient-to-br from-hero-blue/10 to-hero-blue/5 p-5">
             <div className="flex items-center gap-2 text-hero-blue">
-              <Sparkles className="size-4" />
+              <img src={aiRobot} alt="" className="size-6 object-contain" />
               <div
                 className="text-xs font-bold uppercase tracking-widest"
                 style={sora}
@@ -387,7 +387,7 @@ function Dashboard() {
             </div>
             <p className="mt-2 text-xs leading-relaxed text-foreground/80">
               ORUS TRANSIT AI répond à vos questions sur les procédures, les
-              taxes, les documents et le suivi de dossiers — en bas à droite de
+              taxes, les documents et le suivi de dossiers, en bas à droite de
               l'écran.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">

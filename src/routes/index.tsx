@@ -23,11 +23,17 @@ import {
   LogIn,
   XCircle,
   Zap,
+  Sparkles,
 } from "lucide-react";
 import logoAsset from "@/assets/newlogoblack.png";
 import logoAstar from "@/assets/newlogo.png"
 import logoOnDark from "@/assets/oruslogo.png";
 import kebaLogo from "@/assets/keba-foundation.png";
+import shotDossiers from "@/assets/Capture d'écran 2026-08-01 130514.png";
+import shotPipeline from "@/assets/Capture d'écran 2026-08-01 130540.png";
+import shotEcheances from "@/assets/Capture d'écran 2026-08-01 130627.png";
+import shotStats from "@/assets/Capture d'écran 2026-08-01 130701.png";
+import aiRobot from "@/assets/ia.png";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -101,6 +107,13 @@ function Landing() {
               Solution
             </a>
             <a
+              href="#ia"
+              className="inline-flex gap-1.5 items-center text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors"
+            >
+              <Sparkles size={16} />
+              Assistant IA
+            </a>
+            <a
               href="#port"
               className="inline-flex gap-1.5 items-center text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors"
             >
@@ -155,6 +168,10 @@ function Landing() {
               <a href="#solution" onClick={() => setMobileOpen(false)} className="gap-1.5 inline-flex items-center rounded px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
                 <Layers size={16} />
                 Solution
+              </a>
+              <a href="#ia" onClick={() => setMobileOpen(false)} className="gap-1.5 inline-flex items-center rounded px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
+                <Sparkles size={16} />
+                Assistant IA
               </a>
               <a href="#port" onClick={() => setMobileOpen(false)} className="gap-1.5 inline-flex items-center rounded px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
                 <Anchor size={16} />
@@ -349,6 +366,201 @@ function Landing() {
               <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ===================== PRODUIT EN ACTION ===================== */}
+      <section className="border-t border-border bg-muted/30">
+        <div className="mx-auto w-full max-w-[1200px] 2xl:max-w-[1440px] px-4 py-16 sm:px-8 sm:py-24">
+          <div className="max-w-2xl">
+            <p className="text-[11px] uppercase tracking-widest text-hero-blue">
+              <span className="font-poppins">Produit en action</span>
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl" style={sora}>
+              Toute la gestion de vos dossiers, en un seul endroit
+            </h2>
+            <div className="mt-6 h-1 w-20 bg-hero-blue" />
+            <p className="font-poppins mt-6 max-w-xl text-pretty text-muted-foreground">
+              Des dossiers à la pipeline de dédouanement, des échéances aux
+              statistiques du cabinet : voici l'interface telle que vos
+              équipes l'utilisent chaque jour.
+            </p>
+          </div>
+
+          {/* Capture principale, présentée comme une fenêtre d'app */}
+          <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-white shadow-md">
+            <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-4 py-2.5">
+              <span className="size-2.5 rounded-full bg-red-400/70" />
+              <span className="size-2.5 rounded-full bg-amber-400/70" />
+              <span className="size-2.5 rounded-full bg-emerald-400/70" />
+              <span className="font-poppins ml-3 truncate text-[11px] text-muted-foreground">
+                app.orustransit.com · Dossiers d'importation
+              </span>
+            </div>
+            <div className="flex h-[260px] items-center justify-center bg-muted/40 p-3 sm:h-[420px] sm:p-5">
+              <img
+                src={shotDossiers}
+                alt="Dossiers d'importation"
+                onError={hideOnError}
+                className="max-h-full max-w-full rounded-md object-contain shadow-sm"
+                loading="lazy"
+              />
+            </div>
+            <div className="border-t border-border px-6 py-5">
+              <div className="text-base font-bold" style={sora}>
+                Dossiers d'importation
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Tous vos dossiers en un coup d'œil : référence, navire, conteneur, priorité et avancement.
+              </p>
+            </div>
+          </div>
+
+          {/* Trois captures secondaires */}
+          <div className="mt-6 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                img: shotPipeline,
+                title: "Pipeline de dédouanement",
+                body: "12 étapes horodatées, plus le circuit compagnie/consignataire (BAD, visa PAD, caution) suivi à part.",
+              },
+              {
+                img: shotEcheances,
+                title: "Échéances & documents",
+                body: "Compte à rebours surestaries et magasinage, pièces requises et documents centralisés par dossier.",
+              },
+              {
+                img: shotStats,
+                title: "Statistiques du cabinet",
+                body: "Répartition par étape et priorité, évolution des dossiers, top clients, en temps réel.",
+              },
+            ].map((f) => (
+              <div
+                key={f.title}
+                className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-3 py-2">
+                  <span className="size-2 rounded-full bg-red-400/70" />
+                  <span className="size-2 rounded-full bg-amber-400/70" />
+                  <span className="size-2 rounded-full bg-emerald-400/70" />
+                </div>
+                <div className="flex h-[200px] items-center justify-center bg-muted/40 p-3">
+                  <img
+                    src={f.img}
+                    alt={f.title}
+                    onError={hideOnError}
+                    className="max-h-full max-w-full rounded-md object-contain shadow-sm transition duration-300 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="border-t border-border px-5 py-4">
+                  <div className="text-sm font-bold" style={sora}>
+                    {f.title}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{f.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== ASSISTANT IA ===================== */}
+      <section id="ia" className="border-t border-border bg-primary text-primary-foreground">
+        <div className="mx-auto grid w-full max-w-[1200px] 2xl:max-w-[1440px] items-center gap-12 px-4 py-16 sm:px-8 sm:py-24 lg:grid-cols-2">
+          <div>
+            <p className="inline-flex items-center gap-2 text-[11px] uppercase tracking-widest text-hero-blue">
+              <img src={aiRobot} alt="" className="size-9 object-contain" />
+              <span className="font-poppins">Assistant IA intégré</span>
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl" style={sora}>
+              TransitORUS, l'IA qui connaît vos dossiers par cœur
+            </h2>
+            <div className="mt-6 h-1 w-20 bg-hero-blue" />
+            <p className="font-poppins mt-6 max-w-xl text-pretty text-primary-foreground/70">
+              Pas un chatbot générique : un assistant branché sur les vraies
+              données de votre cabinet, qui répond avec vos dossiers, vos
+              clients et vos échéances réelles.
+            </p>
+
+            <ul className="mt-9 space-y-5">
+              {[
+                {
+                  icon: FolderKanban,
+                  title: "Voit vos dossiers en temps réel",
+                  body: "Dossiers en retard, alertes surestaries, charge par statut : les réponses s'appuient sur les données du cabinet, pas sur des généralités.",
+                },
+                {
+                  icon: FileText,
+                  title: "Crée et modifie vos dossiers en conversation",
+                  body: "Collez un e-mail ou un connaissement, ou demandez un changement de statut : l'IA crée ou met à jour le dossier directement, puis confirme ce qu'elle a fait.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Expert GAINDE, COTECNA et douanes sénégalaises",
+                  body: "Documents requis, incoterms, régimes douaniers, calcul indicatif des droits & taxes (DD, TVA, PCS, PC, RS).",
+                },
+              ].map((f) => (
+                <li key={f.title} className="flex items-start gap-3.5">
+                  <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                    <f.icon className="size-4 text-hero-blue" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">{f.title}</div>
+                    <p className="font-poppins mt-1 text-sm text-primary-foreground/65">
+                      {f.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Mockup de conversation */}
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white shadow-2xl">
+            <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
+              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-white ring-1 ring-black/10">
+                <img src={logoAstar} alt="TransitORUS" className="size-6 object-contain" />
+              </span>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-foreground" style={sora}>
+                  Transit<span className="text-hero-blue">ORUS</span>
+                </div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Assistant dédouanement
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 px-5 py-6">
+              <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-hero-blue px-4 py-2.5 text-sm text-white shadow-sm">
+                Quels dossiers risquent des surestaries cette semaine ?
+              </div>
+              <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-muted/40 px-4 py-3 text-sm text-foreground/90 shadow-sm">
+                <p className="font-poppins">
+                  <strong>2 dossiers</strong> sont en alerte :
+                </p>
+                <p className="font-poppins mt-2 text-foreground/80">
+                  - SEN-2026-0143 · Sotrama Import · surestaries dans 2 j
+                  <br />
+                  - SEN-2026-0158 · Baobab Trading · dépassées de 1 j
+                </p>
+                <p className="font-poppins mt-2 text-xs text-muted-foreground">
+                  Montants et délais indicatifs, à vérifier auprès de la Douane.
+                </p>
+              </div>
+              <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-hero-blue px-4 py-2.5 text-sm text-white shadow-sm">
+                Voici l'e-mail du fournisseur, crée le dossier.
+              </div>
+              <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-muted/40 px-4 py-3 text-sm text-foreground/90 shadow-sm">
+                <p className="font-poppins">
+                  <strong>Dossier SEN-2026-0177 créé</strong> pour Teranga
+                  Électro. Navire, BL et conteneur enregistrés, vérifiez la
+                  fiche dossier.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

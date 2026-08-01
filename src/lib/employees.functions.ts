@@ -227,7 +227,7 @@ export const inviteClient = createServerFn({ method: "POST" })
     );
     const res = await sendEmail({
       to: data.email,
-      subject: `${cabinetName} — suivez votre dossier`,
+      subject: `${cabinetName} : suivez votre dossier`,
       html: inviteClientEmailHtml({
         clientName: data.fullName || client.name,
         cabinetName,

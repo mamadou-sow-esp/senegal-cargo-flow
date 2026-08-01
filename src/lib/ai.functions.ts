@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getPlan } from "@/lib/plans";
+import { STATUS_ORDER } from "@/lib/status";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
@@ -19,12 +20,20 @@ Tu as accès aux DONNÉES RÉELLES du cabinet (dossiers, clients, employés, sta
 Ton rôle :
 - Aider à gérer les dossiers de dédouanement à l'importation.
 - Expliquer les procédures GAINDE / COTECNA / Douanes sénégalaises, les documents requis (BL, facture commerciale, packing list, certificat d'origine, DPI, BAE, quittance, etc.), les incoterms, les régimes douaniers et le calcul indicatif des droits & taxes (DD, TVA 18%, PCS, PC, RS).
+- Créer ou modifier des dossiers directement quand on te le demande, via les outils \`create_dossier\` et \`update_dossier\`.
+
+RÈGLES POUR CRÉER / MODIFIER UN DOSSIER :
+- Utilise l'outil \`create_dossier\` dès que l'utilisateur te donne assez d'informations pour ouvrir un dossier (au minimum une référence, ou des infos permettant d'en déduire une). N'invente jamais un numéro de BL, de conteneur ou une valeur : laisse le champ vide si l'info manque.
+- Utilise l'outil \`update_dossier\` pour changer un statut, une échéance, une priorité ou tout autre champ d'un dossier existant, en identifiant le dossier par sa référence. Statuts valides, exactement sous cette forme : cree, documents_attente, documents_complets, declaration_preparee, declaration_deposee, attente_validation, controle_documentaire, controle_physique, paiement_droits, bon_a_enlever, marchandise_sortie, cloture. N'utilise jamais un autre mot pour un statut.
+- Si la référence donnée ne correspond à aucun dossier, correspond à plusieurs, ou s'il te manque une information indispensable, ne devine jamais : pose une question claire en français à l'utilisateur.
+- Après chaque création ou modification réussie, confirme précisément ce qui a été fait (référence, champs modifiés) en langage naturel. Si l'outil renvoie une erreur, explique-la simplement et propose une correction.
+- INTERDICTION ABSOLUE : n'écris JAMAIS dans ta réponse le nom d'un outil, un appel de fonction, du pseudo-code ou une syntaxe du type \`update_dossier(...)\` ou \`create_dossier(...)\`. Les outils s'appellent uniquement via le mécanisme de function calling, jamais en texte. Ta réponse ne doit contenir que du français naturel.
 
 FORMAT DE RÉPONSE (respecte-le strictement, sois lisible) :
 - Écris en français, en phrases courtes.
 - Pour toute liste, utilise UNIQUEMENT des puces commençant par un tiret « - ». N'utilise JAMAIS « + » ni « * » comme puce.
 - Emploie le gras (**texte**) avec parcimonie, seulement pour un intitulé de section ou un chiffre clé.
-- Pas de tableaux ni de titres markdown à dièses.
+- Pas de tableaux ni de titres markdown à dièses, et jamais de code ni de blocs de code.
 - Rappelle que les montants et délais sont indicatifs et à vérifier auprès de l'Administration des douanes.`;
 
 // Libellés lisibles des statuts de dossier.
@@ -164,9 +173,273 @@ function humanWait(sec: number): string {
   return min ? `${h} h ${min} min` : `${h} heure${h > 1 ? "s" : ""}`;
 }
 
-type GroqResponse = {
-  choices?: { message?: { content?: string } }[];
+type ToolCall = {
+  id: string;
+  type: "function";
+  function: { name: string; arguments: string };
 };
+
+type GroqMessage = {
+  role: string;
+  content?: string | null;
+  tool_calls?: ToolCall[];
+};
+
+type GroqResponse = {
+  choices?: { message?: GroqMessage }[];
+};
+
+// ── Outils exposés à l'IA : création / modification de dossiers ─────────────
+const DOSSIER_FIELDS_SCHEMA = {
+  client_name: { type: "string", description: "Nom du client/importateur (recherché par correspondance approximative)." },
+  priority: { type: "string", enum: ["basse", "standard", "haute", "critique"] },
+  vessel_name: { type: "string", description: "Nom du navire." },
+  shipping_company: { type: "string", description: "Compagnie maritime (MSC, Maersk, CMA CGM...)." },
+  bl_number: { type: "string", description: "Numéro de connaissement (BL)." },
+  container_number: { type: "string", description: "Numéro de conteneur ou numéro de châssis pour un véhicule." },
+  origin_country: { type: "string" },
+  origin_port: { type: "string" },
+  arrival_date: { type: "string", description: "Format AAAA-MM-JJ." },
+  goods_description: { type: "string" },
+  goods_value: { type: "number", description: "Valeur en FCFA." },
+  customs_regime: { type: "string" },
+  notes: { type: "string" },
+  free_time_end: { type: "string", description: "Fin de franchise conteneur, format AAAA-MM-JJ." },
+  storage_free_end: { type: "string", description: "Fin de franchise magasinage, format AAAA-MM-JJ." },
+} as const;
+
+const TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "create_dossier",
+      description: "Crée un nouveau dossier de dédouanement dans le logiciel.",
+      parameters: {
+        type: "object",
+        properties: {
+          reference: { type: "string", description: "Référence interne du dossier (obligatoire)." },
+          ...DOSSIER_FIELDS_SCHEMA,
+        },
+        required: ["reference"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_dossier",
+      description: "Modifie un dossier existant (statut, priorité, échéances, informations diverses), identifié par sa référence.",
+      parameters: {
+        type: "object",
+        properties: {
+          reference: { type: "string", description: "Référence du dossier à modifier (obligatoire)." },
+          new_reference: { type: "string", description: "Nouvelle référence, seulement si on te demande de la changer." },
+          status: { type: "string", enum: STATUS_ORDER, description: "Nouveau statut du dossier." },
+          ...DOSSIER_FIELDS_SCHEMA,
+        },
+        required: ["reference"],
+      },
+    },
+  },
+] as const;
+
+const PriorityEnum = z.enum(["basse", "standard", "haute", "critique"]);
+
+const CreateDossierArgs = z.object({
+  reference: z.string().min(1),
+  client_name: z.string().trim().optional(),
+  priority: PriorityEnum.optional(),
+  vessel_name: z.string().optional(),
+  shipping_company: z.string().optional(),
+  bl_number: z.string().optional(),
+  container_number: z.string().optional(),
+  origin_country: z.string().optional(),
+  origin_port: z.string().optional(),
+  arrival_date: z.string().optional(),
+  goods_description: z.string().optional(),
+  goods_value: z.number().optional(),
+  customs_regime: z.string().optional(),
+  notes: z.string().optional(),
+  free_time_end: z.string().optional(),
+  storage_free_end: z.string().optional(),
+});
+
+const UpdateDossierArgs = CreateDossierArgs.extend({
+  new_reference: z.string().optional(),
+  status: z.enum(STATUS_ORDER as [string, ...string[]]).optional(),
+});
+
+type SupaLike = {
+  from: (table: string) => any;
+};
+
+async function findClientId(
+  supabase: SupaLike,
+  companyId: string,
+  name: string | undefined,
+): Promise<string | null> {
+  if (!name) return null;
+  const { data } = await supabase
+    .from("clients")
+    .select("id, name")
+    .eq("company_id", companyId);
+  const target = name.trim().toLowerCase();
+  if (!target) return null;
+  const list = (data ?? []) as { id: string; name: string }[];
+  const found = list.find(
+    (c) =>
+      c.name.toLowerCase().includes(target) || target.includes(c.name.toLowerCase()),
+  );
+  return found?.id ?? null;
+}
+
+async function toolCreateDossier(
+  supabase: SupaLike,
+  userId: string,
+  companyId: string,
+  argsRaw: string,
+): Promise<Record<string, unknown>> {
+  let parsed: z.infer<typeof CreateDossierArgs>;
+  try {
+    parsed = CreateDossierArgs.parse(JSON.parse(argsRaw));
+  } catch {
+    return { ok: false, reason: "invalid_arguments" };
+  }
+
+  const client_id = await findClientId(supabase, companyId, parsed.client_name);
+
+  const payload: Record<string, unknown> = {
+    company_id: companyId,
+    created_by: userId,
+    reference: parsed.reference.trim(),
+    client_id,
+    priority: parsed.priority ?? "standard",
+    vessel_name: parsed.vessel_name || null,
+    shipping_company: parsed.shipping_company || null,
+    bl_number: parsed.bl_number || null,
+    container_number: parsed.container_number || null,
+    origin_country: parsed.origin_country || null,
+    origin_port: parsed.origin_port || null,
+    arrival_date: parsed.arrival_date || null,
+    goods_description: parsed.goods_description || null,
+    goods_value: parsed.goods_value ?? null,
+    customs_regime: parsed.customs_regime || null,
+    notes: parsed.notes || null,
+    free_time_end: parsed.free_time_end || null,
+    storage_free_end: parsed.storage_free_end || null,
+  };
+
+  const { data, error } = await supabase
+    .from("shipments")
+    .insert(payload)
+    .select("id, reference")
+    .single();
+
+  if (error) return { ok: false, reason: "db_error", message: error.message };
+
+  return {
+    ok: true,
+    id: data.id,
+    reference: data.reference,
+    client_requested: parsed.client_name ?? null,
+    client_matched: !!client_id,
+  };
+}
+
+async function toolUpdateDossier(
+  supabase: SupaLike,
+  companyId: string,
+  argsRaw: string,
+): Promise<Record<string, unknown>> {
+  let parsed: z.infer<typeof UpdateDossierArgs>;
+  try {
+    parsed = UpdateDossierArgs.parse(JSON.parse(argsRaw));
+  } catch {
+    return { ok: false, reason: "invalid_arguments" };
+  }
+
+  const ref = parsed.reference.trim();
+  const { data: candidates } = await supabase
+    .from("shipments")
+    .select("id, reference")
+    .eq("company_id", companyId)
+    .ilike("reference", `%${ref}%`)
+    .limit(5);
+
+  const list = (candidates ?? []) as { id: string; reference: string }[];
+  const exact = list.find((c) => c.reference.toLowerCase() === ref.toLowerCase());
+  const match = exact ?? (list.length === 1 ? list[0] : null);
+
+  if (!match) {
+    if (!list.length) return { ok: false, reason: "not_found", reference: ref };
+    return {
+      ok: false,
+      reason: "ambiguous",
+      reference: ref,
+      matches: list.map((c) => c.reference),
+    };
+  }
+
+  const client_id = await findClientId(supabase, companyId, parsed.client_name);
+
+  const update: Record<string, unknown> = {};
+  if (parsed.status !== undefined) update.status = parsed.status;
+  if (parsed.priority !== undefined) update.priority = parsed.priority;
+  if (parsed.vessel_name !== undefined) update.vessel_name = parsed.vessel_name;
+  if (parsed.shipping_company !== undefined) update.shipping_company = parsed.shipping_company;
+  if (parsed.bl_number !== undefined) update.bl_number = parsed.bl_number;
+  if (parsed.container_number !== undefined) update.container_number = parsed.container_number;
+  if (parsed.origin_country !== undefined) update.origin_country = parsed.origin_country;
+  if (parsed.origin_port !== undefined) update.origin_port = parsed.origin_port;
+  if (parsed.arrival_date !== undefined) update.arrival_date = parsed.arrival_date;
+  if (parsed.goods_description !== undefined) update.goods_description = parsed.goods_description;
+  if (parsed.goods_value !== undefined) update.goods_value = parsed.goods_value;
+  if (parsed.customs_regime !== undefined) update.customs_regime = parsed.customs_regime;
+  if (parsed.notes !== undefined) update.notes = parsed.notes;
+  if (parsed.free_time_end !== undefined) update.free_time_end = parsed.free_time_end;
+  if (parsed.storage_free_end !== undefined) update.storage_free_end = parsed.storage_free_end;
+  if (parsed.new_reference) update.reference = parsed.new_reference.trim();
+  if (client_id) update.client_id = client_id;
+
+  if (!Object.keys(update).length) return { ok: false, reason: "no_fields" };
+
+  const { error } = await supabase.from("shipments").update(update).eq("id", match.id);
+  if (error) return { ok: false, reason: "db_error", message: error.message };
+
+  return {
+    ok: true,
+    reference: parsed.new_reference || match.reference,
+    updated_fields: Object.keys(update),
+  };
+}
+
+// Filet de sécurité : au cas où le modèle écrirait quand même une syntaxe
+// d'appel d'outil en toutes lettres, on la retire avant d'afficher la réponse.
+function stripToolSyntax(text: string): string {
+  return text
+    .replace(/`?\b(?:create_dossier|update_dossier)\s*\([^)]*\)`?/gi, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+async function runTool(
+  supabase: SupaLike,
+  userId: string,
+  companyId: string,
+  call: ToolCall,
+): Promise<Record<string, unknown>> {
+  try {
+    if (call.function.name === "create_dossier")
+      return await toolCreateDossier(supabase, userId, companyId, call.function.arguments);
+    if (call.function.name === "update_dossier")
+      return await toolUpdateDossier(supabase, companyId, call.function.arguments);
+    return { ok: false, reason: "unknown_tool" };
+  } catch (e) {
+    return { ok: false, reason: "error", message: e instanceof Error ? e.message : "erreur inconnue" };
+  }
+}
 
 // Appel Groq mutualisé, avec gestion d'erreurs lisible pour les utilisateurs.
 async function runGroq(body: Record<string, unknown>): Promise<GroqResponse> {
@@ -244,7 +517,10 @@ export const chatWithAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const userId = (context as { userId: string }).userId;
+    const { userId, supabase: userSupabase } = context as {
+      userId: string;
+      supabase: SupaLike;
+    };
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
@@ -280,16 +556,49 @@ export const chatWithAi = createServerFn({ method: "POST" })
     }
 
     const companyContext = companyId ? await buildCompanyContext(userId) : "";
-    const json = await runGroq({
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...(companyContext
-          ? [{ role: "system" as const, content: companyContext }]
-          : []),
-        ...data.messages,
-      ],
+    const baseMessages: Array<Record<string, unknown>> = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...(companyContext
+        ? [{ role: "system" as const, content: companyContext }]
+        : []),
+      ...data.messages,
+    ];
+
+    // Seuls les cabinets identifiés peuvent déclencher création/modification.
+    const canUseTools = !!companyId;
+    let json = await runGroq({
+      messages: baseMessages,
+      ...(canUseTools ? { tools: TOOLS, tool_choice: "auto" } : {}),
     });
-    const reply = json.choices?.[0]?.message?.content?.trim();
+    let message = json.choices?.[0]?.message;
+
+    // L'IA a demandé une ou plusieurs actions (créer/modifier un dossier) :
+    // on les exécute puis on redemande une réponse en langage naturel.
+    if (canUseTools && message?.tool_calls?.length) {
+      const toolResults: Array<Record<string, unknown>> = [];
+      for (const call of message.tool_calls) {
+        const result = await runTool(userSupabase, userId, companyId!, call);
+        toolResults.push({
+          role: "tool",
+          tool_call_id: call.id,
+          content: JSON.stringify(result),
+        });
+      }
+      json = await runGroq({
+        messages: [
+          ...baseMessages,
+          {
+            role: "assistant",
+            content: message.content ?? "",
+            tool_calls: message.tool_calls,
+          },
+          ...toolResults,
+        ],
+      });
+      message = json.choices?.[0]?.message;
+    }
+
+    const reply = stripToolSyntax(message?.content?.trim() ?? "");
     if (!reply)
       throw new Error(
         "L'assistant n'a pas pu générer de réponse. Reformulez votre question.",

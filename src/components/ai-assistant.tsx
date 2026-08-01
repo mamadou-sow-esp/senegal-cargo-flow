@@ -113,7 +113,7 @@ export function AiAssistant() {
     {
       role: "assistant",
       content:
-        "Bonjour 👋 Je suis TransitORUS, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure ou un calcul de taxes.",
+        "Bonjour 👋 Je suis TransitORUS, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure, un calcul de taxes, ou demandez-moi de créer ou modifier un dossier.",
     },
   ]);
   const chat = useServerFn(chatWithAi);
