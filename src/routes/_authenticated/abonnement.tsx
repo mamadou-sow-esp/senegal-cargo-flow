@@ -47,7 +47,7 @@ function AbonnementPage() {
   });
 
   // Arrivée depuis « Choisir Pro » à l'inscription → lance direct le paiement
-  // automatique GeniusPay (même chemin que le bouton "Passer à Pro").
+  // automatique Wave (même chemin que le bouton "Passer à Pro").
   useEffect(() => {
     void (async () => {
       let intent: string | null = null;
@@ -71,7 +71,7 @@ function AbonnementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Retour depuis la page de checkout GeniusPay (success_url). Le webhook
+  // Retour depuis la page de checkout Wave (success_url). Le webhook
   // a normalement déjà activé l'abonnement ; on relit l'état pour affichage
   // immédiat, sans jamais se fier uniquement à cette redirection.
   useEffect(() => {
@@ -110,8 +110,8 @@ function AbonnementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Lance le paiement automatique GeniusPay (Wave / Orange / MTN MoMo) et
-  // redirige vers la page de checkout hébergée.
+  // Lance le paiement automatique via Kivvi Pay et redirige vers
+  // payment_url (page de paiement Wave hébergée par Kivvi).
   const choose = async (planId: PlanId) => {
     setRedirecting(planId);
     try {
@@ -322,8 +322,8 @@ function AbonnementPage() {
           })}
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          Paiement sécurisé par Wave, Orange Money ou MTN MoMo. Activation
-          automatique dès la confirmation du paiement.
+          Paiement sécurisé par Wave. Activation automatique dès la
+          confirmation du paiement.
         </p>
       </div>
     </div>

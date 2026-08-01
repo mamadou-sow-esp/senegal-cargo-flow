@@ -48,8 +48,8 @@ function TarifsPage() {
             Une formule pour chaque cabinet
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-            Commencez gratuitement pendant 7 jours. Paiement par Wave, Orange
-            Money ou MTN MoMo. Sans engagement.
+            Commencez gratuitement pendant 7 jours. Paiement par Wave. Sans
+            engagement.
           </p>
         </div>
 

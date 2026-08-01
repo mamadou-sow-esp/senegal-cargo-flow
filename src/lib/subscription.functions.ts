@@ -172,27 +172,23 @@ export const selectPlan = createServerFn({ method: "POST" })
   });
 
 // ------------------------------------------------------------
-// Lancer un paiement en ligne (GeniusPay — Wave / Orange / MTN MoMo)
-// Inerte tant que les clés GENIUSPAY_* ne sont pas dans .env :
-// renvoie une erreur claire au lieu de planter.
+// Lancer un paiement en ligne — Kivvi Pay (encaisse par Wave sans
+// qu'ORUS TRANSIT ait besoin d'un compte Wave Business / NINEA / RCCM).
+// Inerte tant que KIVVI_SECRET_KEY n'est pas dans l'environnement.
 //
-// L'activation réelle se fait via le webhook GeniusPay
-// (src/routes/api.webhooks.geniuspay.ts), pas au retour du navigateur :
+// L'activation réelle se fait via le webhook Kivvi
+// (src/routes/api.webhooks.kivvi.ts), pas au retour du navigateur :
 // c'est ce qui rend le paiement "automatique" même si le client ferme
 // l'onglet avant de revenir sur success_url.
 // ------------------------------------------------------------
-function geniusPayBase() {
-  return "https://geniuspay.ci/api/v1/merchant";
-}
+const KIVVI_BASE = "https://kivvi.tech/api/v1";
 
-function geniusPayHeaders() {
-  const key = process.env.GENIUSPAY_API_KEY;
-  const secret = process.env.GENIUSPAY_API_SECRET;
-  if (!key || !secret) return null;
+function kivviHeaders() {
+  const key = process.env.KIVVI_SECRET_KEY;
+  if (!key) return null;
   return {
     "Content-Type": "application/json",
-    "X-API-Key": key,
-    "X-API-Secret": secret,
+    Authorization: `Bearer ${key}`,
   };
 }
 
@@ -210,22 +206,25 @@ export const createCheckout = createServerFn({ method: "POST" })
       );
     if (plan.price === 0) throw new Error("Cette formule ne se paie pas.");
 
-    const headers = geniusPayHeaders();
+    const headers = kivviHeaders();
     if (!headers)
       throw new Error(
-        "Le paiement en ligne n'est pas encore activé. Contactez ORUS TRANSIT pour régler par Wave ou Orange Money.",
+        "Le paiement en ligne n'est pas encore activé. Contactez ORUS TRANSIT.",
       );
 
     const origin = process.env.PUBLIC_APP_URL || "";
+    // Référence unique par tentative : si le client double-clique, Kivvi
+    // renvoie le paiement déjà créé pour cette même reference au lieu
+    // d'en ouvrir un second.
+    const reference = `sub-${companyId}-${plan.id}-${Date.now()}`;
 
-    const res = await fetch(`${geniusPayBase()}/payments`, {
+    const res = await fetch(`${KIVVI_BASE}/payments`, {
       method: "POST",
       headers,
       body: JSON.stringify({
         amount: plan.price,
         currency: "XOF",
-        // payment_method omis volontairement : le client choisit
-        // Wave / Orange Money / MTN MoMo sur la page GeniusPay hébergée.
+        reference,
         description: `Abonnement ORUS TRANSIT — formule ${plan.name}`,
         success_url: `${origin}/abonnement?paiement=retour`,
         error_url: `${origin}/abonnement?paiement=annule`,
@@ -237,17 +236,17 @@ export const createCheckout = createServerFn({ method: "POST" })
       }),
     });
     const json = (await res.json()) as {
-      success: boolean;
-      data?: { reference?: string; checkout_url?: string };
-      error?: { code?: string; message?: string };
+      id?: string;
+      payment_url?: string;
+      error?: { type?: string; code?: string; message?: string };
     };
-    if (!json.success || !json.data?.reference || !json.data?.checkout_url)
+    if (!res.ok || !json.id || !json.payment_url)
       throw new Error(
         json.error?.message || "Impossible d'initier le paiement. Réessayez.",
       );
 
     // Trace du paiement en attente. L'activation se fera au webhook
-    // `payment.success` (voir src/routes/api.webhooks.geniuspay.ts).
+    // `payment.completed` (voir src/routes/api.webhooks.kivvi.ts).
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
@@ -255,13 +254,13 @@ export const createCheckout = createServerFn({ method: "POST" })
       company_id: companyId,
       plan: plan.id,
       amount: plan.price,
-      provider: "geniuspay",
-      provider_ref: json.data.reference,
+      provider: "kivvi",
+      provider_ref: json.id,
       status: "pending",
       created_by: context.userId,
     });
 
-    return { url: json.data.checkout_url, token: json.data.reference };
+    return { url: json.payment_url, token: json.id };
   });
 
 // ------------------------------------------------------------
@@ -279,34 +278,31 @@ export const confirmPayment = createServerFn({ method: "POST" })
     );
     if (!isAdmin) throw new Error("Accès refusé");
 
-    const headers = geniusPayHeaders();
+    const headers = kivviHeaders();
     if (!headers) throw new Error("Paiement en ligne non configuré.");
 
     const res = await fetch(
-      `${geniusPayBase()}/payments/${encodeURIComponent(data.token)}`,
+      `${KIVVI_BASE}/payments/${encodeURIComponent(data.token)}`,
       { headers },
     );
     const json = (await res.json()) as {
-      success: boolean;
-      data?: {
-        status?: string;
-        metadata?: { company_id?: string; plan?: string };
-      };
+      id?: string;
+      status?: "pending" | "completed" | "failed" | "expired";
+      metadata?: { company_id?: string; plan?: string } | null;
     };
-    if (!json.success || !json.data)
-      return { ok: false, status: "pending" as const };
+    if (!res.ok || !json.id) return { ok: false, status: "pending" as const };
 
-    if (json.data.status !== "completed")
-      return { ok: false, status: json.data.status ?? "pending" };
+    if (json.status !== "completed")
+      return { ok: false, status: json.status ?? "pending" };
 
     // Sécurité : le paiement doit concerner CE cabinet.
     if (
-      json.data.metadata?.company_id &&
-      json.data.metadata.company_id !== companyId
+      json.metadata?.company_id &&
+      json.metadata.company_id !== companyId
     )
       throw new Error("Paiement associé à un autre cabinet.");
-    const planId = isPlanId(json.data.metadata?.plan ?? "")
-      ? (json.data.metadata!.plan as PlanId)
+    const planId = isPlanId(json.metadata?.plan ?? "")
+      ? (json.metadata!.plan as PlanId)
       : null;
     if (!planId) throw new Error("Formule du paiement introuvable.");
 

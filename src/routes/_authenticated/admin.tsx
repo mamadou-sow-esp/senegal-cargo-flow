@@ -186,9 +186,9 @@ function AdminPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        L'activation se fait normalement automatiquement via GeniusPay (Wave /
-        Orange Money / MTN MoMo). « Valider » sert de filet de secours si un
-        paiement doit être forcé manuellement. Le menu déroulant permet de
+        L'activation se fait normalement automatiquement via Kivvi Pay
+        (webhook payment.completed). « Valider » sert de filet de secours si
+        un paiement doit être forcé manuellement. Le menu déroulant permet de
         forcer n'importe quelle formule (mise à niveau, geste commercial,
         rétrogradation).
       </p>
