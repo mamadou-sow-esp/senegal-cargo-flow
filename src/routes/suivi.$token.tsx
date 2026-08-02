@@ -26,6 +26,12 @@ import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/suivi/$token")({
   ssr: false,
+  // Page publique mais confidentielle : l'URL contient le jeton d'accès aux
+  // données du client (aucune connexion requise). Elle ne doit JAMAIS être
+  // indexée ni apparaître dans des résultats de recherche.
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: SuiviPage,
 });
 

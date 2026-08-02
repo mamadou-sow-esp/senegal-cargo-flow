@@ -38,6 +38,9 @@ import aiRobot from "@/assets/ia.png";
 
 export const Route = createFileRoute("/")({
   component: Landing,
+  head: () => ({
+    links: [{ rel: "canonical", href: "https://orustransit.com/" }],
+  }),
 });
 
 // Images (photos libres Unsplash). Remplaçables ici en un coup d'œil.

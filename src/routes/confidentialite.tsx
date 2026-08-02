@@ -4,7 +4,18 @@ import logoAsset from "@/assets/newlogo.png";
 export const Route = createFileRoute("/confidentialite")({
   component: ConfidentialitePage,
   head: () => ({
-    meta: [{ title: "Politique de confidentialité · ORUS TRANSIT" }],
+    meta: [
+      { title: "Politique de confidentialité · ORUS TRANSIT" },
+      {
+        name: "description",
+        content:
+          "Politique de confidentialité d'ORUS TRANSIT : quelles données sont collectées, pourquoi, et comment elles sont protégées sur la plateforme.",
+      },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://orustransit.com/confidentialite" },
+    ],
   }),
 });
 

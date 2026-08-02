@@ -10,7 +10,21 @@ import {
 export const Route = createFileRoute("/tarifs")({
   component: TarifsPage,
   head: () => ({
-    meta: [{ title: "Tarifs · ORUS TRANSIT" }],
+    meta: [
+      { title: "Tarifs · ORUS TRANSIT" },
+      {
+        name: "description",
+        content:
+          "Découvrez les tarifs d'ORUS TRANSIT : essai gratuit de 7 jours, puis une formule Pro unique avec dossiers, utilisateurs et assistant IA illimités pour les commissionnaires en douane au Sénégal.",
+      },
+      { property: "og:title", content: "Tarifs · ORUS TRANSIT" },
+      {
+        property: "og:description",
+        content:
+          "Essai gratuit de 7 jours, puis une formule Pro unique et sans limite pour votre cabinet de transit.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://orustransit.com/tarifs" }],
   }),
 });
 

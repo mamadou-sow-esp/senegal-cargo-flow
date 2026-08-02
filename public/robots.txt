@@ -1,0 +1,34 @@
+User-agent: *
+Allow: /
+
+# Application authentifiée (dashboard, dossiers, clients, etc.) — accès
+# uniquement après connexion, aucun intérêt SEO et données privées.
+Disallow: /dashboard
+Disallow: /dossiers
+Disallow: /clients
+Disallow: /employes
+Disallow: /documents
+Disallow: /calculateur
+Disallow: /statistiques
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /abonnement
+Disallow: /console
+
+# Portail client (connexion requise)
+Disallow: /portail
+
+# Suivi client par jeton — URL confidentielle propre à chaque client,
+# ne doit jamais être explorée ni indexée.
+Disallow: /suivi/
+
+# Pages fonctionnelles sans valeur de référencement
+Disallow: /auth
+Disallow: /reset
+Disallow: /invitation
+Disallow: /choix-formule
+
+# Routes techniques (API, webhooks de paiement)
+Disallow: /api/
+
+Sitemap: https://orustransit.com/sitemap.xml

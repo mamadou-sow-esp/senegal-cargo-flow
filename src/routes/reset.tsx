@@ -6,6 +6,9 @@ import logoAsset from "@/assets/newlogo.png";
 
 export const Route = createFileRoute("/reset")({
   ssr: false,
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: ResetPage,
 });
 

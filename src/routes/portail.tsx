@@ -14,6 +14,9 @@ const sora = { fontFamily: "var(--font-label)" } as const;
 
 export const Route = createFileRoute("/portail")({
   ssr: false,
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/auth" });

@@ -4,6 +4,9 @@ import { AppShell } from "@/components/app-shell";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   beforeLoad: async () => {
     // Garde légère : uniquement la présence de session (locale, instantanée),
     // AUCUN appel réseau ici → plus de requêtes répétées à chaque navigation.

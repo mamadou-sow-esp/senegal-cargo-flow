@@ -4,7 +4,16 @@ import logoAsset from "@/assets/newlogo.png";
 export const Route = createFileRoute("/conditions")({
   component: ConditionsPage,
   head: () => ({
-    meta: [{ title: "Conditions d'utilisation · ORUS TRANSIT" }],
+    meta: [
+      { title: "Conditions d'utilisation · ORUS TRANSIT" },
+      {
+        name: "description",
+        content:
+          "Conditions générales d'utilisation de la plateforme ORUS TRANSIT, le logiciel de dédouanement pour les commissionnaires en douane au Sénégal.",
+      },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://orustransit.com/conditions" }],
   }),
 });
 
@@ -44,7 +53,7 @@ function ConditionsPage() {
             <p>
               Les présentes Conditions Générales d'Utilisation (« CGU ») régissent
               l'accès et l'utilisation de la plateforme <strong>ORUS TRANSIT</strong>
-              {" "}(le « Service »), un logiciel en ligne (SaaS) destiné aux
+              {" "}(le « Service »), un logiciel en ligne destiné aux
               commissionnaires en douane et transitaires exerçant au Sénégal. Le
               Service permet notamment la centralisation des dossiers d'importation,
               le suivi du pipeline de dédouanement, la gestion documentaire et la mise

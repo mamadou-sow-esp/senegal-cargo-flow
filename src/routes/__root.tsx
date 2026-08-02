@@ -13,6 +13,9 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import ogImageAsset from "../assets/og-image.png";
+
+const OG_IMAGE_URL = `https://orustransit.com${ogImageAsset}`;
 
 function NotFoundComponent() {
   return (
@@ -103,8 +106,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: "ORUS TRANSIT, le logiciel de dédouanement des transitaires sénégalais" },
         { name: "twitter:description", content: "Centralisez vos dossiers d'importation, suivez chaque conteneur du connaissement au Bon à Enlever, et offrez à vos clients un suivi en temps réel. Le poste de commande des commissionnaires en douane au Sénégal." },
-        { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
-        { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29ba66cf-e09b-45c2-87ff-59662faa71cf/id-preview-944213c6--b592fe5c-8b53-4625-9546-7d7dff5ffa12.lovable.app-1784148971497.png" },
+        { property: "og:image", content: OG_IMAGE_URL },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:image", content: OG_IMAGE_URL },
       ],
       links: [
         { rel: "stylesheet", href: appCss },

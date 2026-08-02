@@ -13,6 +13,9 @@ import logoOnDark from "@/assets/newlogoblack.png";
 
 export const Route = createFileRoute("/console")({
   ssr: false,
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   beforeLoad: async () => {
     const { data: s } = await supabase.auth.getSession();
     const user = s.session?.user;

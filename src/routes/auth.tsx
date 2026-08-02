@@ -15,7 +15,10 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
   head: () => ({
-    meta: [{ title: "Connexion · ORUS TRANSIT" }],
+    meta: [
+      { title: "Connexion · ORUS TRANSIT" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
   }),
 });
 
