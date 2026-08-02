@@ -591,9 +591,9 @@ function Landing() {
                   <strong>2 dossiers</strong> sont en alerte :
                 </p>
                 <p className="font-poppins mt-2 text-foreground/80">
-                  - SEN-2026-0143 · Sotrama Import · surestaries dans 2 j
+                  - SEN-2026-0143 · Client Démo A · surestaries dans 2 j
                   <br />
-                  - SEN-2026-0158 · Baobab Trading · dépassées de 1 j
+                  - SEN-2026-0158 · Client Démo C · dépassées de 1 j
                 </p>
                 <p className="font-poppins mt-2 text-xs text-muted-foreground">
                   Montants et délais indicatifs, à vérifier auprès de la Douane.
@@ -604,8 +604,8 @@ function Landing() {
               </div>
               <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-muted/40 px-4 py-3 text-sm text-foreground/90 shadow-sm">
                 <p className="font-poppins">
-                  <strong>Dossier SEN-2026-0177 créé</strong> pour Teranga
-                  Électro. Navire, BL et conteneur enregistrés, vérifiez la
+                  <strong>Dossier SEN-2026-0177 créé</strong> pour Client
+                  Démo B. Navire, BL et conteneur enregistrés, vérifiez la
                   fiche dossier.
                 </p>
               </div>
