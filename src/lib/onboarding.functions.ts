@@ -5,6 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const schema = z.object({
   companyName: z.string().trim().min(2).max(120),
   fullName: z.string().trim().min(2).max(120),
+  phone: z.string().trim().min(6).max(40),
+  address: z.string().trim().min(4).max(200),
 });
 
 export const createCompanyAndAdmin = createServerFn({ method: "POST" })
@@ -48,6 +50,8 @@ export const createCompanyAndAdmin = createServerFn({ method: "POST" })
         id: userId,
         company_id: company.id,
         full_name: data.fullName,
+        phone: data.phone,
+        address: data.address,
       });
     if (pErr) throw new Error(pErr.message);
 

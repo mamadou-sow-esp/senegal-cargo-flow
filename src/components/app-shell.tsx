@@ -95,17 +95,28 @@ export function AppShell({ children }: { children: ReactNode }) {
       const { data: s } = await supabase.auth.getSession();
       const uid = s.session?.user?.id;
       if (!uid) return { superAdmin: false, client: false };
-      const [{ data: roles }, { data: client }] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", uid)
-          .eq("role", "super_admin"),
-        supabase.from("clients").select("id").eq("user_id", uid).maybeSingle(),
-      ]);
+      const [{ data: roles }, { data: client }, { data: prof }] =
+        await Promise.all([
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", uid)
+            .eq("role", "super_admin"),
+          supabase.from("clients").select("id").eq("user_id", uid).maybeSingle(),
+          supabase
+            .from("profiles")
+            .select("company_id")
+            .eq("id", uid)
+            .maybeSingle(),
+        ]);
       return {
         superAdmin: !!(roles && roles.length),
-        client: !!client,
+        // Un lien "clients.user_id" ne doit envoyer vers le portail que si la
+        // personne n'a PAS aussi un cabinet (company_admin/employé) : sinon
+        // quelqu'un invité comme client ailleurs, qui crée ensuite son propre
+        // compte ORUS, se retrouvait bloqué sur le portail au lieu de son
+        // tableau de bord.
+        client: !!client && !prof?.company_id,
       };
     },
   });

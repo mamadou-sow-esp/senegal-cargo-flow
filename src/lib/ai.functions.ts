@@ -622,18 +622,35 @@ export const chatWithAi = createServerFn({ method: "POST" })
           content: JSON.stringify(result),
         });
       }
-      json = await runGroq({
-        messages: [
-          ...baseMessages,
-          {
-            role: "assistant",
-            content: message.content ?? "",
-            tool_calls: message.tool_calls,
-          },
-          ...toolResults,
-        ],
-      });
+      const toolCallMessages: Array<Record<string, unknown>> = [
+        ...baseMessages,
+        {
+          role: "assistant",
+          content: message.content ?? "",
+          tool_calls: message.tool_calls,
+        },
+        ...toolResults,
+      ];
+      json = await runGroq({ messages: toolCallMessages });
       message = json.choices?.[0]?.message;
+
+      // Même filet après exécution : le message de confirmation peut, lui
+      // aussi, contenir une fausse syntaxe d'outil (les actions ont déjà été
+      // exécutées, on redemande juste une confirmation propre en français).
+      if (message?.content && FAKE_TOOL_SYNTAX.test(message.content)) {
+        json = await runGroq({
+          messages: [
+            ...toolCallMessages,
+            { role: "assistant", content: message.content },
+            {
+              role: "system",
+              content:
+                "Ce message de confirmation contient une syntaxe d'appel d'outil écrite en texte, ce qui est interdit et ne doit jamais être visible. Les actions ont déjà été exécutées : réécris uniquement une confirmation claire en français naturel, sans balises, parenthèses de fonction ni JSON.",
+            },
+          ],
+        });
+        message = json.choices?.[0]?.message;
+      }
     }
 
     const reply = stripToolSyntax(message?.content?.trim() ?? "");

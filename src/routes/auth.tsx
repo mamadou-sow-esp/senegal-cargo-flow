@@ -6,7 +6,6 @@ import { FolderKanban, FileText, GitBranch, ShieldCheck, Mail } from "lucide-rea
 import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/newlogo.png";
 import logoOnDark from "@/assets/newlogoblack.png";
-import heroPort from "@/assets/banner.png";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -110,15 +109,27 @@ function AuthPage() {
         if (superRole && superRole.length > 0) {
           navigate({ to: "/console" });
         } else {
-          // Un importateur invité est dirigé vers son portail client.
-          const { data: client } = uid
-            ? await supabase
-                .from("clients")
-                .select("id")
-                .eq("user_id", uid)
-                .maybeSingle()
-            : { data: null };
-          navigate({ to: client ? "/portail" : "/dashboard" });
+          // Un importateur invité est dirigé vers son portail client —
+          // mais seulement s'il n'a pas AUSSI son propre cabinet (sinon un
+          // company_admin/employé lié comme client ailleurs se retrouvait
+          // bloqué sur le portail au lieu de son tableau de bord).
+          const [{ data: client }, { data: prof }] = uid
+            ? await Promise.all([
+                supabase
+                  .from("clients")
+                  .select("id")
+                  .eq("user_id", uid)
+                  .maybeSingle(),
+                supabase
+                  .from("profiles")
+                  .select("company_id")
+                  .eq("id", uid)
+                  .maybeSingle(),
+              ])
+            : [{ data: null }, { data: null }];
+          navigate({
+            to: client && !prof?.company_id ? "/portail" : "/dashboard",
+          });
         }
       }
     } catch (err) {
@@ -134,11 +145,6 @@ function AuthPage() {
     <div className="grid min-h-screen overflow-x-clip bg-background lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[1.2fr_1fr]">
       {/* Panneau visuel — même identité bleue que la homepage */}
       <aside className="relative hidden overflow-hidden bg-hero-blue text-white lg:block">
-        <img
-          src={heroPort}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-20"
-        />
         <div className="absolute inset-0 bg-gradient-to-br from-hero-blue via-hero-blue/95 to-hero-blue/70" />
         <div
           className="absolute inset-0 opacity-[0.06]"

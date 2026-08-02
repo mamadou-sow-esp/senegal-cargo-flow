@@ -30,10 +30,10 @@ import logoAsset from "@/assets/newlogoblack.png";
 import logoAstar from "@/assets/newlogo.png"
 import logoOnDark from "@/assets/oruslogo.png";
 import kebaLogo from "@/assets/keba-foundation.png";
-import shotDossiers from "@/assets/Capture d'écran 2026-08-01 130514.png";
+import shotDossiers from "@/assets/Capture d'écran 2026-08-02 132926.png";
 import shotPipeline from "@/assets/Capture d'écran 2026-08-01 130540.png";
 import shotEcheances from "@/assets/Capture d'écran 2026-08-01 130627.png";
-import shotStats from "@/assets/Capture d'écran 2026-08-01 130701.png";
+import shotStats from "@/assets/Capture d'écran 2026-08-02 132943.png";
 import aiRobot from "@/assets/ia.png";
 
 export const Route = createFileRoute("/")({
@@ -465,8 +465,8 @@ function Landing() {
             </div>
           </Reveal>
 
-          {/* Trois captures secondaires */}
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
+          {/* Deux captures secondaires côte à côte */}
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
             {[
               {
                 img: shotPipeline,
@@ -477,11 +477,6 @@ function Landing() {
                 img: shotEcheances,
                 title: "Échéances & documents",
                 body: "Compte à rebours surestaries et magasinage, pièces requises et documents centralisés par dossier.",
-              },
-              {
-                img: shotStats,
-                title: "Statistiques du cabinet",
-                body: "Répartition par étape et priorité, évolution des dossiers, top clients, en temps réel.",
               },
             ].map((f, i) => (
               <Reveal
@@ -494,7 +489,7 @@ function Landing() {
                   <span className="size-2 rounded-full bg-amber-400/70" />
                   <span className="size-2 rounded-full bg-emerald-400/70" />
                 </div>
-                <div className="flex h-[200px] items-center justify-center bg-muted/40 p-3">
+                <div className="flex h-[260px] items-center justify-center bg-muted/40 p-3 sm:h-[340px] sm:p-5">
                   <img
                     src={f.img}
                     alt={f.title}
@@ -512,6 +507,32 @@ function Landing() {
               </Reveal>
             ))}
           </div>
+
+          {/* Capture des statistiques, seule sur sa ligne pour rester lisible */}
+          <Reveal className="mt-6 overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-4 py-2.5">
+              <span className="size-2.5 rounded-full bg-red-400/70" />
+              <span className="size-2.5 rounded-full bg-amber-400/70" />
+              <span className="size-2.5 rounded-full bg-emerald-400/70" />
+            </div>
+            <div className="flex h-[360px] items-center justify-center bg-muted/40 p-3 sm:h-[520px] sm:p-5">
+              <img
+                src={shotStats}
+                alt="Statistiques du cabinet"
+                onError={hideOnError}
+                className="max-h-full max-w-full rounded-md object-contain shadow-sm"
+                loading="lazy"
+              />
+            </div>
+            <div className="border-t border-border px-6 py-5">
+              <div className="text-base font-bold" style={sora}>
+                Statistiques du cabinet
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Répartition par étape et priorité, évolution des dossiers, top clients, en temps réel.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 

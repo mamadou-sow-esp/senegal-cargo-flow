@@ -15,13 +15,12 @@ export const Route = createFileRoute("/_authenticated/employes")({
   component: EmployeesPage,
 });
 
-type Role = "company_admin" | "employee" | "client";
+type Role = "company_admin" | "employee";
 
 const ROLE_LABEL: Record<string, string> = {
   super_admin: "Super admin",
   company_admin: "Administrateur",
   employee: "Employé",
-  client: "Client",
 };
 
 function EmployeesPage() {
@@ -158,8 +157,9 @@ function EmployeesPage() {
             )}
             {filtered.map((e) => {
               const primaryRole =
-                (e.roles.find((r) => r !== "client") as Role | undefined) ??
-                "employee";
+                (e.roles.find((r) => r === "company_admin" || r === "employee") as
+                  | Role
+                  | undefined) ?? "employee";
               return (
                 <tr key={e.id} className="hover:bg-primary/5">
                   <td className="px-4 py-3">
@@ -197,7 +197,6 @@ function EmployeesPage() {
                       >
                         <option value="company_admin">Administrateur</option>
                         <option value="employee">Employé</option>
-                        <option value="client">Client</option>
                       </select>
                     )}
                   </td>
@@ -256,7 +255,6 @@ function EmployeesPage() {
                 >
                   <option value="employee">Employé</option>
                   <option value="company_admin">Administrateur</option>
-                  <option value="client">Client</option>
                 </select>
               </label>
 

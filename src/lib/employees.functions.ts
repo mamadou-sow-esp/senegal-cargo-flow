@@ -3,7 +3,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getPlan } from "@/lib/plans";
 
-const roleEnum = z.enum(["company_admin", "employee", "client"]);
+// "client" retiré : ce rôle interne ne restreignait en réalité rien (RLS
+// scope par cabinet, pas par rôle) — un compte invité ainsi obtenait un
+// accès complet aux dossiers/documents/clients du cabinet, malgré son nom
+// trompeur. Le vrai accès client restreint passe uniquement par le portail
+// à jeton (inviteClient / /suivi/:token), qui ne crée aucun compte interne.
+const roleEnum = z.enum(["company_admin", "employee"]);
 
 async function requireAdminContext(userId: string) {
   const { supabaseAdmin } = await import(
