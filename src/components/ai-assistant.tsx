@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from "react";
-import { Send, X } from "lucide-react";
+import { Send, X, RotateCcw } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { chatWithAi } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -8,6 +8,52 @@ import orusMark from "@/assets/newlogo.png";
 type Msg = { role: "user" | "assistant"; content: string };
 
 const sora = { fontFamily: "var(--font-label)" };
+
+const GREETING: Msg = {
+  role: "assistant",
+  content:
+    "Bonjour 👋 Je suis TransitORUS, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure, un calcul de taxes, ou demandez-moi de créer ou modifier un dossier.",
+};
+
+// Historique persistant côté navigateur : la conversation survit à un
+// rafraîchissement de page. Fenêtre glissante pour rester sous la limite de
+// 30 messages acceptée par le serveur (chaque envoi renvoie tout l'historique).
+const STORAGE_KEY = "orus_ai_chat_v1";
+const MAX_STORED = 24;
+
+function loadStoredMessages(): Msg[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [GREETING];
+    const parsed = JSON.parse(raw) as unknown;
+    if (
+      Array.isArray(parsed) &&
+      parsed.every(
+        (m) =>
+          m &&
+          (m.role === "user" || m.role === "assistant") &&
+          typeof m.content === "string",
+      ) &&
+      parsed.length > 0
+    ) {
+      return parsed as Msg[];
+    }
+    return [GREETING];
+  } catch {
+    return [GREETING];
+  }
+}
+
+function saveStoredMessages(messages: Msg[]) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(messages.slice(-MAX_STORED)),
+    );
+  } catch {
+    /* stockage indisponible (navigation privée, quota…) : on ignore */
+  }
+}
 
 const SUGGESTIONS = [
   "Quels documents pour importer un conteneur au Port de Dakar ?",
@@ -109,13 +155,7 @@ export function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "assistant",
-      content:
-        "Bonjour 👋 Je suis TransitORUS, votre assistant dédouanement. Posez-moi une question sur un dossier, une procédure, un calcul de taxes, ou demandez-moi de créer ou modifier un dossier.",
-    },
-  ]);
+  const [messages, setMessages] = useState<Msg[]>(() => loadStoredMessages());
   const chat = useServerFn(chatWithAi);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -125,6 +165,21 @@ export function AiAssistant() {
       behavior: "smooth",
     });
   }, [messages, loading]);
+
+  // Persiste la conversation à chaque changement pour qu'elle survive à un
+  // rechargement de page ou à la fermeture/réouverture du panneau.
+  useEffect(() => {
+    saveStoredMessages(messages);
+  }, [messages]);
+
+  const resetChat = () => {
+    setMessages([GREETING]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  };
 
   // Verrouille réellement le scroll de la page tant que le panneau est ouvert
   // (technique position:fixed — la seule fiable sur mobile).
@@ -160,13 +215,18 @@ export function AiAssistant() {
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || loading) return;
-    const next: Msg[] = [...messages, { role: "user", content: q }];
+    // Fenêtre glissante : borne aussi l'état en mémoire, pas seulement ce qui
+    // est sauvegardé, pour rester sous la limite de 30 messages du serveur
+    // même lors d'une longue session sans rechargement de page.
+    const next: Msg[] = [...messages, { role: "user", content: q }].slice(
+      -MAX_STORED,
+    );
     setMessages(next);
     setInput("");
     setLoading(true);
     try {
       const { reply } = await chat({ data: { messages: next } });
-      setMessages([...next, { role: "assistant", content: reply }]);
+      setMessages([...next, { role: "assistant", content: reply }].slice(-MAX_STORED));
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erreur inconnue";
       toast.error(msg);
@@ -218,12 +278,22 @@ export function AiAssistant() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="grid size-8 place-items-center rounded-full text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={resetChat}
+                  title="Nouvelle conversation"
+                  aria-label="Nouvelle conversation"
+                  className="grid size-8 place-items-center rounded-full text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                >
+                  <RotateCcw className="size-3.5" />
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="grid size-8 place-items-center rounded-full text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </header>
 
             {/* Fil de messages */}
